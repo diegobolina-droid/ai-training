@@ -1,5 +1,16 @@
 # Training Program Checklists
 
+## Language Choice
+
+This program supports both **Python** and **TypeScript**. Mark which language you're using:
+
+- [ ] **Python** - Using `labs/labXX/python/` directories
+- [ ] **TypeScript** - Using `labs/labXX/typescript/` directories
+
+> See [docs/LANGUAGE-CHOICE-GUIDE.md](./docs/LANGUAGE-CHOICE-GUIDE.md) for help choosing.
+
+---
+
 ## Table of Contents
 1. [Daily Progress Checklists](#daily-progress)
 2. [Environment Setup Checklist](#environment-setup)
@@ -16,7 +27,7 @@
 ### Day 1: GenAI Foundations & AI-First Engineering
 
 #### Morning (09:00 - 12:30)
-- [ ] Environment verified (Python, Node.js, API keys)
+- [ ] Environment verified (Python or TypeScript, API keys)
 - [ ] Completed LLM fundamentals module
 - [ ] Understand tokens, context windows, parameters
 - [ ] Completed model behavior module
@@ -34,7 +45,7 @@
 - [ ] Model comparison report (saved)
 - [ ] Tool selection matrix (filled out)
 - [ ] Deployed URL shortener (URL: _____________)
-- [ ] Environment fully configured
+- [ ] Environment fully configured (Python ▢ / TypeScript ▢)
 
 ---
 
@@ -137,16 +148,39 @@
 <a name="environment-setup"></a>
 ## Environment Setup Checklist
 
-### Python Environment
+### Choose Your Language Setup
+
+<details>
+<summary><b>Python Environment</b></summary>
+
 - [ ] Python 3.10+ installed
 - [ ] Virtual environment created
 - [ ] pip updated to latest version
 - [ ] Requirements installed successfully
 
-### Node.js Environment
+**Verification:**
+```bash
+python --version        # Should be 3.10+
+pip --version           # Any recent version
+```
+
+</details>
+
+<details>
+<summary><b>TypeScript Environment</b></summary>
+
 - [ ] Node.js 18+ installed
 - [ ] npm 9+ installed
-- [ ] Global packages installed (vercel, railway)
+- [ ] TypeScript packages installed
+
+**Verification:**
+```bash
+node --version          # Should be 18+
+npm --version           # Should be 9+
+npx tsc --version       # Should show version
+```
+
+</details>
 
 ### API Keys Configured
 - [ ] OPENAI_API_KEY set
@@ -155,11 +189,11 @@
 - [ ] Keys tested and working
 
 ### Accounts Created
-- [ ] OpenAI Platform account
-- [ ] Anthropic Console account
+- [ ] OpenAI Platform account (or free alternative like Groq)
+- [ ] Anthropic Console account (optional)
 - [ ] GitHub account
-- [ ] Vercel account
-- [ ] Railway account
+- [ ] Vercel account (for TypeScript)
+- [ ] Railway/Render account (for Python)
 
 ### Tools Installed
 - [ ] Git installed and configured
@@ -167,15 +201,11 @@
 - [ ] Claude Code CLI installed (optional)
 - [ ] Docker installed (optional)
 
-### Verification
+### Global CLI Tools (Optional)
 ```bash
-# Run these commands to verify
-python --version        # Should be 3.10+
-node --version          # Should be 18+
-npm --version           # Should be 9+
-git --version           # Any recent version
-vercel --version        # Should show version
-railway --version       # Should show version
+# Deployment tools
+npm install -g vercel       # For Vercel deployments
+npm install -g @railway/cli # For Railway deployments
 ```
 
 ---

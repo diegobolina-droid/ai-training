@@ -56,13 +56,17 @@ By the end of Day 5, you will be able to:
 ```
 
 **Rate Limiter Implementation:**
+
+<details>
+<summary><b>Python</b></summary>
+
 ```python
 # production/rate_limiter.py
 """Token bucket rate limiter for LLM APIs."""
 import time
 import asyncio
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Dict
 import threading
 
 @dataclass
@@ -118,17 +122,8 @@ class RateLimiter:
                 return True
             return False
 
-    def wait_and_acquire(self, tokens: int = 1, timeout: float = 30) -> bool:
-        """Wait until tokens are available or timeout."""
-        start = time.time()
-        while time.time() - start < timeout:
-            if self.acquire(tokens):
-                return True
-            time.sleep(0.1)
-        return False
-
     async def async_wait_and_acquire(self, tokens: int = 1, timeout: float = 30) -> bool:
-        """Async version of wait_and_acquire."""
+        """Async version - wait until tokens available or timeout."""
         start = time.time()
         while time.time() - start < timeout:
             if self.acquire(tokens):
@@ -144,9 +139,95 @@ class RateLimiter:
             return {
                 "requests_available": int(self.request_bucket.tokens),
                 "tokens_available": int(self.token_bucket.tokens),
-                "requests_capacity": self.request_bucket.capacity,
-                "tokens_capacity": self.token_bucket.capacity
             }
+```
+
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// production/rate-limiter.ts
+/**
+ * Token bucket rate limiter for LLM APIs.
+ */
+
+interface TokenBucket {
+  capacity: number;
+  tokens: number;
+  refillRate: number; // tokens per second
+  lastRefill: number;
+}
+
+export class RateLimiter {
+  private requestBucket: TokenBucket;
+  private tokenBucket: TokenBucket;
+
+  constructor(
+    requestsPerMinute: number = 60,
+    tokensPerMinute: number = 100000,
+    burstMultiplier: number = 1.5
+  ) {
+    this.requestBucket = {
+      capacity: Math.floor(requestsPerMinute * burstMultiplier),
+      tokens: requestsPerMinute,
+      refillRate: requestsPerMinute / 60,
+      lastRefill: Date.now(),
+    };
+    this.tokenBucket = {
+      capacity: Math.floor(tokensPerMinute * burstMultiplier),
+      tokens: tokensPerMinute,
+      refillRate: tokensPerMinute / 60,
+      lastRefill: Date.now(),
+    };
+  }
+
+  private refill(bucket: TokenBucket): void {
+    const now = Date.now();
+    const elapsed = (now - bucket.lastRefill) / 1000; // to seconds
+    bucket.tokens = Math.min(
+      bucket.capacity,
+      bucket.tokens + elapsed * bucket.refillRate
+    );
+    bucket.lastRefill = now;
+  }
+
+  acquire(tokens: number = 1): boolean {
+    this.refill(this.requestBucket);
+    this.refill(this.tokenBucket);
+
+    if (this.requestBucket.tokens >= 1 && this.tokenBucket.tokens >= tokens) {
+      this.requestBucket.tokens -= 1;
+      this.tokenBucket.tokens -= tokens;
+      return true;
+    }
+    return false;
+  }
+
+  async waitAndAcquire(tokens: number = 1, timeout: number = 30000): Promise<boolean> {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+      if (this.acquire(tokens)) {
+        return true;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    return false;
+  }
+
+  getStatus(): { requestsAvailable: number; tokensAvailable: number } {
+    this.refill(this.requestBucket);
+    this.refill(this.tokenBucket);
+    return {
+      requestsAvailable: Math.floor(this.requestBucket.tokens),
+      tokensAvailable: Math.floor(this.tokenBucket.tokens),
+    };
+  }
+}
+```
+
+</details>
 
 # Per-user rate limiting
 class UserRateLimiter:
@@ -171,14 +252,16 @@ class UserRateLimiter:
 
 ### 1.2 Caching Strategies
 
+<details>
+<summary><b>Python</b></summary>
+
 ```python
 # production/caching.py
 """Caching strategies for LLM responses."""
 import hashlib
 import json
-from typing import Optional, Any
+from typing import Optional, Dict
 from datetime import datetime, timedelta
-from functools import wraps
 
 class LLMCache:
     """Cache for LLM responses."""
@@ -223,18 +306,78 @@ class LLMCache:
         """Get cache statistics."""
         total_entries = len(self.cache)
         total_hits = sum(e["hits"] for e in self.cache.values())
-        return {
-            "entries": total_entries,
-            "total_hits": total_hits,
-            "memory_mb": self._estimate_memory() / (1024 * 1024)
-        }
+        return {"entries": total_entries, "total_hits": total_hits}
+```
 
-    def _estimate_memory(self) -> int:
-        """Estimate cache memory usage in bytes."""
-        return sum(
-            len(json.dumps(entry))
-            for entry in self.cache.values()
-        )
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// production/cache.ts
+import { createHash } from 'crypto';
+
+interface CacheEntry {
+  response: string;
+  timestamp: number;
+  hits: number;
+}
+
+interface Message {
+  role: string;
+  content: string;
+}
+
+export class LLMCache {
+  private cache: Map<string, CacheEntry> = new Map();
+  private ttlMs: number;
+
+  constructor(ttlSeconds: number = 3600) {
+    this.ttlMs = ttlSeconds * 1000;
+  }
+
+  private hashRequest(messages: Message[], model: string): string {
+    const content = JSON.stringify({ messages, model });
+    return createHash('sha256').update(content).digest('hex');
+  }
+
+  get(messages: Message[], model: string): string | null {
+    const key = this.hashRequest(messages, model);
+    const entry = this.cache.get(key);
+
+    if (entry) {
+      if (Date.now() - entry.timestamp < this.ttlMs) {
+        entry.hits++;
+        return entry.response;
+      } else {
+        this.cache.delete(key);
+      }
+    }
+
+    return null;
+  }
+
+  set(messages: Message[], model: string, response: string): void {
+    const key = this.hashRequest(messages, model);
+    this.cache.set(key, {
+      response,
+      timestamp: Date.now(),
+      hits: 0,
+    });
+  }
+
+  getStats(): { entries: number; totalHits: number } {
+    let totalHits = 0;
+    for (const entry of this.cache.values()) {
+      totalHits += entry.hits;
+    }
+    return { entries: this.cache.size, totalHits };
+  }
+}
+```
+
+</details>
 
 # Semantic caching (advanced)
 class SemanticCache:
@@ -288,13 +431,15 @@ def cached_llm_call(cache: LLMCache):
 
 ### 1.3 Fallback and Retry Patterns
 
+<details>
+<summary><b>Python</b></summary>
+
 ```python
 # production/resilience.py
 """Fallback and retry patterns for production LLM systems."""
 import time
 import random
-from typing import List, Callable, Optional
-from functools import wraps
+from typing import List, Callable
 
 class RetryConfig:
     """Configuration for retry behavior."""
@@ -313,33 +458,19 @@ class RetryConfig:
         self.jitter = jitter
 
     def get_delay(self, attempt: int) -> float:
-        """Calculate delay for attempt number."""
+        """Calculate delay with exponential backoff and jitter."""
         delay = self.base_delay * (self.exponential_base ** attempt)
         delay = min(delay, self.max_delay)
-
         if self.jitter:
-            delay *= (0.5 + random.random())  # 50-150% of calculated delay
-
+            delay *= (0.5 + random.random())
         return delay
 
 def retry_with_fallback(
     primary_func: Callable,
     fallback_funcs: List[Callable],
-    retry_config: RetryConfig = None,
-    retriable_exceptions: tuple = (Exception,)
+    retry_config: RetryConfig = None
 ):
-    """
-    Retry primary function, then try fallbacks.
-
-    Usage:
-        result = retry_with_fallback(
-            primary_func=lambda: claude_client.chat(messages),
-            fallback_funcs=[
-                lambda: openai_client.chat(messages),
-                lambda: gemini_client.chat(messages)
-            ]
-        )
-    """
+    """Retry primary function, then try fallbacks."""
     config = retry_config or RetryConfig()
     last_error = None
 
@@ -347,7 +478,7 @@ def retry_with_fallback(
     for attempt in range(config.max_retries):
         try:
             return primary_func()
-        except retriable_exceptions as e:
+        except Exception as e:
             last_error = e
             if attempt < config.max_retries - 1:
                 time.sleep(config.get_delay(attempt))
@@ -358,32 +489,83 @@ def retry_with_fallback(
             return fallback()
         except Exception as e:
             last_error = e
-            continue
 
     raise last_error
+```
 
-# Decorator version
-def with_retries(config: RetryConfig = None, exceptions: tuple = (Exception,)):
-    """Decorator to add retry logic to a function."""
-    config = config or RetryConfig()
+</details>
 
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            last_error = None
+<details>
+<summary><b>TypeScript</b></summary>
 
-            for attempt in range(config.max_retries):
-                try:
-                    return func(*args, **kwargs)
-                except exceptions as e:
-                    last_error = e
-                    if attempt < config.max_retries - 1:
-                        time.sleep(config.get_delay(attempt))
+```typescript
+// production/resilience.ts
 
-            raise last_error
+interface RetryConfig {
+  maxRetries: number;
+  baseDelay: number;
+  maxDelay: number;
+  exponentialBase: number;
+  jitter: boolean;
+}
 
-        return wrapper
-    return decorator
+const defaultConfig: RetryConfig = {
+  maxRetries: 3,
+  baseDelay: 1000,
+  maxDelay: 60000,
+  exponentialBase: 2,
+  jitter: true,
+};
+
+function getDelay(attempt: number, config: RetryConfig): number {
+  let delay = config.baseDelay * Math.pow(config.exponentialBase, attempt);
+  delay = Math.min(delay, config.maxDelay);
+  if (config.jitter) {
+    delay *= 0.5 + Math.random();
+  }
+  return delay;
+}
+
+async function retryWithFallback<T>(
+  primaryFn: () => Promise<T>,
+  fallbackFns: Array<() => Promise<T>>,
+  config: Partial<RetryConfig> = {}
+): Promise<T> {
+  const cfg = { ...defaultConfig, ...config };
+  let lastError: Error | null = null;
+
+  // Try primary with retries
+  for (let attempt = 0; attempt < cfg.maxRetries; attempt++) {
+    try {
+      return await primaryFn();
+    } catch (e) {
+      lastError = e as Error;
+      if (attempt < cfg.maxRetries - 1) {
+        await new Promise((r) => setTimeout(r, getDelay(attempt, cfg)));
+      }
+    }
+  }
+
+  // Try fallbacks
+  for (const fallback of fallbackFns) {
+    try {
+      return await fallback();
+    } catch (e) {
+      lastError = e as Error;
+    }
+  }
+
+  throw lastError;
+}
+
+// Usage
+const result = await retryWithFallback(
+  () => claudeClient.chat(messages),
+  [() => openaiClient.chat(messages)]
+);
+```
+
+</details>
 
 # Circuit breaker pattern
 class CircuitBreaker:
@@ -569,6 +751,9 @@ class GracefulDegradation:
 
 ### 2.2 Defense Strategies
 
+<details>
+<summary><b>Python</b></summary>
+
 ```python
 # security/input_validation.py
 """Input validation and sanitization for LLM systems."""
@@ -582,12 +767,9 @@ class InputValidator:
         r"ignore.*(?:previous|above|prior).*instructions",
         r"disregard.*(?:previous|above|prior)",
         r"forget.*(?:everything|all|instructions)",
-        r"new.*instructions?:?",
         r"system.*prompt",
         r"you.*are.*now",
         r"pretend.*(?:to|you)",
-        r"roleplay.*as",
-        r"act.*as.*if",
         r"repeat.*(?:above|everything|back)",
     ]
 
@@ -595,42 +777,84 @@ class InputValidator:
         self.patterns = [re.compile(p, re.IGNORECASE) for p in self.INJECTION_PATTERNS]
 
     def check_injection(self, text: str) -> Tuple[bool, List[str]]:
-        """
-        Check for potential prompt injection.
-        Returns (is_suspicious, matched_patterns).
-        """
+        """Check for potential prompt injection."""
         matched = []
         for i, pattern in enumerate(self.patterns):
             if pattern.search(text):
                 matched.append(self.INJECTION_PATTERNS[i])
-
         return len(matched) > 0, matched
 
-    def sanitize(self, text: str) -> str:
+    def sanitize(self, text: str, max_length: int = 10000) -> str:
         """Basic sanitization of user input."""
-        # Remove potential control characters
+        # Remove control characters
         text = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', text)
-
         # Limit length
-        max_length = 10000
         if len(text) > max_length:
             text = text[:max_length] + "... [truncated]"
-
         return text
+```
 
-    def validate_and_sanitize(self, text: str) -> Tuple[str, dict]:
-        """Validate and sanitize input, return warnings."""
-        sanitized = self.sanitize(text)
-        is_suspicious, patterns = self.check_injection(sanitized)
+</details>
 
-        warnings = {}
-        if is_suspicious:
-            warnings["injection_risk"] = {
-                "detected": True,
-                "patterns": patterns
-            }
+<details>
+<summary><b>TypeScript</b></summary>
 
-        return sanitized, warnings
+```typescript
+// security/input-validation.ts
+
+const INJECTION_PATTERNS = [
+  /ignore.*(?:previous|above|prior).*instructions/i,
+  /disregard.*(?:previous|above|prior)/i,
+  /forget.*(?:everything|all|instructions)/i,
+  /system.*prompt/i,
+  /you.*are.*now/i,
+  /pretend.*(?:to|you)/i,
+  /repeat.*(?:above|everything|back)/i,
+];
+
+export class InputValidator {
+  checkInjection(text: string): { suspicious: boolean; patterns: string[] } {
+    const matched: string[] = [];
+
+    for (const pattern of INJECTION_PATTERNS) {
+      if (pattern.test(text)) {
+        matched.push(pattern.source);
+      }
+    }
+
+    return { suspicious: matched.length > 0, patterns: matched };
+  }
+
+  sanitize(text: string, maxLength: number = 10000): string {
+    // Remove control characters
+    let sanitized = text.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, '');
+
+    // Limit length
+    if (sanitized.length > maxLength) {
+      sanitized = sanitized.slice(0, maxLength) + '... [truncated]';
+    }
+
+    return sanitized;
+  }
+
+  validateAndSanitize(text: string): {
+    text: string;
+    warnings: { injectionRisk?: { detected: boolean; patterns: string[] } };
+  } {
+    const sanitized = this.sanitize(text);
+    const { suspicious, patterns } = this.checkInjection(sanitized);
+
+    const warnings: { injectionRisk?: { detected: boolean; patterns: string[] } } = {};
+    if (suspicious) {
+      warnings.injectionRisk = { detected: true, patterns };
+    }
+
+    return { text: sanitized, warnings };
+  }
+}
+```
+
+</details>
 
 # Prompt isolation pattern
 def create_isolated_prompt(system_instructions: str, user_input: str) -> str:

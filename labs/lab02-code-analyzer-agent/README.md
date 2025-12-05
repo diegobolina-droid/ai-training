@@ -9,13 +9,25 @@ Build a code analysis agent that uses LLM to analyze code files and provide stru
 - Create effective system prompts for code analysis
 - Implement structured output extraction
 - Build a simple agent with tool-use
-- Deploy to Railway
+- Deploy to Railway/Vercel
+
+---
+
+## Choose Your Language
+
+| Aspect | Python | TypeScript |
+|--------|--------|------------|
+| Directory | `./python` | `./typescript` |
+| Framework | FastAPI | Hono |
+| Validation | Pydantic | Zod |
+| Run | `uvicorn main:app --reload` | `npm run dev` |
+| Deploy | Railway | Vercel / Railway |
 
 ---
 
 ## What You'll Build
 
-A FastAPI service that:
+An API service that:
 1. Accepts code via API
 2. Analyzes it using an LLM
 3. Returns structured JSON with issues and suggestions
@@ -44,11 +56,48 @@ A FastAPI service that:
 
 ---
 
+## Quick Start
+
+### Python Setup
+
+```bash
+cd python
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+# Set your API key
+export ANTHROPIC_API_KEY=your-key
+# or: export OPENAI_API_KEY=your-key
+
+# Run
+uvicorn main:app --reload
+```
+
+### TypeScript Setup
+
+```bash
+cd typescript
+npm install
+
+# Set your API key
+export ANTHROPIC_API_KEY=your-key
+# or: export OPENAI_API_KEY=your-key
+
+# Run
+npm run dev
+```
+
+---
+
 ## Step-by-Step Instructions
 
 ### Step 1: Create the System Prompt (15 min)
 
-Create a prompt that instructs the LLM to analyze code:
+The system prompt instructs the LLM how to analyze code:
+
+<details>
+<summary><b>Python</b></summary>
 
 ```python
 # prompts.py
@@ -65,47 +114,61 @@ Your analysis must include:
    - description: clear explanation of the issue
    - suggestion: how to fix it
 
-3. SUGGESTIONS: General improvements that aren't bugs but would make the code better.
+3. SUGGESTIONS: General improvements that aren't bugs.
 
 4. METRICS:
    - complexity: "low", "medium", "high"
    - readability: "poor", "fair", "good", "excellent"
-   - test_coverage_estimate: "none", "partial", "good" (based on testability)
+   - test_coverage_estimate: "none", "partial", "good"
 
-Return your response as valid JSON matching this schema:
-{
-  "summary": "string",
-  "issues": [
-    {
-      "severity": "critical|high|medium|low",
-      "line": number or null,
-      "category": "bug|security|performance|style|maintainability",
-      "description": "string",
-      "suggestion": "string"
-    }
-  ],
-  "suggestions": ["string"],
-  "metrics": {
-    "complexity": "low|medium|high",
-    "readability": "poor|fair|good|excellent",
-    "test_coverage_estimate": "none|partial|good"
-  }
-}
-
-Be thorough but constructive. Focus on actionable feedback."""
+Return your response as valid JSON."""
 ```
 
-### Step 2: Implement the Analyzer (20 min)
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// prompts.ts
+export const CODE_ANALYZER_SYSTEM = `You are an expert code reviewer. Analyze the provided code and return a structured analysis.
+
+Your analysis must include:
+
+1. SUMMARY: A 2-3 sentence overview of what the code does and its overall quality.
+
+2. ISSUES: List of problems found, each with:
+   - severity: "critical", "high", "medium", or "low"
+   - line: line number (if applicable)
+   - category: "bug", "security", "performance", "style", "maintainability"
+   - description: clear explanation of the issue
+   - suggestion: how to fix it
+
+3. SUGGESTIONS: General improvements that aren't bugs.
+
+4. METRICS:
+   - complexity: "low", "medium", "high"
+   - readability: "poor", "fair", "good", "excellent"
+   - test_coverage_estimate: "none", "partial", "good"
+
+Return your response as valid JSON.`;
+```
+
+</details>
+
+### Step 2: Define Data Types (10 min)
+
+<details>
+<summary><b>Python (Pydantic)</b></summary>
 
 ```python
 # analyzer.py
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel
-import json
 
 class Issue(BaseModel):
     severity: str
-    line: Optional[int]
+    line: Optional[int] = None
     category: str
     description: str
     suggestion: str
@@ -117,9 +180,55 @@ class Metrics(BaseModel):
 
 class AnalysisResult(BaseModel):
     summary: str
-    issues: list[Issue]
-    suggestions: list[str]
+    issues: List[Issue]
+    suggestions: List[str]
     metrics: Metrics
+```
+
+</details>
+
+<details>
+<summary><b>TypeScript (Zod)</b></summary>
+
+```typescript
+// types.ts
+import { z } from 'zod';
+
+export const IssueSchema = z.object({
+  severity: z.enum(['critical', 'high', 'medium', 'low']),
+  line: z.number().nullable(),
+  category: z.enum(['bug', 'security', 'performance', 'style', 'maintainability']),
+  description: z.string(),
+  suggestion: z.string(),
+});
+
+export const MetricsSchema = z.object({
+  complexity: z.enum(['low', 'medium', 'high']),
+  readability: z.enum(['poor', 'fair', 'good', 'excellent']),
+  test_coverage_estimate: z.enum(['none', 'partial', 'good']),
+});
+
+export const AnalysisResultSchema = z.object({
+  summary: z.string(),
+  issues: z.array(IssueSchema),
+  suggestions: z.array(z.string()),
+  metrics: MetricsSchema,
+});
+
+export type AnalysisResult = z.infer<typeof AnalysisResultSchema>;
+```
+
+</details>
+
+### Step 3: Implement the Analyzer (20 min)
+
+<details>
+<summary><b>Python</b></summary>
+
+```python
+# analyzer.py
+import json
+from prompts import CODE_ANALYZER_SYSTEM
 
 class CodeAnalyzer:
     def __init__(self, llm_client):
@@ -127,7 +236,6 @@ class CodeAnalyzer:
         self.system_prompt = CODE_ANALYZER_SYSTEM
 
     def analyze(self, code: str, language: str = "python") -> AnalysisResult:
-        """Analyze code and return structured result."""
         user_prompt = f"""Analyze this {language} code:
 
 ```{language}
@@ -141,23 +249,70 @@ Return your analysis as JSON."""
             {"role": "user", "content": user_prompt}
         ])
 
-        # Parse JSON from response
-        result = self._parse_response(response)
-        return result
+        return self._parse_response(response)
 
     def _parse_response(self, response: str) -> AnalysisResult:
-        """Parse LLM response into structured result."""
         # Handle markdown code blocks
         if "```json" in response:
             response = response.split("```json")[1].split("```")[0]
-        elif "```" in response:
-            response = response.split("```")[1].split("```")[0]
-
         data = json.loads(response.strip())
         return AnalysisResult(**data)
 ```
 
-### Step 3: Build the API (15 min)
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// analyzer.ts
+import type { LLMClient } from './llm-client.js';
+import { AnalysisResultSchema, type AnalysisResult } from './types.js';
+import { CODE_ANALYZER_SYSTEM } from './prompts.js';
+
+export class CodeAnalyzer {
+  private llm: LLMClient;
+  private systemPrompt: string;
+
+  constructor(llmClient: LLMClient) {
+    this.llm = llmClient;
+    this.systemPrompt = CODE_ANALYZER_SYSTEM;
+  }
+
+  async analyze(code: string, language: string = 'python'): Promise<AnalysisResult> {
+    const userPrompt = `Analyze this ${language} code:
+
+\`\`\`${language}
+${code}
+\`\`\`
+
+Return your analysis as JSON.`;
+
+    const response = await this.llm.chat([
+      { role: 'system', content: this.systemPrompt },
+      { role: 'user', content: userPrompt },
+    ]);
+
+    return this.parseResponse(response);
+  }
+
+  private parseResponse(response: string): AnalysisResult {
+    let jsonStr = response;
+    if (jsonStr.includes('```json')) {
+      jsonStr = jsonStr.split('```json')[1].split('```')[0];
+    }
+    const data = JSON.parse(jsonStr.trim());
+    return AnalysisResultSchema.parse(data);  // Validates with Zod
+  }
+}
+```
+
+</details>
+
+### Step 4: Build the API (15 min)
+
+<details>
+<summary><b>Python (FastAPI)</b></summary>
 
 ```python
 # main.py
@@ -172,16 +327,13 @@ class AnalyzeRequest(BaseModel):
     code: str
     language: str = "python"
 
-# Initialize analyzer
-llm = get_llm_client("anthropic")  # or "openai"
+llm = get_llm_client("anthropic")
 analyzer = CodeAnalyzer(llm)
 
 @app.post("/analyze", response_model=AnalysisResult)
 async def analyze_code(request: AnalyzeRequest):
-    """Analyze code and return structured feedback."""
     try:
-        result = analyzer.analyze(request.code, request.language)
-        return result
+        return analyzer.analyze(request.code, request.language)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -190,12 +342,49 @@ async def health():
     return {"status": "healthy"}
 ```
 
-### Step 4: Test Locally (10 min)
+</details>
+
+<details>
+<summary><b>TypeScript (Hono)</b></summary>
+
+```typescript
+// index.ts
+import { Hono } from 'hono';
+import { zValidator } from '@hono/zod-validator';
+import { z } from 'zod';
+import { CodeAnalyzer } from './analyzer.js';
+import { getLLMClient } from './llm-client.js';
+
+const app = new Hono();
+
+const AnalyzeRequestSchema = z.object({
+  code: z.string().min(1),
+  language: z.string().default('python'),
+});
+
+const llm = getLLMClient('anthropic');
+const analyzer = new CodeAnalyzer(llm);
+
+app.post('/analyze', zValidator('json', AnalyzeRequestSchema), async (c) => {
+  try {
+    const { code, language } = c.req.valid('json');
+    const result = await analyzer.analyze(code, language);
+    return c.json(result);
+  } catch (error) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+app.get('/health', (c) => c.json({ status: 'healthy' }));
+
+export default app;
+```
+
+</details>
+
+### Step 5: Test Locally (10 min)
 
 ```bash
-# Run the server
-uvicorn main:app --reload
-
 # Test with sample code
 curl -X POST http://localhost:8000/analyze \
   -H "Content-Type: application/json" \
@@ -205,139 +394,76 @@ curl -X POST http://localhost:8000/analyze \
   }'
 ```
 
-Expected output should include:
-- Issues about missing type hints
-- Suggestions for list comprehension
-- Metrics about complexity
+### Step 6: Deploy
 
-### Step 5: Add Multiple Analysis Types (10 min)
-
-Extend to support different analysis focuses:
-
-```python
-# Add to analyzer.py
-SECURITY_FOCUS_PROMPT = """Focus specifically on security vulnerabilities:
-- SQL injection
-- Command injection
-- Path traversal
-- Hardcoded secrets
-- Input validation issues
-..."""
-
-PERFORMANCE_FOCUS_PROMPT = """Focus specifically on performance:
-- Algorithm complexity
-- Memory usage
-- Unnecessary loops
-- Caching opportunities
-..."""
-
-def analyze_security(self, code: str, language: str) -> AnalysisResult:
-    """Security-focused analysis."""
-    # Implementation
-
-def analyze_performance(self, code: str, language: str) -> AnalysisResult:
-    """Performance-focused analysis."""
-    # Implementation
-```
-
-### Step 6: Deploy to Railway (15 min)
+<details>
+<summary><b>Python (Railway)</b></summary>
 
 ```bash
-# Initialize Railway
-railway init
+cd python
 
 # Create Procfile
 echo "web: uvicorn main:app --host 0.0.0.0 --port \$PORT" > Procfile
 
-# Set environment variables
+# Initialize and deploy
+railway init
 railway variables set ANTHROPIC_API_KEY=your_key
+railway up
+```
+
+</details>
+
+<details>
+<summary><b>TypeScript (Vercel)</b></summary>
+
+```bash
+cd typescript
+
+# Install Vercel CLI
+npm i -g vercel
 
 # Deploy
-railway up
+vercel
 
-# Get URL
-railway status
+# Set environment variable in Vercel dashboard
+# ANTHROPIC_API_KEY=your_key
 ```
+
+</details>
 
 ---
 
-## Starter Files
+## Project Structure
 
-### requirements.txt
 ```
-fastapi==0.109.0
-uvicorn==0.27.0
-pydantic==2.5.3
-anthropic==0.18.0
-openai==1.12.0
-python-dotenv==1.0.0
-```
-
-### llm_client.py
-```python
-"""LLM client abstraction."""
-import os
-from abc import ABC, abstractmethod
-
-class LLMClient(ABC):
-    @abstractmethod
-    def chat(self, messages: list) -> str:
-        pass
-
-class AnthropicClient(LLMClient):
-    def __init__(self):
-        from anthropic import Anthropic
-        self.client = Anthropic()
-        self.model = "claude-3-5-sonnet-20241022"
-
-    def chat(self, messages: list) -> str:
-        system = None
-        filtered = []
-        for m in messages:
-            if m["role"] == "system":
-                system = m["content"]
-            else:
-                filtered.append(m)
-
-        response = self.client.messages.create(
-            model=self.model,
-            max_tokens=4096,
-            system=system,
-            messages=filtered
-        )
-        return response.content[0].text
-
-class OpenAIClient(LLMClient):
-    def __init__(self):
-        from openai import OpenAI
-        self.client = OpenAI()
-        self.model = "gpt-4o"
-
-    def chat(self, messages: list) -> str:
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=messages
-        )
-        return response.choices[0].message.content
-
-def get_llm_client(provider: str = "anthropic") -> LLMClient:
-    if provider == "anthropic":
-        return AnthropicClient()
-    elif provider == "openai":
-        return OpenAIClient()
-    else:
-        raise ValueError(f"Unknown provider: {provider}")
+lab02-code-analyzer-agent/
+├── README.md                 # This file
+├── python/
+│   ├── main.py              # FastAPI application
+│   ├── analyzer.py          # CodeAnalyzer class
+│   ├── prompts.py           # System prompts
+│   ├── llm_client.py        # LLM client abstraction
+│   └── requirements.txt
+└── typescript/
+    ├── src/
+    │   ├── index.ts         # Hono application
+    │   ├── analyzer.ts      # CodeAnalyzer class
+    │   ├── prompts.ts       # System prompts
+    │   ├── llm-client.ts    # LLM client abstraction
+    │   └── types.ts         # Zod schemas
+    ├── package.json
+    └── tsconfig.json
 ```
 
 ---
 
 ## Deliverables
 
-- [ ] Working code analyzer API
+- [ ] Working code analyzer API (Python OR TypeScript)
 - [ ] Custom system prompt for analysis
 - [ ] Structured JSON output
 - [ ] At least 2 analysis types (general + security OR performance)
-- [ ] Deployed to Railway
+- [ ] Deployed to Railway/Vercel
 - [ ] Tested with sample code
 
 ---

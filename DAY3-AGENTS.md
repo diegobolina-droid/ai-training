@@ -77,6 +77,9 @@ An **agent** is an LLM-powered system that can:
 
 ### 1.2 Core Agent Components
 
+<details>
+<summary><b>Python</b></summary>
+
 ```python
 # Minimal agent structure
 from abc import ABC, abstractmethod
@@ -181,6 +184,107 @@ class Agent:
         return state
 ```
 
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// Minimal agent structure
+interface AgentState {
+  messages: Array<{ role: string; content: string }>;
+  toolResults: any[];
+  iterations: number;
+  isComplete: boolean;
+}
+
+interface ToolDefinition {
+  name: string;
+  description: string;
+  parameters: Record<string, any>;
+}
+
+abstract class Tool {
+  abstract get name(): string;
+  abstract get description(): string;
+  abstract get parameters(): Record<string, any>;
+  abstract execute(args: Record<string, any>): Promise<string>;
+
+  toDefinition(): ToolDefinition {
+    return {
+      name: this.name,
+      description: this.description,
+      parameters: this.parameters,
+    };
+  }
+}
+
+class Agent {
+  private tools: Map<string, Tool>;
+
+  constructor(
+    private llm: LLMClient,
+    tools: Tool[],
+    private systemPrompt: string,
+    private maxIterations: number = 10
+  ) {
+    this.tools = new Map(tools.map((t) => [t.name, t]));
+  }
+
+  async run(userInput: string): Promise<string> {
+    let state: AgentState = {
+      messages: [
+        { role: 'system', content: this.systemPrompt },
+        { role: 'user', content: userInput },
+      ],
+      toolResults: [],
+      iterations: 0,
+      isComplete: false,
+    };
+
+    while (!state.isComplete && state.iterations < this.maxIterations) {
+      state = await this.step(state);
+      state.iterations++;
+    }
+
+    // Return final response
+    return state.messages[state.messages.length - 1].content;
+  }
+
+  private async step(state: AgentState): Promise<AgentState> {
+    // Get LLM response with tool options
+    const response = await this.llm.chatWithTools(
+      state.messages,
+      Array.from(this.tools.values()).map((t) => t.toDefinition())
+    );
+
+    // Check if LLM wants to use a tool
+    if (response.toolCalls && response.toolCalls.length > 0) {
+      for (const toolCall of response.toolCalls) {
+        const tool = this.tools.get(toolCall.name)!;
+        const result = await tool.execute(toolCall.arguments);
+        state.toolResults.push(result);
+        state.messages.push({
+          role: 'tool',
+          content: result,
+        });
+      }
+    } else {
+      // No tool call = final response
+      state.messages.push({
+        role: 'assistant',
+        content: response.content,
+      });
+      state.isComplete = true;
+    }
+
+    return state;
+  }
+}
+```
+
+</details>
+
 ### 1.3 Memory Types
 
 Agents need different types of memory:
@@ -220,6 +324,10 @@ Agents need different types of memory:
 ```
 
 **Memory Implementation:**
+
+<details>
+<summary><b>Python</b></summary>
+
 ```python
 from dataclasses import dataclass, field
 from typing import List, Dict, Any
@@ -297,7 +405,91 @@ class AgentMemory:
         self.short_term = keep
 ```
 
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+interface MemoryEntry {
+  content: string;
+  timestamp: Date;
+  metadata: Record<string, any>;
+}
+
+class AgentMemory {
+  private shortTerm: MemoryEntry[] = [];
+  private longTerm: MemoryEntry[] = []; // Would be DB in production
+  private working: Map<string, any> = new Map();
+
+  constructor(private maxShortTerm: number = 50) {}
+
+  addShortTerm(content: string, metadata: Record<string, any> = {}): void {
+    const entry: MemoryEntry = {
+      content,
+      timestamp: new Date(),
+      metadata,
+    };
+    this.shortTerm.push(entry);
+
+    // Prune if too long
+    if (this.shortTerm.length > this.maxShortTerm) {
+      this.consolidateShortTerm();
+    }
+  }
+
+  addLongTerm(content: string, metadata: Record<string, any> = {}): void {
+    const entry: MemoryEntry = {
+      content,
+      timestamp: new Date(),
+      metadata,
+    };
+    this.longTerm.push(entry);
+  }
+
+  getRelevant(query: string, k: number = 5): string[] {
+    // In production, use vector similarity
+    const allMemories = [...this.shortTerm, ...this.longTerm];
+    const queryWords = query.toLowerCase().split(/\s+/);
+
+    // Simple keyword matching for demo
+    const relevant = allMemories.filter((m) =>
+      queryWords.some((word) => m.content.toLowerCase().includes(word))
+    );
+
+    return relevant.slice(0, k).map((m) => m.content);
+  }
+
+  setWorking(key: string, value: any): void {
+    this.working.set(key, value);
+  }
+
+  getWorking<T>(key: string, defaultValue?: T): T | undefined {
+    return this.working.has(key) ? this.working.get(key) : defaultValue;
+  }
+
+  private consolidateShortTerm(): void {
+    // Keep last N entries
+    const keep = this.shortTerm.slice(-10);
+    const toSummarize = this.shortTerm.slice(0, -10);
+
+    if (toSummarize.length > 0) {
+      // In production, use LLM to summarize
+      const summary = `Summary of ${toSummarize.length} interactions`;
+      this.addLongTerm(summary, { type: 'summary' });
+    }
+
+    this.shortTerm = keep;
+  }
+}
+```
+
+</details>
+
 ### 1.4 State Management
+
+<details>
+<summary><b>Python</b></summary>
 
 ```python
 from enum import Enum
@@ -357,6 +549,87 @@ class AgentContext:
             self.current_task = None
 ```
 
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+type AgentStatus = 'idle' | 'thinking' | 'executing' | 'waiting' | 'complete' | 'error';
+
+interface TaskState {
+  taskId: string;
+  description: string;
+  status: AgentStatus;
+  stepsCompleted: string[];
+  currentStep?: string;
+  result?: any;
+  error?: string;
+}
+
+interface AgentContext {
+  currentTask: TaskState | null;
+  taskHistory: TaskState[];
+  memory: AgentMemory;
+}
+
+// Immutable state updates (functional approach)
+function createContext(): AgentContext {
+  return {
+    currentTask: null,
+    taskHistory: [],
+    memory: new AgentMemory(),
+  };
+}
+
+function startTask(context: AgentContext, taskId: string, description: string): AgentContext {
+  return {
+    ...context,
+    currentTask: {
+      taskId,
+      description,
+      status: 'thinking',
+      stepsCompleted: [],
+    },
+  };
+}
+
+function completeStep(context: AgentContext, step: string): AgentContext {
+  if (!context.currentTask) return context;
+
+  return {
+    ...context,
+    currentTask: {
+      ...context.currentTask,
+      stepsCompleted: [...context.currentTask.stepsCompleted, step],
+    },
+  };
+}
+
+function finishTask(
+  context: AgentContext,
+  result?: any,
+  error?: string
+): AgentContext {
+  if (!context.currentTask) return context;
+
+  const finishedTask: TaskState = {
+    ...context.currentTask,
+    status: error ? 'error' : 'complete',
+    result,
+    error,
+  };
+
+  return {
+    ...context,
+    currentTask: null,
+    taskHistory: [...context.taskHistory, finishedTask],
+  };
+}
+```
+
+</details>
+
 ---
 
 <a name="tool-use"></a>
@@ -391,6 +664,10 @@ Function calling lets LLMs request execution of predefined functions with struct
 ### 2.2 Tool Definition Best Practices
 
 **Good Tool Definition:**
+
+<details>
+<summary><b>Python</b></summary>
+
 ```python
 # tools/file_tools.py
 from typing import List, Optional
@@ -451,6 +728,68 @@ Returns a list of file/directory names with their types.""",
     }
 ```
 
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// tools/file-tools.ts
+import { z } from 'zod';
+
+// Using Zod for type-safe tool definitions
+const ReadFileSchema = z.object({
+  file_path: z.string().describe('The absolute or relative path to the file to read'),
+  encoding: z.string().default('utf-8').describe('File encoding (default: utf-8)'),
+});
+
+const ListDirectorySchema = z.object({
+  path: z.string().default('.').describe('Directory path to list (default: current directory)'),
+  include_hidden: z.boolean().default(false).describe('Include hidden files (starting with .)'),
+  recursive: z.boolean().default(false).describe('List recursively'),
+});
+
+// Tool definition helper using Zod schema
+function zodToJsonSchema(schema: z.ZodObject<any>): Record<string, any> {
+  // Convert Zod schema to JSON Schema format
+  const shape = schema.shape;
+  const properties: Record<string, any> = {};
+  const required: string[] = [];
+
+  for (const [key, value] of Object.entries(shape)) {
+    const zodValue = value as z.ZodTypeAny;
+    properties[key] = {
+      type: getZodType(zodValue),
+      description: zodValue.description,
+    };
+    if (!zodValue.isOptional() && !hasDefault(zodValue)) {
+      required.push(key);
+    }
+  }
+
+  return { type: 'object', properties, required };
+}
+
+const readFileTool = {
+  name: 'read_file',
+  description: `Read the contents of a file at the given path.
+Use this when you need to examine file contents.
+Returns the full file content as a string.
+Returns an error message if the file doesn't exist.`,
+  parameters: zodToJsonSchema(ReadFileSchema),
+};
+
+const listDirectoryTool = {
+  name: 'list_directory',
+  description: `List files and directories in a given path.
+Use this to explore directory structure.
+Returns a list of file/directory names with their types.`,
+  parameters: zodToJsonSchema(ListDirectorySchema),
+};
+```
+
+</details>
+
 **Tool Description Guidelines:**
 | Do | Don't |
 |----|-------|
@@ -463,6 +802,9 @@ Returns a list of file/directory names with their types.""",
 ### 2.3 LLM-Agnostic Function Calling
 
 Different providers have different formats. Here's a unified approach:
+
+<details>
+<summary><b>Python</b></summary>
 
 ```python
 # utils/function_calling.py
@@ -591,7 +933,155 @@ class AnthropicFunctionCalling(FunctionCallingClient):
         return content, tool_calls
 ```
 
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// utils/function-calling.ts
+interface ToolCall {
+  id: string;
+  name: string;
+  arguments: Record<string, any>;
+}
+
+interface ToolResult {
+  toolCallId: string;
+  result: string;
+  error?: string;
+}
+
+interface ToolDefinition {
+  name: string;
+  description: string;
+  parameters: Record<string, any>;
+}
+
+interface ChatWithToolsResponse {
+  content: string;
+  toolCalls: ToolCall[];
+}
+
+abstract class FunctionCallingClient {
+  abstract chatWithTools(
+    messages: Array<{ role: string; content: string }>,
+    tools: ToolDefinition[]
+  ): Promise<ChatWithToolsResponse>;
+}
+
+class OpenAIFunctionCalling extends FunctionCallingClient {
+  private client: InstanceType<typeof import('openai').default> | null = null;
+
+  constructor(private model: string = 'gpt-4o') {
+    super();
+  }
+
+  private async ensureClient() {
+    if (!this.client) {
+      const OpenAI = (await import('openai')).default;
+      this.client = new OpenAI();
+    }
+  }
+
+  async chatWithTools(
+    messages: Array<{ role: string; content: string }>,
+    tools: ToolDefinition[]
+  ): Promise<ChatWithToolsResponse> {
+    await this.ensureClient();
+
+    const openaiTools = tools.map((tool) => ({
+      type: 'function' as const,
+      function: tool,
+    }));
+
+    const response = await this.client!.chat.completions.create({
+      model: this.model,
+      messages: messages as any,
+      tools: openaiTools.length > 0 ? openaiTools : undefined,
+    });
+
+    const message = response.choices[0].message;
+    const toolCalls: ToolCall[] = (message.tool_calls || []).map((tc) => ({
+      id: tc.id,
+      name: tc.function.name,
+      arguments: JSON.parse(tc.function.arguments),
+    }));
+
+    return { content: message.content || '', toolCalls };
+  }
+}
+
+class AnthropicFunctionCalling extends FunctionCallingClient {
+  private client: InstanceType<typeof import('@anthropic-ai/sdk').default> | null = null;
+
+  constructor(private model: string = 'claude-3-5-sonnet-20241022') {
+    super();
+  }
+
+  private async ensureClient() {
+    if (!this.client) {
+      const Anthropic = (await import('@anthropic-ai/sdk')).default;
+      this.client = new Anthropic();
+    }
+  }
+
+  async chatWithTools(
+    messages: Array<{ role: string; content: string }>,
+    tools: ToolDefinition[]
+  ): Promise<ChatWithToolsResponse> {
+    await this.ensureClient();
+
+    const anthropicTools = tools.map((tool) => ({
+      name: tool.name,
+      description: tool.description,
+      input_schema: tool.parameters,
+    }));
+
+    // Extract system message
+    let system: string | undefined;
+    const filtered = messages.filter((msg) => {
+      if (msg.role === 'system') {
+        system = msg.content;
+        return false;
+      }
+      return true;
+    });
+
+    const response = await this.client!.messages.create({
+      model: this.model,
+      max_tokens: 4096,
+      system,
+      messages: filtered as any,
+      tools: anthropicTools.length > 0 ? anthropicTools : undefined,
+    });
+
+    let content = '';
+    const toolCalls: ToolCall[] = [];
+
+    for (const block of response.content) {
+      if (block.type === 'text') {
+        content += block.text;
+      } else if (block.type === 'tool_use') {
+        toolCalls.push({
+          id: block.id,
+          name: block.name,
+          arguments: block.input as Record<string, any>,
+        });
+      }
+    }
+
+    return { content, toolCalls };
+  }
+}
+```
+
+</details>
+
 ### 2.4 Error Handling and Retries
+
+<details>
+<summary><b>Python</b></summary>
 
 ```python
 # tools/executor.py
@@ -678,7 +1168,100 @@ class ToolExecutor:
         return result_queue.get()
 ```
 
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// tools/executor.ts
+type ToolFunction = (args: Record<string, any>) => Promise<string> | string;
+
+interface ToolResult {
+  toolCallId: string;
+  result: string;
+  error?: string;
+}
+
+class ToolExecutor {
+  constructor(
+    private tools: Map<string, ToolFunction>,
+    private maxRetries: number = 3,
+    private retryDelay: number = 1000
+  ) {}
+
+  async execute(toolName: string, arguments_: Record<string, any>): Promise<ToolResult> {
+    const tool = this.tools.get(toolName);
+
+    if (!tool) {
+      return {
+        toolCallId: '',
+        result: '',
+        error: `Unknown tool: ${toolName}`,
+      };
+    }
+
+    let lastError: Error | null = null;
+
+    for (let attempt = 0; attempt < this.maxRetries; attempt++) {
+      try {
+        const result = await tool(arguments_);
+        return {
+          toolCallId: '',
+          result: String(result),
+        };
+      } catch (e) {
+        lastError = e as Error;
+        if (attempt < this.maxRetries - 1) {
+          // Exponential backoff
+          await this.sleep(this.retryDelay * (attempt + 1));
+        }
+      }
+    }
+
+    // All retries failed
+    return {
+      toolCallId: '',
+      result: '',
+      error: `Tool execution failed after ${this.maxRetries} attempts: ${lastError?.message}\n${lastError?.stack}`,
+    };
+  }
+
+  async executeWithTimeout(
+    toolName: string,
+    arguments_: Record<string, any>,
+    timeout: number = 30000
+  ): Promise<ToolResult> {
+    const timeoutPromise = new Promise<ToolResult>((_, reject) =>
+      setTimeout(() => reject(new Error('Timeout')), timeout)
+    );
+
+    try {
+      return await Promise.race([this.execute(toolName, arguments_), timeoutPromise]);
+    } catch (e) {
+      if ((e as Error).message === 'Timeout') {
+        return {
+          toolCallId: '',
+          result: '',
+          error: `Tool execution timed out after ${timeout}ms`,
+        };
+      }
+      throw e;
+    }
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+}
+```
+
+</details>
+
 ### 2.5 Live Demo: File System Agent
+
+<details>
+<summary><b>Python</b></summary>
 
 ```python
 # demos/file_agent.py
@@ -846,6 +1429,197 @@ if __name__ == "__main__":
     run_file_agent()
 ```
 
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// demos/file-agent.ts
+import * as fs from 'fs';
+import * as path from 'path';
+import * as readline from 'readline';
+
+// Tool implementations
+function readFile(filePath: string, encoding: BufferEncoding = 'utf-8'): string {
+  try {
+    return fs.readFileSync(filePath, encoding);
+  } catch (e) {
+    const error = e as NodeJS.ErrnoException;
+    if (error.code === 'ENOENT') {
+      return `Error: File not found: ${filePath}`;
+    }
+    return `Error reading file: ${error.message}`;
+  }
+}
+
+function listDirectory(
+  dirPath: string = '.',
+  includeHidden: boolean = false,
+  recursive: boolean = false
+): string {
+  try {
+    if (!fs.existsSync(dirPath)) {
+      return `Error: Path not found: ${dirPath}`;
+    }
+
+    const items: string[] = [];
+
+    function walkDir(dir: string) {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (!includeHidden && entry.name.startsWith('.')) continue;
+
+        const fullPath = path.join(dir, entry.name);
+        const itemType = entry.isDirectory() ? 'DIR' : 'FILE';
+        items.push(`[${itemType}] ${fullPath}`);
+
+        if (recursive && entry.isDirectory()) {
+          walkDir(fullPath);
+        }
+      }
+    }
+
+    walkDir(dirPath);
+    return items.length > 0 ? items.sort().join('\n') : 'Directory is empty';
+  } catch (e) {
+    return `Error listing directory: ${(e as Error).message}`;
+  }
+}
+
+function writeFile(filePath: string, content: string): string {
+  try {
+    fs.writeFileSync(filePath, content);
+    return `Successfully wrote ${content.length} characters to ${filePath}`;
+  } catch (e) {
+    return `Error writing file: ${(e as Error).message}`;
+  }
+}
+
+// Tool definitions and map
+const TOOLS = [
+  {
+    name: 'read_file',
+    description: 'Read the contents of a file',
+    parameters: {
+      type: 'object',
+      properties: {
+        file_path: { type: 'string', description: 'Path to the file' },
+        encoding: { type: 'string', default: 'utf-8' },
+      },
+      required: ['file_path'],
+    },
+  },
+  {
+    name: 'list_directory',
+    description: 'List contents of a directory',
+    parameters: {
+      type: 'object',
+      properties: {
+        path: { type: 'string', default: '.' },
+        include_hidden: { type: 'boolean', default: false },
+        recursive: { type: 'boolean', default: false },
+      },
+      required: [],
+    },
+  },
+  {
+    name: 'write_file',
+    description: 'Write content to a file',
+    parameters: {
+      type: 'object',
+      properties: {
+        file_path: { type: 'string' },
+        content: { type: 'string' },
+      },
+      required: ['file_path', 'content'],
+    },
+  },
+];
+
+const TOOL_MAP: Record<string, (args: any) => string> = {
+  read_file: (args) => readFile(args.file_path, args.encoding),
+  list_directory: (args) => listDirectory(args.path, args.include_hidden, args.recursive),
+  write_file: (args) => writeFile(args.file_path, args.content),
+};
+
+const FILE_AGENT_SYSTEM = `You are a file system assistant. You help users explore and manage files.
+
+Available tools:
+- read_file: Read contents of a file
+- list_directory: List contents of a directory
+- write_file: Write content to a file
+
+Guidelines:
+1. Always confirm before writing/modifying files
+2. Summarize file contents rather than dumping raw text
+3. Be careful with recursive operations on large directories
+4. Report errors clearly
+
+When exploring code, provide insights about what you find.`;
+
+async function runFileAgent() {
+  const { AnthropicFunctionCalling } = await import('./function-calling.js');
+
+  const client = new AnthropicFunctionCalling();
+  const messages: Array<{ role: string; content: string }> = [];
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  console.log('File System Agent Ready. Type "quit" to exit.');
+  console.log('-'.repeat(50));
+
+  const prompt = () => {
+    rl.question('\nYou: ', async (userInput) => {
+      if (userInput.toLowerCase() === 'quit') {
+        rl.close();
+        return;
+      }
+
+      messages.push({ role: 'user', content: userInput });
+
+      // Agent loop
+      while (true) {
+        const { content, toolCalls } = await client.chatWithTools(
+          [{ role: 'system', content: FILE_AGENT_SYSTEM }, ...messages],
+          TOOLS
+        );
+
+        if (content) {
+          console.log(`\nAgent: ${content}`);
+        }
+
+        if (toolCalls.length === 0) {
+          messages.push({ role: 'assistant', content });
+          break;
+        }
+
+        // Execute tools
+        for (const tc of toolCalls) {
+          console.log(`\n[Executing: ${tc.name}(${JSON.stringify(tc.arguments)})]`);
+          const result = TOOL_MAP[tc.name](tc.arguments);
+          const display = result.length > 200 ? `${result.slice(0, 200)}...` : result;
+          console.log(`[Result: ${display}]`);
+
+          messages.push({ role: 'tool', content: result });
+        }
+      }
+
+      prompt();
+    });
+  };
+
+  prompt();
+}
+
+runFileAgent();
+```
+
+</details>
+
 ---
 
 <a name="patterns"></a>
@@ -885,6 +1659,10 @@ The ReAct pattern alternates between reasoning (thinking) and acting (using tool
 ```
 
 **ReAct Implementation:**
+
+<details>
+<summary><b>Python</b></summary>
+
 ```python
 # patterns/react.py
 
@@ -948,6 +1726,98 @@ class ReactAgent:
             return f"Error executing action: {e}"
 ```
 
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// patterns/react.ts
+const REACT_SYSTEM_PROMPT = `You are an AI assistant that reasons step by step before acting.
+
+For each step, you must:
+1. Thought: Explain your reasoning about what to do next
+2. Action: Call a tool if needed, or provide Final Answer if done
+
+Format your response as:
+Thought: [your reasoning]
+Action: [tool_name(param1="value1", param2="value2")] OR Final Answer: [your answer]
+
+Always think before acting. Never skip the Thought step.
+If you encounter an error, reason about what went wrong and try a different approach.
+`;
+
+type ToolFunction = (args: Record<string, any>) => Promise<string> | string;
+
+class ReactAgent {
+  constructor(
+    private llm: LLMClient,
+    private tools: Map<string, ToolFunction>,
+    private maxIterations: number = 10
+  ) {}
+
+  async run(task: string): Promise<string> {
+    const messages: Array<{ role: string; content: string }> = [
+      { role: 'system', content: REACT_SYSTEM_PROMPT },
+      { role: 'user', content: `Task: ${task}` },
+    ];
+
+    for (let i = 0; i < this.maxIterations; i++) {
+      const response = await this.llm.chat(messages);
+      messages.push({ role: 'assistant', content: response });
+
+      // Parse the response
+      if (response.includes('Final Answer:')) {
+        const answer = response.split('Final Answer:').pop()?.trim() || '';
+        return answer;
+      }
+
+      // Extract and execute action
+      if (response.includes('Action:')) {
+        const actionStr = response.split('Action:').pop()?.split('\n')[0].trim() || '';
+        const result = await this.executeAction(actionStr);
+
+        // Add observation
+        messages.push({ role: 'user', content: `Observation: ${result}` });
+      }
+    }
+
+    return 'Max iterations reached without final answer';
+  }
+
+  private async executeAction(actionStr: string): Promise<string> {
+    try {
+      // Parse action like: tool_name(param1="value1")
+      const toolName = actionStr.split('(')[0];
+      const argsMatch = actionStr.match(/\((.*)\)/s);
+      const args = argsMatch ? this.parseArgs(argsMatch[1]) : {};
+
+      const tool = this.tools.get(toolName);
+      if (!tool) {
+        return `Error: Unknown tool ${toolName}`;
+      }
+
+      return await tool(args);
+    } catch (e) {
+      return `Error executing action: ${(e as Error).message}`;
+    }
+  }
+
+  private parseArgs(argsStr: string): Record<string, any> {
+    // Simple argument parser - production code would be more robust
+    const args: Record<string, any> = {};
+    const regex = /(\w+)=["']([^"']+)["']/g;
+    let match;
+    while ((match = regex.exec(argsStr)) !== null) {
+      args[match[1]] = match[2];
+    }
+    return args;
+  }
+}
+```
+
+</details>
+
 ### 3.2 Planning Agents
 
 Planning agents create a plan before executing, enabling complex multi-step tasks.
@@ -988,6 +1858,10 @@ Planning agents create a plan before executing, enabling complex multi-step task
 ```
 
 **Planning Agent Implementation:**
+
+<details>
+<summary><b>Python</b></summary>
+
 ```python
 # patterns/planning.py
 from dataclasses import dataclass
@@ -1030,22 +1904,6 @@ Guidelines:
 - Include validation/testing steps
 - Consider rollback steps for risky operations
 - Order steps by dependencies
-"""
-
-EXECUTION_PROMPT = """You are executing step {step_number} of a plan.
-
-Overall task: {task}
-
-Plan:
-{plan}
-
-Current step: {current_step}
-
-Previous results:
-{previous_results}
-
-Execute this step and report your actions and results.
-If you cannot complete the step, explain why and suggest alternatives.
 """
 
 class PlanningAgent:
@@ -1095,21 +1953,131 @@ class PlanningAgent:
         # Parse response into steps
         steps = self._parse_plan(response)
         return Plan(task=task, steps=steps)
-
-    def _execute_step(self, plan: Plan, step: PlanStep, previous: List) -> 'StepResult':
-        """Execute a single plan step."""
-        # ... implementation
-        pass
-
-    def _replan(self, plan: Plan, failed_step: PlanStep, error: str) -> bool:
-        """Attempt to create alternative steps after failure."""
-        # ... implementation
-        pass
 ```
+
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// patterns/planning.ts
+type StepStatus = 'pending' | 'in_progress' | 'completed' | 'failed' | 'skipped';
+
+interface PlanStep {
+  id: number;
+  description: string;
+  status: StepStatus;
+  result?: string;
+  dependencies?: number[]; // IDs of steps this depends on
+}
+
+interface Plan {
+  task: string;
+  steps: PlanStep[];
+  currentStep: number;
+}
+
+const PLANNING_PROMPT = `Create a detailed plan for the following task.
+Break it into concrete, executable steps.
+
+Task: {task}
+
+Output your plan as a numbered list:
+1. [First step]
+2. [Second step]
+...
+
+Guidelines:
+- Each step should be independently verifiable
+- Include validation/testing steps
+- Consider rollback steps for risky operations
+- Order steps by dependencies
+`;
+
+class PlanningAgent {
+  constructor(
+    private llm: LLMClient,
+    private tools: Map<string, ToolFunction>,
+    private maxReplans: number = 3
+  ) {}
+
+  async run(task: string): Promise<string> {
+    // Phase 1: Create plan
+    const plan = await this.createPlan(task);
+    console.log(`Created plan with ${plan.steps.length} steps`);
+
+    // Phase 2: Execute plan
+    const results: StepResult[] = [];
+
+    for (let i = 0; i < plan.steps.length; i++) {
+      const step = plan.steps[i];
+
+      // Check dependencies
+      if (!this.dependenciesMet(step, plan.steps)) {
+        step.status = 'skipped';
+        continue;
+      }
+
+      step.status = 'in_progress';
+      const result = await this.executeStep(plan, step, results);
+
+      if (result.success) {
+        step.status = 'completed';
+        step.result = result.output;
+        results.push(result);
+      } else {
+        step.status = 'failed';
+        // Attempt replan
+        if (!(await this.replan(plan, step, result.error!))) {
+          return `Failed at step ${i + 1}: ${result.error}`;
+        }
+      }
+    }
+
+    return this.summarizeResults(plan, results);
+  }
+
+  private async createPlan(task: string): Promise<Plan> {
+    const prompt = PLANNING_PROMPT.replace('{task}', task);
+    const response = await this.llm.chat([
+      { role: 'system', content: 'You are a planning assistant.' },
+      { role: 'user', content: prompt },
+    ]);
+
+    // Parse response into steps
+    const steps = this.parsePlan(response);
+    return { task, steps, currentStep: 0 };
+  }
+
+  private parsePlan(response: string): PlanStep[] {
+    const lines = response.split('\n').filter((l) => /^\d+\./.test(l.trim()));
+    return lines.map((line, i) => ({
+      id: i,
+      description: line.replace(/^\d+\.\s*/, '').trim(),
+      status: 'pending' as StepStatus,
+    }));
+  }
+
+  private dependenciesMet(step: PlanStep, allSteps: PlanStep[]): boolean {
+    if (!step.dependencies) return true;
+    return step.dependencies.every(
+      (depId) => allSteps[depId]?.status === 'completed'
+    );
+  }
+
+  // ... executeStep, replan, summarizeResults implementations
+}
+```
+
+</details>
 
 ### 3.3 Verification Agents
 
 Agents that verify their own work before declaring completion.
+
+<details>
+<summary><b>Python</b></summary>
 
 ```python
 # patterns/verification.py
@@ -1174,6 +2142,105 @@ Provide improved output addressing the feedback."""
 
         return self.llm.chat([{"role": "user", "content": prompt}])
 ```
+
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// patterns/verification.ts
+const VERIFICATION_PROMPT = `You just completed a task. Verify your work.
+
+Task: {task}
+Your output: {output}
+
+Verification checklist:
+1. Does the output satisfy all requirements?
+2. Are there any errors or issues?
+3. Is the output complete?
+4. Are there edge cases not handled?
+
+Rate your confidence (1-10) and explain any concerns.
+If confidence < 8, suggest improvements.
+`;
+
+interface Verification {
+  confidence: number;
+  feedback: string;
+  concerns: string[];
+}
+
+class VerifyingAgent {
+  constructor(
+    private llm: LLMClient,
+    private tools: Map<string, ToolFunction>,
+    private confidenceThreshold: number = 0.8
+  ) {}
+
+  async runWithVerification(task: string): Promise<string> {
+    // Initial execution
+    let result = await this.executeTask(task);
+
+    // Verification loop
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const verification = await this.verify(task, result);
+
+      if (verification.confidence >= this.confidenceThreshold) {
+        return result;
+      }
+
+      // Improve based on feedback
+      result = await this.improve(task, result, verification.feedback);
+    }
+
+    // Return best effort after max attempts
+    return result;
+  }
+
+  private async verify(task: string, output: string): Promise<Verification> {
+    const prompt = VERIFICATION_PROMPT
+      .replace('{task}', task)
+      .replace('{output}', output);
+
+    const response = await this.llm.chat([{ role: 'user', content: prompt }]);
+    return this.parseVerification(response);
+  }
+
+  private async improve(task: string, output: string, feedback: string): Promise<string> {
+    const prompt = `Improve this output based on feedback.
+
+Task: ${task}
+Current output: ${output}
+Feedback: ${feedback}
+
+Provide improved output addressing the feedback.`;
+
+    return this.llm.chat([{ role: 'user', content: prompt }]);
+  }
+
+  private parseVerification(response: string): Verification {
+    // Extract confidence score (look for patterns like "8/10" or "confidence: 8")
+    const confidenceMatch = response.match(/(\d+)\/10|confidence:\s*(\d+)/i);
+    const confidence = confidenceMatch
+      ? parseInt(confidenceMatch[1] || confidenceMatch[2]) / 10
+      : 0.5;
+
+    return {
+      confidence,
+      feedback: response,
+      concerns: [],
+    };
+  }
+
+  private async executeTask(task: string): Promise<string> {
+    // Implementation depends on the specific task
+    return this.llm.chat([{ role: 'user', content: task }]);
+  }
+}
+```
+
+</details>
 
 ### 3.4 Pattern Selection Guide
 
@@ -1385,6 +2452,9 @@ Typical iterations for a project:
 
 ### 5.3 Communication Patterns
 
+<details>
+<summary><b>Python</b></summary>
+
 ```python
 # agents/multi_agent.py
 from dataclasses import dataclass
@@ -1436,6 +2506,67 @@ class MessageBus:
             if (m.from_agent in [agent1, agent2] and m.to_agent in [agent1, agent2])
         ]
 ```
+
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// agents/multi-agent.ts
+type MessageType = 'task' | 'result' | 'question' | 'feedback' | 'error';
+
+interface AgentMessage {
+  fromAgent: string;
+  toAgent: string;
+  type: MessageType;
+  content: any;
+  metadata?: Record<string, any>;
+}
+
+type MessageCallback = (message: AgentMessage) => void;
+
+class MessageBus {
+  private messages: AgentMessage[] = [];
+  private subscribers: Map<string, MessageCallback[]> = new Map();
+
+  publish(message: AgentMessage): void {
+    this.messages.push(message);
+
+    // Notify subscribers
+    const callbacks = this.subscribers.get(message.toAgent);
+    if (callbacks) {
+      callbacks.forEach((callback) => callback(message));
+    }
+  }
+
+  subscribe(agentId: string, callback: MessageCallback): void {
+    if (!this.subscribers.has(agentId)) {
+      this.subscribers.set(agentId, []);
+    }
+    this.subscribers.get(agentId)!.push(callback);
+  }
+
+  getConversation(agent1: string, agent2: string): AgentMessage[] {
+    const participants = [agent1, agent2];
+    return this.messages.filter(
+      (m) => participants.includes(m.fromAgent) && participants.includes(m.toAgent)
+    );
+  }
+
+  // Get all messages for an agent
+  getMessagesFor(agentId: string): AgentMessage[] {
+    return this.messages.filter((m) => m.toAgent === agentId);
+  }
+
+  // Get message history
+  getHistory(): AgentMessage[] {
+    return [...this.messages];
+  }
+}
+```
+
+</details>
 
 ### 5.4 Avoiding Infinite Loops
 

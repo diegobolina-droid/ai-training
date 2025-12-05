@@ -92,6 +92,9 @@ Don't use RAG when:
 
 Embeddings convert text to dense vectors that capture semantic meaning.
 
+<details>
+<summary><b>Python</b></summary>
+
 ```python
 # embeddings/basics.py
 """Understanding embeddings."""
@@ -116,6 +119,39 @@ sentences = [
 # "reset password" ↔ "business hours": ~0.23 (not similar)
 # "business hours" ↔ "store open": ~0.88 (very similar)
 ```
+
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// embeddings/basics.ts
+/**
+ * Calculate cosine similarity between two vectors.
+ */
+function cosineSimilarity(a: number[], b: number[]): number {
+  const dotProduct = a.reduce((sum, val, i) => sum + val * b[i], 0);
+  const magnitudeA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0));
+  const magnitudeB = Math.sqrt(b.reduce((sum, val) => sum + val * val, 0));
+  return dotProduct / (magnitudeA * magnitudeB);
+}
+
+// Example: Similar sentences have similar embeddings
+const sentences = [
+  'How do I reset my password?',
+  'I forgot my password and need to change it',
+  'What are your business hours?',
+  'When is the store open?',
+];
+
+// After embedding, similarities would be:
+// "reset password" ↔ "forgot password": ~0.92 (very similar)
+// "reset password" ↔ "business hours": ~0.23 (not similar)
+// "business hours" ↔ "store open": ~0.88 (very similar)
+```
+
+</details>
 
 **Embedding Models Comparison:**
 
@@ -154,6 +190,9 @@ sentences = [
 ```
 
 ### 1.6 Basic RAG Implementation
+
+<details>
+<summary><b>Python</b></summary>
 
 ```python
 # rag/basic_rag.py
@@ -200,11 +239,7 @@ class SimpleRAG:
             ids=ids
         )
 
-    def query(
-        self,
-        query: str,
-        n_results: int = 5
-    ) -> List[Dict[str, Any]]:
+    def query(self, query: str, n_results: int = 5) -> List[Dict[str, Any]]:
         """Query the index and return relevant documents."""
         results = self.collection.query(
             query_texts=[query],
@@ -223,23 +258,15 @@ class SimpleRAG:
 
         return formatted
 
-    def generate_response(
-        self,
-        query: str,
-        llm_client,
-        n_results: int = 5
-    ) -> str:
+    def generate_response(self, query: str, llm_client, n_results: int = 5) -> str:
         """Full RAG pipeline: retrieve + generate."""
-        # Retrieve relevant documents
         relevant_docs = self.query(query, n_results)
 
-        # Build context
         context = "\n\n---\n\n".join([
             f"Source: {doc['metadata'].get('source', 'Unknown')}\n{doc['content']}"
             for doc in relevant_docs
         ])
 
-        # Generate response
         prompt = f"""Answer the question based on the provided context.
 If the context doesn't contain the answer, say so.
 
@@ -256,35 +283,123 @@ Answer:"""
         ])
 
         return response
-
-# Usage
-if __name__ == "__main__":
-    rag = SimpleRAG()
-
-    # Add some documents
-    docs = [
-        "Our company was founded in 2020 by Jane Smith.",
-        "The main product is a project management tool called TaskFlow.",
-        "TaskFlow supports integrations with Slack, GitHub, and Jira.",
-        "Pricing starts at $10/user/month for the basic plan.",
-        "Enterprise customers get dedicated support and SLA guarantees."
-    ]
-
-    rag.add_documents(
-        documents=docs,
-        metadatas=[{"source": f"doc_{i}"} for i in range(len(docs))]
-    )
-
-    # Query
-    from utils.llm_client import get_llm_client
-    client = get_llm_client("anthropic")
-
-    response = rag.generate_response(
-        "What integrations does TaskFlow support?",
-        client
-    )
-    print(response)
 ```
+
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// rag/basic-rag.ts
+import OpenAI from 'openai';
+
+interface Document {
+  content: string;
+  metadata: Record<string, any>;
+  id: string;
+}
+
+interface SearchResult extends Document {
+  similarity: number;
+}
+
+/**
+ * Simple RAG system using in-memory vector store + OpenAI embeddings.
+ * For production, use Pinecone, Weaviate, or similar.
+ */
+class SimpleRAG {
+  private documents: Map<string, { content: string; embedding: number[]; metadata: Record<string, any> }> = new Map();
+  private openai: OpenAI;
+
+  constructor(private embeddingModel: string = 'text-embedding-3-small') {
+    this.openai = new OpenAI();
+  }
+
+  async addDocuments(
+    documents: string[],
+    metadatas: Record<string, any>[] = [],
+    ids?: string[]
+  ): Promise<void> {
+    const docIds = ids || documents.map((_, i) => `doc_${i}`);
+
+    // Get embeddings for all documents
+    const response = await this.openai.embeddings.create({
+      model: this.embeddingModel,
+      input: documents,
+    });
+
+    // Store documents with embeddings
+    for (let i = 0; i < documents.length; i++) {
+      this.documents.set(docIds[i], {
+        content: documents[i],
+        embedding: response.data[i].embedding,
+        metadata: metadatas[i] || {},
+      });
+    }
+  }
+
+  async query(query: string, nResults: number = 5): Promise<SearchResult[]> {
+    // Embed query
+    const response = await this.openai.embeddings.create({
+      model: this.embeddingModel,
+      input: [query],
+    });
+    const queryEmbedding = response.data[0].embedding;
+
+    // Calculate similarities
+    const results: SearchResult[] = [];
+    for (const [id, doc] of this.documents) {
+      const similarity = this.cosineSimilarity(queryEmbedding, doc.embedding);
+      results.push({
+        id,
+        content: doc.content,
+        metadata: doc.metadata,
+        similarity,
+      });
+    }
+
+    // Sort by similarity and return top N
+    return results.sort((a, b) => b.similarity - a.similarity).slice(0, nResults);
+  }
+
+  async generateResponse(
+    query: string,
+    llmClient: { chat: (msgs: any[]) => Promise<string> },
+    nResults: number = 5
+  ): Promise<string> {
+    const relevantDocs = await this.query(query, nResults);
+
+    const context = relevantDocs
+      .map((doc) => `Source: ${doc.metadata.source || 'Unknown'}\n${doc.content}`)
+      .join('\n\n---\n\n');
+
+    const prompt = `Answer the question based on the provided context.
+If the context doesn't contain the answer, say so.
+
+Context:
+${context}
+
+Question: ${query}
+
+Answer:`;
+
+    return llmClient.chat([
+      { role: 'system', content: 'You answer questions based on provided context.' },
+      { role: 'user', content: prompt },
+    ]);
+  }
+
+  private cosineSimilarity(a: number[], b: number[]): number {
+    const dotProduct = a.reduce((sum, val, i) => sum + val * b[i], 0);
+    const magnitudeA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0));
+    const magnitudeB = Math.sqrt(b.reduce((sum, val) => sum + val * val, 0));
+    return dotProduct / (magnitudeA * magnitudeB);
+  }
+}
+```
+
+</details>
 
 ---
 
@@ -328,6 +443,10 @@ if __name__ == "__main__":
 ### 2.2 Chunking Strategies
 
 **Strategy 1: Fixed-Size Chunking**
+
+<details>
+<summary><b>Python</b></summary>
+
 ```python
 # chunking/fixed_size.py
 from typing import List
@@ -344,9 +463,8 @@ def fixed_size_chunks(
     while start < len(text):
         end = start + chunk_size
 
-        # Find a good break point (sentence or word boundary)
+        # Find a good break point (sentence boundary)
         if end < len(text):
-            # Look for sentence boundary
             for sep in ['. ', '.\n', '\n\n']:
                 last_sep = text[start:end].rfind(sep)
                 if last_sep > chunk_size * 0.5:
@@ -354,24 +472,59 @@ def fixed_size_chunks(
                     break
 
         chunks.append(text[start:end].strip())
-        start = end - overlap  # Overlap for context continuity
+        start = end - overlap
 
     return chunks
-
-# Example
-text = """The quick brown fox jumps over the lazy dog.
-This is a sample text for demonstrating chunking.
-Different strategies work better for different content."""
-
-chunks = fixed_size_chunks(text, chunk_size=100, overlap=20)
-for i, chunk in enumerate(chunks):
-    print(f"Chunk {i}: {chunk}")
 ```
 
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// chunking/fixed-size.ts
+
+function fixedSizeChunks(
+  text: string,
+  chunkSize: number = 500,
+  overlap: number = 50
+): string[] {
+  const chunks: string[] = [];
+  let start = 0;
+
+  while (start < text.length) {
+    let end = start + chunkSize;
+
+    // Find a good break point (sentence boundary)
+    if (end < text.length) {
+      for (const sep of ['. ', '.\n', '\n\n']) {
+        const lastSep = text.slice(start, end).lastIndexOf(sep);
+        if (lastSep > chunkSize * 0.5) {
+          end = start + lastSep + sep.length;
+          break;
+        }
+      }
+    }
+
+    chunks.push(text.slice(start, end).trim());
+    start = end - overlap;
+  }
+
+  return chunks;
+}
+```
+
+</details>
+
 **Strategy 2: Semantic Chunking**
+
+<details>
+<summary><b>Python</b></summary>
+
 ```python
 # chunking/semantic.py
-from typing import List, Tuple
+from typing import List
 import numpy as np
 
 def semantic_chunks(
@@ -383,15 +536,12 @@ def semantic_chunks(
     """Split text based on semantic similarity between sentences."""
     import re
 
-    # Split into sentences
     sentences = re.split(r'(?<=[.!?])\s+', text)
     if not sentences:
         return [text]
 
-    # Get embeddings for each sentence
     embeddings = [embedding_func(s) for s in sentences]
 
-    # Group sentences by semantic similarity
     chunks = []
     current_chunk = [sentences[0]]
     current_embedding = embeddings[0]
@@ -400,26 +550,85 @@ def semantic_chunks(
         similarity = cosine_similarity(current_embedding, embeddings[i])
 
         if similarity > similarity_threshold:
-            # Add to current chunk
             current_chunk.append(sentences[i])
-            # Update embedding (average)
             current_embedding = np.mean([current_embedding, embeddings[i]], axis=0)
         else:
-            # Start new chunk
             chunk_text = ' '.join(current_chunk)
             if len(chunk_text) >= min_chunk_size:
                 chunks.append(chunk_text)
             current_chunk = [sentences[i]]
             current_embedding = embeddings[i]
 
-    # Don't forget last chunk
     if current_chunk:
         chunks.append(' '.join(current_chunk))
 
     return chunks
 ```
 
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// chunking/semantic.ts
+
+function cosineSimilarity(a: number[], b: number[]): number {
+  const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
+  const magA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0));
+  const magB = Math.sqrt(b.reduce((sum, val) => sum + val * val, 0));
+  return dot / (magA * magB);
+}
+
+async function semanticChunks(
+  text: string,
+  embeddingFunc: (text: string) => Promise<number[]>,
+  similarityThreshold: number = 0.8,
+  minChunkSize: number = 100
+): Promise<string[]> {
+  const sentences = text.split(/(?<=[.!?])\s+/);
+  if (sentences.length === 0) return [text];
+
+  const embeddings = await Promise.all(sentences.map(s => embeddingFunc(s)));
+
+  const chunks: string[] = [];
+  let currentChunk = [sentences[0]];
+  let currentEmbedding = embeddings[0];
+
+  for (let i = 1; i < sentences.length; i++) {
+    const similarity = cosineSimilarity(currentEmbedding, embeddings[i]);
+
+    if (similarity > similarityThreshold) {
+      currentChunk.push(sentences[i]);
+      // Average embeddings
+      currentEmbedding = currentEmbedding.map(
+        (val, idx) => (val + embeddings[i][idx]) / 2
+      );
+    } else {
+      const chunkText = currentChunk.join(' ');
+      if (chunkText.length >= minChunkSize) {
+        chunks.push(chunkText);
+      }
+      currentChunk = [sentences[i]];
+      currentEmbedding = embeddings[i];
+    }
+  }
+
+  if (currentChunk.length > 0) {
+    chunks.push(currentChunk.join(' '));
+  }
+
+  return chunks;
+}
+```
+
+</details>
+
 **Strategy 3: Structure-Aware Chunking (for Code)**
+
+<details>
+<summary><b>Python</b></summary>
+
 ```python
 # chunking/code_aware.py
 from typing import List, Dict
@@ -473,6 +682,111 @@ def chunk_code_regex(code: str) -> List[Dict[str, str]]:
     pass
 ```
 
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// chunking/code-aware.ts
+import * as ts from 'typescript';
+
+interface CodeChunk {
+  type: 'function' | 'class' | 'interface' | 'module';
+  name: string;
+  content: string;
+  lineStart: number;
+  lineEnd: number;
+}
+
+function chunkTypeScriptCode(code: string): CodeChunk[] {
+  const chunks: CodeChunk[] = [];
+  const sourceFile = ts.createSourceFile(
+    'temp.ts',
+    code,
+    ts.ScriptTarget.Latest,
+    true
+  );
+
+  function visit(node: ts.Node) {
+    if (ts.isFunctionDeclaration(node) && node.name) {
+      const { line: startLine } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+      const { line: endLine } = sourceFile.getLineAndCharacterOfPosition(node.getEnd());
+      chunks.push({
+        type: 'function',
+        name: node.name.text,
+        content: node.getText(sourceFile),
+        lineStart: startLine + 1,
+        lineEnd: endLine + 1,
+      });
+    } else if (ts.isClassDeclaration(node) && node.name) {
+      const { line: startLine } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+      const { line: endLine } = sourceFile.getLineAndCharacterOfPosition(node.getEnd());
+      chunks.push({
+        type: 'class',
+        name: node.name.text,
+        content: node.getText(sourceFile),
+        lineStart: startLine + 1,
+        lineEnd: endLine + 1,
+      });
+    } else if (ts.isInterfaceDeclaration(node)) {
+      const { line: startLine } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+      const { line: endLine } = sourceFile.getLineAndCharacterOfPosition(node.getEnd());
+      chunks.push({
+        type: 'interface',
+        name: node.name.text,
+        content: node.getText(sourceFile),
+        lineStart: startLine + 1,
+        lineEnd: endLine + 1,
+      });
+    }
+    ts.forEachChild(node, visit);
+  }
+
+  visit(sourceFile);
+  return chunks;
+}
+
+// Fallback: Regex-based chunking for any language
+function chunkCodeRegex(code: string, language: 'typescript' | 'python'): CodeChunk[] {
+  const patterns: Record<string, RegExp> = {
+    typescript_func: /(?:export\s+)?(?:async\s+)?function\s+(\w+)\s*\([^)]*\)[^{]*\{[\s\S]*?\n\}/gm,
+    typescript_class: /(?:export\s+)?class\s+(\w+)[\s\S]*?\n\}/gm,
+    python_func: /def\s+(\w+)\s*\([^)]*\):[\s\S]*?(?=\ndef|\nclass|\n\S|\Z)/gm,
+    python_class: /class\s+(\w+)[\s\S]*?(?=\nclass|\n\S|\Z)/gm,
+  };
+
+  const chunks: CodeChunk[] = [];
+  const funcPattern = patterns[`${language}_func`];
+  const classPattern = patterns[`${language}_class`];
+
+  let match;
+  while ((match = funcPattern.exec(code)) !== null) {
+    chunks.push({
+      type: 'function',
+      name: match[1],
+      content: match[0],
+      lineStart: code.slice(0, match.index).split('\n').length,
+      lineEnd: code.slice(0, match.index + match[0].length).split('\n').length,
+    });
+  }
+
+  while ((match = classPattern.exec(code)) !== null) {
+    chunks.push({
+      type: 'class',
+      name: match[1],
+      content: match[0],
+      lineStart: code.slice(0, match.index).split('\n').length,
+      lineEnd: code.slice(0, match.index + match[0].length).split('\n').length,
+    });
+  }
+
+  return chunks;
+}
+```
+
+</details>
+
 ### 2.3 Chunking Best Practices
 
 ```markdown
@@ -503,6 +817,9 @@ def chunk_code_regex(code: str) -> List[Dict[str, str]]:
 ```
 
 ### 2.4 Adding Metadata
+
+<details>
+<summary><b>Python</b></summary>
 
 ```python
 # chunking/metadata.py
@@ -575,6 +892,87 @@ def enrich_chunks_with_metadata(
     return enriched
 ```
 
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// chunking/metadata.ts
+import { z } from 'zod';
+
+// Schema for chunk metadata
+const ChunkMetadataSchema = z.object({
+  source: z.string(),           // File path or document ID
+  chunkIndex: z.number(),       // Position in original document
+  totalChunks: z.number(),      // Total chunks from this source
+  createdAt: z.string(),        // ISO date string
+  docType: z.enum(['code', 'docs', 'conversation']),
+
+  // For code
+  language: z.string().optional(),
+  functionName: z.string().optional(),
+  className: z.string().optional(),
+  filePath: z.string().optional(),
+
+  // For documents
+  heading: z.string().optional(),
+  section: z.string().optional(),
+
+  // Custom fields
+  custom: z.record(z.any()).optional(),
+});
+
+type ChunkMetadata = z.infer<typeof ChunkMetadataSchema>;
+
+interface EnrichedChunk {
+  content: string;
+  metadata: ChunkMetadata;
+}
+
+function createChunkMetadata(
+  source: string,
+  chunkIndex: number,
+  totalChunks: number,
+  docType: 'code' | 'docs' | 'conversation',
+  options: Partial<Omit<ChunkMetadata, 'source' | 'chunkIndex' | 'totalChunks' | 'createdAt' | 'docType'>> = {}
+): ChunkMetadata {
+  return {
+    source,
+    chunkIndex,
+    totalChunks,
+    createdAt: new Date().toISOString(),
+    docType,
+    ...options,
+  };
+}
+
+function enrichChunksWithMetadata(
+  chunks: string[],
+  source: string,
+  docType: 'code' | 'docs' | 'conversation',
+  options: Partial<ChunkMetadata> = {}
+): EnrichedChunk[] {
+  const total = chunks.length;
+
+  return chunks.map((content, index) => ({
+    content,
+    metadata: createChunkMetadata(source, index, total, docType, options),
+  }));
+}
+
+// Usage example
+const chunks = ['chunk 1 content', 'chunk 2 content'];
+const enriched = enrichChunksWithMetadata(
+  chunks,
+  'src/utils/helpers.ts',
+  'code',
+  { language: 'typescript', functionName: 'processData' }
+);
+```
+
+</details>
+
 ---
 
 <a name="pitfalls"></a>
@@ -636,6 +1034,9 @@ def enrich_chunks_with_metadata(
 ```
 
 ### 3.3 Advanced Pattern: Hybrid Search
+
+<details>
+<summary><b>Python</b></summary>
 
 ```python
 # rag/hybrid_search.py
@@ -725,7 +1126,168 @@ class HybridSearch:
         ]
 ```
 
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// rag/hybrid-search.ts
+
+interface Document {
+  id: string;
+  content: string;
+}
+
+interface SearchResult {
+  id: string;
+  content: string;
+  vectorScore: number;
+  bm25Score: number;
+  combined: number;
+}
+
+interface VectorStore {
+  query(query: string, nResults: number): Promise<{ id: string; content: string; distance: number }[]>;
+}
+
+/**
+ * Simple BM25 implementation for keyword search.
+ */
+class BM25 {
+  private documents: string[][];
+  private avgDocLength: number;
+  private docFreq: Map<string, number> = new Map();
+  private k1 = 1.5;
+  private b = 0.75;
+
+  constructor(documents: string[]) {
+    this.documents = documents.map(doc => this.tokenize(doc));
+    this.avgDocLength = this.documents.reduce((sum, doc) => sum + doc.length, 0) / this.documents.length;
+
+    // Calculate document frequencies
+    for (const doc of this.documents) {
+      const uniqueTerms = new Set(doc);
+      for (const term of uniqueTerms) {
+        this.docFreq.set(term, (this.docFreq.get(term) || 0) + 1);
+      }
+    }
+  }
+
+  private tokenize(text: string): string[] {
+    return text.toLowerCase().match(/\w+/g) || [];
+  }
+
+  getScores(query: string): number[] {
+    const queryTerms = this.tokenize(query);
+    const N = this.documents.length;
+
+    return this.documents.map(doc => {
+      let score = 0;
+      const docLength = doc.length;
+      const termFreq = new Map<string, number>();
+
+      for (const term of doc) {
+        termFreq.set(term, (termFreq.get(term) || 0) + 1);
+      }
+
+      for (const term of queryTerms) {
+        const tf = termFreq.get(term) || 0;
+        const df = this.docFreq.get(term) || 0;
+
+        if (tf > 0 && df > 0) {
+          const idf = Math.log((N - df + 0.5) / (df + 0.5) + 1);
+          const tfNorm = (tf * (this.k1 + 1)) /
+            (tf + this.k1 * (1 - this.b + this.b * docLength / this.avgDocLength));
+          score += idf * tfNorm;
+        }
+      }
+
+      return score;
+    });
+  }
+}
+
+/**
+ * Hybrid search combining vector and BM25 search.
+ */
+class HybridSearch {
+  private bm25: BM25;
+
+  constructor(
+    private vectorStore: VectorStore,
+    private documents: Document[]
+  ) {
+    this.bm25 = new BM25(documents.map(d => d.content));
+  }
+
+  async search(
+    query: string,
+    k: number = 10,
+    vectorWeight: number = 0.7,
+    bm25Weight: number = 0.3
+  ): Promise<SearchResult[]> {
+    // Vector search
+    const vectorResults = await this.vectorStore.query(query, k * 2);
+
+    // BM25 search
+    const bm25Scores = this.bm25.getScores(query);
+
+    // Combine scores
+    const combined = new Map<string, SearchResult>();
+
+    for (const result of vectorResults) {
+      const vectorScore = 1 / (1 + result.distance);
+      combined.set(result.id, {
+        id: result.id,
+        content: result.content,
+        vectorScore,
+        bm25Score: 0,
+        combined: 0,
+      });
+    }
+
+    // Add BM25 scores
+    for (let i = 0; i < bm25Scores.length; i++) {
+      const doc = this.documents[i];
+      const score = bm25Scores[i];
+
+      if (combined.has(doc.id)) {
+        combined.get(doc.id)!.bm25Score = score;
+      } else if (score > 0) {
+        combined.set(doc.id, {
+          id: doc.id,
+          content: doc.content,
+          vectorScore: 0,
+          bm25Score: score,
+          combined: 0,
+        });
+      }
+    }
+
+    // Normalize and combine
+    const results = Array.from(combined.values());
+    const maxVector = Math.max(...results.map(r => r.vectorScore)) || 1;
+    const maxBm25 = Math.max(...results.map(r => r.bm25Score)) || 1;
+
+    for (const result of results) {
+      result.vectorScore /= maxVector;
+      result.bm25Score /= maxBm25;
+      result.combined = vectorWeight * result.vectorScore + bm25Weight * result.bm25Score;
+    }
+
+    // Sort by combined score and return top k
+    return results.sort((a, b) => b.combined - a.combined).slice(0, k);
+  }
+}
+```
+
+</details>
+
 ### 3.4 Advanced Pattern: Query Transformation
+
+<details>
+<summary><b>Python</b></summary>
 
 ```python
 # rag/query_transform.py
@@ -788,7 +1350,112 @@ More general question:"""
         return response.strip()
 ```
 
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// rag/query-transform.ts
+
+const QUERY_EXPANSION_PROMPT = `Given a user query, generate 3 alternative phrasings
+that might help find relevant documents.
+
+Original query: {query}
+
+Alternative phrasings (one per line):`;
+
+const HYPOTHETICAL_DOCUMENT_PROMPT = `Given a question, write a short paragraph
+that would be a perfect answer to this question. This will be used to find
+similar content.
+
+Question: {query}
+
+Hypothetical perfect answer:`;
+
+interface LLMClient {
+  chat(messages: { role: string; content: string }[]): Promise<string>;
+}
+
+/**
+ * Transforms queries to improve retrieval.
+ */
+class QueryTransformer {
+  constructor(private llm: LLMClient) {}
+
+  /**
+   * Generate alternative query phrasings.
+   */
+  async expandQuery(query: string): Promise<string[]> {
+    const prompt = QUERY_EXPANSION_PROMPT.replace('{query}', query);
+    const response = await this.llm.chat([{ role: 'user', content: prompt }]);
+
+    const alternatives = response
+      .split('\n')
+      .map(q => q.trim())
+      .filter(q => q.length > 0);
+
+    return [query, ...alternatives.slice(0, 3)]; // Original + 3 alternatives
+  }
+
+  /**
+   * Hypothetical Document Embedding (HyDE).
+   * Generate a hypothetical answer and use that for retrieval.
+   */
+  async hyde(query: string): Promise<string> {
+    const prompt = HYPOTHETICAL_DOCUMENT_PROMPT.replace('{query}', query);
+    const response = await this.llm.chat([{ role: 'user', content: prompt }]);
+    return response;
+  }
+
+  /**
+   * Generate a more general 'step-back' question.
+   */
+  async stepBack(query: string): Promise<string> {
+    const prompt = `Given this specific question, generate a more general
+question that would help understand the broader context.
+
+Specific question: ${query}
+
+More general question:`;
+
+    const response = await this.llm.chat([{ role: 'user', content: prompt }]);
+    return response.trim();
+  }
+}
+
+// Usage example
+async function enhancedRetrieval(
+  query: string,
+  transformer: QueryTransformer,
+  vectorStore: { query: (q: string, k: number) => Promise<any[]> }
+) {
+  // Strategy 1: Query expansion
+  const expandedQueries = await transformer.expandQuery(query);
+
+  // Search with all query variants
+  const allResults = await Promise.all(
+    expandedQueries.map(q => vectorStore.query(q, 5))
+  );
+
+  // Deduplicate and merge results
+  const seen = new Set<string>();
+  const mergedResults = allResults.flat().filter(result => {
+    if (seen.has(result.id)) return false;
+    seen.add(result.id);
+    return true;
+  });
+
+  return mergedResults;
+}
+```
+
+</details>
+
 ### 3.5 Advanced Pattern: Reranking
+
+<details>
+<summary><b>Python</b></summary>
 
 ```python
 # rag/reranking.py
@@ -857,6 +1524,128 @@ def cross_encoder_rerank(query: str, documents: List[str], model_name: str = "cr
 
     return [doc for doc, score in scored_docs]
 ```
+
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// rag/reranking.ts
+
+const RERANK_PROMPT = `Given a question and a list of documents, rank them by relevance.
+Return document numbers in order of relevance (most relevant first).
+
+Question: {query}
+
+Documents:
+{documents}
+
+Ranking (comma-separated document numbers, e.g., "3,1,4,2"):`;
+
+interface Document {
+  id: string;
+  content: string;
+  [key: string]: any;
+}
+
+interface LLMClient {
+  chat(messages: { role: string; content: string }[]): Promise<string>;
+}
+
+/**
+ * Use LLM to rerank retrieved documents.
+ */
+class LLMReranker {
+  constructor(private llm: LLMClient) {}
+
+  async rerank(query: string, documents: Document[], topK: number = 5): Promise<Document[]> {
+    // Format documents for prompt
+    const docText = documents
+      .map((doc, i) => `Document ${i + 1}:\n${doc.content.slice(0, 500)}...`)
+      .join('\n\n');
+
+    const prompt = RERANK_PROMPT
+      .replace('{query}', query)
+      .replace('{documents}', docText);
+
+    const response = await this.llm.chat([{ role: 'user', content: prompt }]);
+
+    // Parse ranking
+    try {
+      const ranking = response
+        .split(',')
+        .map(x => parseInt(x.trim(), 10) - 1)
+        .filter(i => !isNaN(i) && i >= 0 && i < documents.length);
+
+      const reranked = ranking.map(i => documents[i]);
+      return reranked.slice(0, topK);
+    } catch {
+      // Fallback to original order
+      return documents.slice(0, topK);
+    }
+  }
+}
+
+/**
+ * Alternative: Cohere reranking (faster, more accurate).
+ * Requires Cohere API key.
+ */
+class CohereReranker {
+  private baseUrl = 'https://api.cohere.ai/v1/rerank';
+
+  constructor(private apiKey: string) {}
+
+  async rerank(
+    query: string,
+    documents: string[],
+    topK: number = 5,
+    model: string = 'rerank-english-v3.0'
+  ): Promise<{ document: string; relevanceScore: number }[]> {
+    const response = await fetch(this.baseUrl, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query,
+        documents,
+        top_n: topK,
+        model,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Cohere rerank failed: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    return data.results.map((result: any) => ({
+      document: documents[result.index],
+      relevanceScore: result.relevance_score,
+    }));
+  }
+}
+
+// Usage example
+async function rerankedSearch(
+  query: string,
+  vectorStore: { query: (q: string, k: number) => Promise<Document[]> },
+  reranker: LLMReranker
+): Promise<Document[]> {
+  // Get initial results (fetch more than needed)
+  const initialResults = await vectorStore.query(query, 20);
+
+  // Rerank to get best results
+  const reranked = await reranker.rerank(query, initialResults, 5);
+
+  return reranked;
+}
+```
+
+</details>
 
 ---
 
@@ -964,50 +1753,41 @@ You're building a system that lets developers ask questions about a large codeba
 
 ### 5.2 Retrieval Metrics
 
+<details>
+<summary><b>Python</b></summary>
+
 ```python
 # evaluation/retrieval_metrics.py
 """Metrics for evaluating retrieval quality."""
 from typing import List, Set
 
 def precision_at_k(retrieved: List[str], relevant: Set[str], k: int) -> float:
-    """
-    Precision@K: What fraction of retrieved docs are relevant?
-    """
+    """Precision@K: What fraction of retrieved docs are relevant?"""
     retrieved_k = retrieved[:k]
     relevant_retrieved = len(set(retrieved_k) & relevant)
     return relevant_retrieved / k if k > 0 else 0.0
 
 def recall_at_k(retrieved: List[str], relevant: Set[str], k: int) -> float:
-    """
-    Recall@K: What fraction of relevant docs did we retrieve?
-    """
+    """Recall@K: What fraction of relevant docs did we retrieve?"""
     retrieved_k = retrieved[:k]
     relevant_retrieved = len(set(retrieved_k) & relevant)
     return relevant_retrieved / len(relevant) if relevant else 0.0
 
 def mean_reciprocal_rank(retrieved: List[str], relevant: Set[str]) -> float:
-    """
-    MRR: How high is the first relevant result?
-    """
+    """MRR: How high is the first relevant result?"""
     for i, doc in enumerate(retrieved):
         if doc in relevant:
             return 1.0 / (i + 1)
     return 0.0
 
 def ndcg_at_k(retrieved: List[str], relevance_scores: dict, k: int) -> float:
-    """
-    NDCG@K: Normalized Discounted Cumulative Gain.
-    Accounts for graded relevance (not just binary).
-    """
+    """NDCG@K: Normalized Discounted Cumulative Gain."""
     import math
 
     def dcg(scores):
         return sum(score / math.log2(i + 2) for i, score in enumerate(scores))
 
-    # Get scores for retrieved docs
     retrieved_scores = [relevance_scores.get(doc, 0) for doc in retrieved[:k]]
-
-    # Ideal ranking
     ideal_scores = sorted(relevance_scores.values(), reverse=True)[:k]
 
     dcg_score = dcg(retrieved_scores)
@@ -1015,19 +1795,9 @@ def ndcg_at_k(retrieved: List[str], relevance_scores: dict, k: int) -> float:
 
     return dcg_score / idcg_score if idcg_score > 0 else 0.0
 
-# Evaluation runner
-def evaluate_retrieval(
-    queries: List[str],
-    ground_truth: List[Set[str]],  # Relevant doc IDs for each query
-    retriever,
-    k: int = 5
-) -> dict:
+def evaluate_retrieval(queries, ground_truth, retriever, k=5):
     """Run retrieval evaluation."""
-    metrics = {
-        'precision': [],
-        'recall': [],
-        'mrr': []
-    }
+    metrics = {'precision': [], 'recall': [], 'mrr': []}
 
     for query, relevant in zip(queries, ground_truth):
         retrieved = retriever.query(query, n_results=k)
@@ -1037,13 +1807,107 @@ def evaluate_retrieval(
         metrics['recall'].append(recall_at_k(retrieved_ids, relevant, k))
         metrics['mrr'].append(mean_reciprocal_rank(retrieved_ids, relevant))
 
-    return {
-        name: sum(values) / len(values)
-        for name, values in metrics.items()
-    }
+    return {name: sum(values) / len(values) for name, values in metrics.items()}
 ```
 
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// evaluation/retrieval-metrics.ts
+
+/**
+ * Precision@K: What fraction of retrieved docs are relevant?
+ */
+function precisionAtK(retrieved: string[], relevant: Set<string>, k: number): number {
+  const retrievedK = retrieved.slice(0, k);
+  const relevantRetrieved = retrievedK.filter((doc) => relevant.has(doc)).length;
+  return k > 0 ? relevantRetrieved / k : 0;
+}
+
+/**
+ * Recall@K: What fraction of relevant docs did we retrieve?
+ */
+function recallAtK(retrieved: string[], relevant: Set<string>, k: number): number {
+  const retrievedK = retrieved.slice(0, k);
+  const relevantRetrieved = retrievedK.filter((doc) => relevant.has(doc)).length;
+  return relevant.size > 0 ? relevantRetrieved / relevant.size : 0;
+}
+
+/**
+ * MRR: How high is the first relevant result?
+ */
+function meanReciprocalRank(retrieved: string[], relevant: Set<string>): number {
+  for (let i = 0; i < retrieved.length; i++) {
+    if (relevant.has(retrieved[i])) {
+      return 1 / (i + 1);
+    }
+  }
+  return 0;
+}
+
+/**
+ * NDCG@K: Normalized Discounted Cumulative Gain.
+ */
+function ndcgAtK(retrieved: string[], relevanceScores: Map<string, number>, k: number): number {
+  const dcg = (scores: number[]) =>
+    scores.reduce((sum, score, i) => sum + score / Math.log2(i + 2), 0);
+
+  const retrievedScores = retrieved.slice(0, k).map((doc) => relevanceScores.get(doc) || 0);
+  const idealScores = Array.from(relevanceScores.values())
+    .sort((a, b) => b - a)
+    .slice(0, k);
+
+  const dcgScore = dcg(retrievedScores);
+  const idcgScore = dcg(idealScores);
+
+  return idcgScore > 0 ? dcgScore / idcgScore : 0;
+}
+
+interface RetrievalMetrics {
+  precision: number;
+  recall: number;
+  mrr: number;
+}
+
+async function evaluateRetrieval(
+  queries: string[],
+  groundTruth: Set<string>[],
+  retriever: { query: (q: string, n: number) => Promise<{ id: string }[]> },
+  k: number = 5
+): Promise<RetrievalMetrics> {
+  const metrics = { precision: [] as number[], recall: [] as number[], mrr: [] as number[] };
+
+  for (let i = 0; i < queries.length; i++) {
+    const query = queries[i];
+    const relevant = groundTruth[i];
+
+    const retrieved = await retriever.query(query, k);
+    const retrievedIds = retrieved.map((r) => r.id);
+
+    metrics.precision.push(precisionAtK(retrievedIds, relevant, k));
+    metrics.recall.push(recallAtK(retrievedIds, relevant, k));
+    metrics.mrr.push(meanReciprocalRank(retrievedIds, relevant));
+  }
+
+  const avg = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length;
+
+  return {
+    precision: avg(metrics.precision),
+    recall: avg(metrics.recall),
+    mrr: avg(metrics.mrr),
+  };
+}
+```
+
+</details>
+
 ### 5.3 LLM-as-Judge Evaluation
+
+<details>
+<summary><b>Python</b></summary>
 
 ```python
 # evaluation/llm_judge.py
@@ -1155,7 +2019,155 @@ class LLMJudge:
         }
 ```
 
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// evaluation/llm-judge.ts
+
+const JUDGE_PROMPT_RELEVANCE = `Rate how relevant this answer is to the question.
+
+Question: {question}
+Answer: {answer}
+
+Rate from 1-5:
+1 = Completely irrelevant
+2 = Slightly relevant
+3 = Moderately relevant
+4 = Very relevant
+5 = Perfectly relevant
+
+Provide your rating as a single number followed by a brief explanation.
+Rating:`;
+
+const JUDGE_PROMPT_FAITHFULNESS = `Check if the answer is faithful to the provided context.
+
+Context:
+{context}
+
+Question: {question}
+Answer: {answer}
+
+Does the answer contain any claims not supported by the context?
+Rate from 1-5:
+1 = Many unsupported claims
+2 = Some unsupported claims
+3 = Minor unsupported details
+4 = Mostly faithful
+5 = Completely faithful to context
+
+Rating:`;
+
+const JUDGE_PROMPT_CORRECTNESS = `Given the ground truth answer, rate how correct this answer is.
+
+Question: {question}
+Ground Truth: {ground_truth}
+Generated Answer: {answer}
+
+Rate from 1-5:
+1 = Completely wrong
+2 = Mostly wrong with some correct elements
+3 = Partially correct
+4 = Mostly correct with minor errors
+5 = Completely correct
+
+Rating:`;
+
+interface LLMClient {
+  chat(messages: { role: string; content: string }[]): Promise<string>;
+}
+
+interface JudgeResult {
+  rating: number | null;
+  explanation: string;
+}
+
+/**
+ * Use an LLM to judge response quality.
+ */
+class LLMJudge {
+  constructor(private llm: LLMClient) {}
+
+  async evaluateRelevance(question: string, answer: string): Promise<JudgeResult> {
+    const prompt = JUDGE_PROMPT_RELEVANCE
+      .replace('{question}', question)
+      .replace('{answer}', answer);
+
+    const response = await this.llm.chat([{ role: 'user', content: prompt }]);
+    return this.parseRating(response);
+  }
+
+  async evaluateFaithfulness(
+    context: string,
+    question: string,
+    answer: string
+  ): Promise<JudgeResult> {
+    const prompt = JUDGE_PROMPT_FAITHFULNESS
+      .replace('{context}', context)
+      .replace('{question}', question)
+      .replace('{answer}', answer);
+
+    const response = await this.llm.chat([{ role: 'user', content: prompt }]);
+    return this.parseRating(response);
+  }
+
+  async evaluateCorrectness(
+    question: string,
+    groundTruth: string,
+    answer: string
+  ): Promise<JudgeResult> {
+    const prompt = JUDGE_PROMPT_CORRECTNESS
+      .replace('{question}', question)
+      .replace('{ground_truth}', groundTruth)
+      .replace('{answer}', answer);
+
+    const response = await this.llm.chat([{ role: 'user', content: prompt }]);
+    return this.parseRating(response);
+  }
+
+  private parseRating(response: string): JudgeResult {
+    // Find first number 1-5
+    const match = response.match(/\b([1-5])\b/);
+    const rating = match ? parseInt(match[1], 10) : null;
+
+    return {
+      rating,
+      explanation: response,
+    };
+  }
+}
+
+// Usage example
+async function evaluateRAGResponse(
+  judge: LLMJudge,
+  question: string,
+  context: string,
+  generatedAnswer: string,
+  expectedAnswer: string
+) {
+  const [relevance, faithfulness, correctness] = await Promise.all([
+    judge.evaluateRelevance(question, generatedAnswer),
+    judge.evaluateFaithfulness(context, question, generatedAnswer),
+    judge.evaluateCorrectness(question, expectedAnswer, generatedAnswer),
+  ]);
+
+  return {
+    relevance: relevance.rating,
+    faithfulness: faithfulness.rating,
+    correctness: correctness.rating,
+    details: { relevance, faithfulness, correctness },
+  };
+}
+```
+
+</details>
+
 ### 5.4 Building Evaluation Datasets
+
+<details>
+<summary><b>Python</b></summary>
 
 ```python
 # evaluation/dataset.py
@@ -1260,7 +2272,138 @@ def create_sample_eval_dataset() -> EvalDataset:
     return dataset
 ```
 
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// evaluation/dataset.ts
+import { z } from 'zod';
+import * as fs from 'fs/promises';
+
+// Schema for evaluation examples
+const EvalExampleSchema = z.object({
+  id: z.string(),
+  question: z.string(),
+  expectedAnswer: z.string(),
+  relevantDocs: z.array(z.string()),
+  context: z.string().optional(),
+  metadata: z.record(z.any()).optional(),
+});
+
+type EvalExample = z.infer<typeof EvalExampleSchema>;
+
+/**
+ * Evaluation dataset management.
+ */
+class EvalDataset {
+  private examples: EvalExample[] = [];
+
+  constructor(examples: EvalExample[] = []) {
+    this.examples = examples;
+  }
+
+  addExample(example: EvalExample): void {
+    this.examples.push(example);
+  }
+
+  addFromProduction(
+    question: string,
+    answer: string,
+    rating: number,
+    relevantDocs: string[]
+  ): void {
+    // Only add high-quality examples
+    if (rating >= 4) {
+      this.examples.push({
+        id: `prod_${this.examples.length}`,
+        question,
+        expectedAnswer: answer,
+        relevantDocs,
+      });
+    }
+  }
+
+  getExamples(): EvalExample[] {
+    return this.examples;
+  }
+
+  size(): number {
+    return this.examples.length;
+  }
+
+  async save(path: string): Promise<void> {
+    const data = this.examples.map(ex => ({
+      id: ex.id,
+      question: ex.question,
+      expected_answer: ex.expectedAnswer,
+      relevant_docs: ex.relevantDocs,
+      context: ex.context,
+      metadata: ex.metadata,
+    }));
+
+    await fs.writeFile(path, JSON.stringify(data, null, 2));
+  }
+
+  static async load(path: string): Promise<EvalDataset> {
+    const content = await fs.readFile(path, 'utf-8');
+    const data = JSON.parse(content);
+
+    const examples: EvalExample[] = data.map((ex: any) => ({
+      id: ex.id,
+      question: ex.question,
+      expectedAnswer: ex.expected_answer,
+      relevantDocs: ex.relevant_docs,
+      context: ex.context,
+      metadata: ex.metadata,
+    }));
+
+    return new EvalDataset(examples);
+  }
+}
+
+// Example: Creating an evaluation dataset
+function createSampleEvalDataset(): EvalDataset {
+  const dataset = new EvalDataset();
+
+  dataset.addExample({
+    id: 'q1',
+    question: 'What integrations does TaskFlow support?',
+    expectedAnswer: 'TaskFlow supports integrations with Slack, GitHub, and Jira.',
+    relevantDocs: ['doc_integrations', 'doc_features'],
+  });
+
+  dataset.addExample({
+    id: 'q2',
+    question: 'How much does the basic plan cost?',
+    expectedAnswer: 'The basic plan costs $10 per user per month.',
+    relevantDocs: ['doc_pricing'],
+  });
+
+  return dataset;
+}
+
+// Usage
+async function main() {
+  const dataset = createSampleEvalDataset();
+  console.log(`Dataset size: ${dataset.size()}`);
+
+  // Save to file
+  await dataset.save('eval_dataset.json');
+
+  // Load from file
+  const loaded = await EvalDataset.load('eval_dataset.json');
+  console.log(`Loaded ${loaded.size()} examples`);
+}
+```
+
+</details>
+
 ### 5.5 Evaluation Pipeline
+
+<details>
+<summary><b>Python</b></summary>
 
 ```python
 # evaluation/pipeline.py
@@ -1360,6 +2503,171 @@ class RAGEvaluator:
         return summary
 ```
 
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// evaluation/pipeline.ts
+
+interface EvalResult {
+  exampleId: string;
+  retrievalMetrics: {
+    'precision@5': number;
+    'recall@5': number;
+    mrr: number;
+  };
+  generationMetrics: {
+    relevance: number | null;
+    correctness: number | null;
+  };
+  latencyMs: number;
+  retrievedDocs: string[];
+  generatedAnswer: string;
+}
+
+interface EvalSummary {
+  retrieval: {
+    'precision@5': number;
+    'recall@5': number;
+    mrr: number;
+  };
+  generation: {
+    relevance: number | null;
+    correctness: number | null;
+  };
+  latency: {
+    meanMs: number;
+    p50Ms: number;
+    p95Ms: number;
+  };
+  nExamples: number;
+}
+
+interface RAGSystem {
+  query(question: string, nResults: number): Promise<{ id: string; content: string }[]>;
+  generateResponse(question: string): Promise<string>;
+}
+
+/**
+ * Complete RAG evaluation pipeline.
+ */
+class RAGEvaluator {
+  constructor(
+    private rag: RAGSystem,
+    private judge: LLMJudge
+  ) {}
+
+  async evaluate(dataset: EvalDataset): Promise<EvalSummary> {
+    const results: EvalResult[] = [];
+    const examples = dataset.getExamples();
+
+    for (const example of examples) {
+      const start = performance.now();
+
+      // Run RAG
+      const retrieved = await this.rag.query(example.question, 5);
+      const answer = await this.rag.generateResponse(example.question);
+
+      const latencyMs = performance.now() - start;
+
+      // Evaluate retrieval
+      const retrievedIds = retrieved.map(r => r.id);
+      const relevantSet = new Set(example.relevantDocs);
+
+      const retrievalMetrics = {
+        'precision@5': precisionAtK(retrievedIds, relevantSet, 5),
+        'recall@5': recallAtK(retrievedIds, relevantSet, 5),
+        mrr: meanReciprocalRank(retrievedIds, relevantSet),
+      };
+
+      // Evaluate generation
+      const [relevance, correctness] = await Promise.all([
+        this.judge.evaluateRelevance(example.question, answer),
+        this.judge.evaluateCorrectness(example.question, example.expectedAnswer, answer),
+      ]);
+
+      const generationMetrics = {
+        relevance: relevance.rating,
+        correctness: correctness.rating,
+      };
+
+      results.push({
+        exampleId: example.id,
+        retrievalMetrics,
+        generationMetrics,
+        latencyMs,
+        retrievedDocs: retrievedIds,
+        generatedAnswer: answer,
+      });
+    }
+
+    return this.aggregateResults(results);
+  }
+
+  private aggregateResults(results: EvalResult[]): EvalSummary {
+    const latencies = results.map(r => r.latencyMs).sort((a, b) => a - b);
+
+    const avg = (arr: number[]) =>
+      arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+
+    const percentile = (arr: number[], p: number) =>
+      arr[Math.floor(arr.length * p)] || 0;
+
+    // Average retrieval metrics
+    const retrievalPrecision = avg(results.map(r => r.retrievalMetrics['precision@5']));
+    const retrievalRecall = avg(results.map(r => r.retrievalMetrics['recall@5']));
+    const retrievalMrr = avg(results.map(r => r.retrievalMetrics.mrr));
+
+    // Average generation metrics (filter out nulls)
+    const relevanceValues = results
+      .map(r => r.generationMetrics.relevance)
+      .filter((v): v is number => v !== null);
+    const correctnessValues = results
+      .map(r => r.generationMetrics.correctness)
+      .filter((v): v is number => v !== null);
+
+    return {
+      retrieval: {
+        'precision@5': retrievalPrecision,
+        'recall@5': retrievalRecall,
+        mrr: retrievalMrr,
+      },
+      generation: {
+        relevance: relevanceValues.length > 0 ? avg(relevanceValues) : null,
+        correctness: correctnessValues.length > 0 ? avg(correctnessValues) : null,
+      },
+      latency: {
+        meanMs: avg(latencies),
+        p50Ms: percentile(latencies, 0.5),
+        p95Ms: percentile(latencies, 0.95),
+      },
+      nExamples: results.length,
+    };
+  }
+}
+
+// Usage example
+async function runEvaluation(rag: RAGSystem, judge: LLMJudge) {
+  const dataset = await EvalDataset.load('eval_dataset.json');
+  const evaluator = new RAGEvaluator(rag, judge);
+
+  const summary = await evaluator.evaluate(dataset);
+
+  console.log('Evaluation Results:');
+  console.log(`  Examples: ${summary.nExamples}`);
+  console.log(`  Retrieval P@5: ${(summary.retrieval['precision@5'] * 100).toFixed(1)}%`);
+  console.log(`  Retrieval R@5: ${(summary.retrieval['recall@5'] * 100).toFixed(1)}%`);
+  console.log(`  Generation Relevance: ${summary.generation.relevance?.toFixed(2)}/5`);
+  console.log(`  Mean Latency: ${summary.latency.meanMs.toFixed(0)}ms`);
+
+  return summary;
+}
+```
+
+</details>
+
 ---
 
 <a name="observability"></a>
@@ -1405,6 +2713,9 @@ class RAGEvaluator:
 ```
 
 ### 6.2 Logging Implementation
+
+<details>
+<summary><b>Python</b></summary>
 
 ```python
 # observability/logging.py
@@ -1531,7 +2842,162 @@ def process_rag_query(query: str):
         raise
 ```
 
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// observability/logging.ts
+import { randomUUID } from 'crypto';
+
+interface SpanData {
+  name: string;
+  start: number;
+  durationMs?: number;
+  success?: boolean;
+  error?: string;
+}
+
+interface RequestContext {
+  requestId: string;
+  spans: SpanData[];
+  metadata: Record<string, any>;
+  startTime: number;
+}
+
+interface LogEvent {
+  service: string;
+  event: string;
+  requestId: string | null;
+  timestamp: number;
+  [key: string]: any;
+}
+
+/**
+ * Structured logger for RAG systems.
+ */
+class RAGLogger {
+  private context: RequestContext | null = null;
+
+  constructor(private service: string = 'rag') {}
+
+  startRequest(query: string, metadata: Record<string, any> = {}): RequestContext {
+    this.context = {
+      requestId: randomUUID(),
+      spans: [],
+      metadata,
+      startTime: performance.now(),
+    };
+    this.logEvent('request_start', { query });
+    return this.context;
+  }
+
+  endRequest(result?: any, error?: string): void {
+    if (!this.context) return;
+
+    const durationMs = performance.now() - this.context.startTime;
+    this.logEvent('request_end', {
+      durationMs,
+      success: error === undefined,
+      error,
+    });
+    this.context = null;
+  }
+
+  async span<T>(name: string, fn: () => Promise<T>): Promise<T> {
+    const start = performance.now();
+    const spanData: SpanData = { name, start };
+
+    try {
+      const result = await fn();
+      spanData.success = true;
+      return result;
+    } catch (e) {
+      spanData.success = false;
+      spanData.error = e instanceof Error ? e.message : String(e);
+      throw e;
+    } finally {
+      spanData.durationMs = performance.now() - start;
+      this.context?.spans.push(spanData);
+      this.logEvent('span_complete', spanData);
+    }
+  }
+
+  logEvent(eventType: string, data: Record<string, any>): void {
+    const logData: LogEvent = {
+      service: this.service,
+      event: eventType,
+      requestId: this.context?.requestId || null,
+      timestamp: Date.now(),
+      ...data,
+    };
+    console.log(JSON.stringify(logData));
+  }
+
+  logRetrieval(query: string, results: { id: string; score?: number }[]): void {
+    const scores = results.map(r => r.score).filter((s): s is number => s !== undefined);
+    this.logEvent('retrieval', {
+      query,
+      numResults: results.length,
+      topScore: scores.length > 0 ? Math.max(...scores) : null,
+      minScore: scores.length > 0 ? Math.min(...scores) : null,
+      resultIds: results.map(r => r.id),
+    });
+  }
+
+  logGeneration(model: string, inputTokens: number, outputTokens: number, latencyMs: number): void {
+    this.logEvent('generation', {
+      model,
+      inputTokens,
+      outputTokens,
+      latencyMs,
+    });
+  }
+}
+
+// Usage example
+const logger = new RAGLogger();
+
+async function processRAGQuery(
+  query: string,
+  getEmbedding: (q: string) => Promise<number[]>,
+  vectorStore: { query: (emb: number[], k: number) => Promise<{ id: string; score: number }[]> },
+  llm: { generate: (q: string, ctx: any[]) => Promise<string> }
+): Promise<string> {
+  logger.startRequest(query);
+
+  try {
+    const embedding = await logger.span('embedding', () => getEmbedding(query));
+
+    const results = await logger.span('retrieval', async () => {
+      const docs = await vectorStore.query(embedding, 5);
+      logger.logRetrieval(query, docs);
+      return docs;
+    });
+
+    const response = await logger.span('generation', async () => {
+      const start = performance.now();
+      const result = await llm.generate(query, results);
+      logger.logGeneration('claude-3-5-sonnet', 2400, 350, performance.now() - start);
+      return result;
+    });
+
+    logger.endRequest(response);
+    return response;
+  } catch (e) {
+    logger.endRequest(undefined, e instanceof Error ? e.message : String(e));
+    throw e;
+  }
+}
+```
+
+</details>
+
 ### 6.3 Cost Monitoring
+
+<details>
+<summary><b>Python</b></summary>
 
 ```python
 # observability/cost.py
@@ -1626,6 +3092,152 @@ class CostTracker:
 
         return breakdown
 ```
+
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// observability/cost.ts
+
+// Pricing per 1M tokens (as of 2024)
+const PRICING: Record<string, { input: number; output: number }> = {
+  'gpt-4o': { input: 5.0, output: 15.0 },
+  'gpt-4-turbo': { input: 10.0, output: 30.0 },
+  'claude-3-5-sonnet': { input: 3.0, output: 15.0 },
+  'claude-3-opus': { input: 15.0, output: 75.0 },
+  'text-embedding-3-small': { input: 0.02, output: 0.0 },
+  'text-embedding-3-large': { input: 0.13, output: 0.0 },
+};
+
+interface Usage {
+  model: string;
+  inputTokens: number;
+  outputTokens: number;
+  timestamp: Date;
+  requestId?: string;
+}
+
+interface BudgetStatus {
+  dailyBudget: number;
+  dailySpent: number;
+  dailyRemaining: number;
+  percentageUsed: number;
+  alert: boolean;
+}
+
+interface ModelBreakdown {
+  totalCost: number;
+  inputTokens: number;
+  outputTokens: number;
+  requestCount: number;
+}
+
+/**
+ * Track and monitor LLM costs.
+ */
+class CostTracker {
+  private usageHistory: Usage[] = [];
+  private dailyBudget: number = 100.0;
+
+  recordUsage(usage: Usage): void {
+    this.usageHistory.push(usage);
+  }
+
+  calculateCost(usage: Usage): number {
+    const pricing = PRICING[usage.model];
+    if (!pricing) return 0;
+
+    const inputCost = (usage.inputTokens / 1_000_000) * pricing.input;
+    const outputCost = (usage.outputTokens / 1_000_000) * pricing.output;
+    return inputCost + outputCost;
+  }
+
+  getDailyCost(date: Date = new Date()): number {
+    const dayStart = new Date(date);
+    dayStart.setHours(0, 0, 0, 0);
+
+    const dayEnd = new Date(dayStart);
+    dayEnd.setDate(dayEnd.getDate() + 1);
+
+    return this.usageHistory
+      .filter(u => u.timestamp >= dayStart && u.timestamp < dayEnd)
+      .reduce((sum, u) => sum + this.calculateCost(u), 0);
+  }
+
+  getBudgetStatus(): BudgetStatus {
+    const dailySpent = this.getDailyCost();
+    return {
+      dailyBudget: this.dailyBudget,
+      dailySpent,
+      dailyRemaining: this.dailyBudget - dailySpent,
+      percentageUsed: (dailySpent / this.dailyBudget) * 100,
+      alert: dailySpent > this.dailyBudget * 0.8,
+    };
+  }
+
+  getCostBreakdown(days: number = 7): Record<string, ModelBreakdown> {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+
+    const recent = this.usageHistory.filter(u => u.timestamp > cutoff);
+
+    const breakdown: Record<string, ModelBreakdown> = {};
+
+    for (const usage of recent) {
+      if (!breakdown[usage.model]) {
+        breakdown[usage.model] = {
+          totalCost: 0,
+          inputTokens: 0,
+          outputTokens: 0,
+          requestCount: 0,
+        };
+      }
+
+      breakdown[usage.model].totalCost += this.calculateCost(usage);
+      breakdown[usage.model].inputTokens += usage.inputTokens;
+      breakdown[usage.model].outputTokens += usage.outputTokens;
+      breakdown[usage.model].requestCount += 1;
+    }
+
+    return breakdown;
+  }
+
+  setDailyBudget(budget: number): void {
+    this.dailyBudget = budget;
+  }
+}
+
+// Usage example
+const costTracker = new CostTracker();
+
+// Record usage after each LLM call
+costTracker.recordUsage({
+  model: 'claude-3-5-sonnet',
+  inputTokens: 2400,
+  outputTokens: 350,
+  timestamp: new Date(),
+  requestId: 'req_123',
+});
+
+// Check budget status
+const status = costTracker.getBudgetStatus();
+console.log(`Daily spend: $${status.dailySpent.toFixed(4)}`);
+console.log(`Budget used: ${status.percentageUsed.toFixed(1)}%`);
+
+if (status.alert) {
+  console.warn('Warning: Approaching daily budget limit!');
+}
+
+// Get breakdown by model
+const breakdown = costTracker.getCostBreakdown(7);
+for (const [model, data] of Object.entries(breakdown)) {
+  console.log(`${model}: $${data.totalCost.toFixed(4)} (${data.requestCount} requests)`);
+}
+```
+
+</details>
 
 ### 6.4 Common Debugging Patterns
 

@@ -71,25 +71,60 @@ git --version       # Any recent version
 
 ---
 
+## Choose Your Language
+
+All labs are available in **Python** and **TypeScript**. Choose based on your preference:
+
+| Aspect | Python | TypeScript |
+|--------|--------|------------|
+| Directory | `labs/labXX/python/` | `labs/labXX/typescript/` |
+| Web Framework | FastAPI | Hono |
+| Validation | Pydantic | Zod |
+| Run Command | `uvicorn main:app` | `npm run dev` |
+| Strengths | ML ecosystem, AI libraries | Type safety, frontend integration |
+
+> **Recommendation**: If you're undecided, Python has more mature AI tooling. TypeScript is ideal if you're building full-stack web applications. See [docs/LANGUAGE-CHOICE-GUIDE.md](./docs/LANGUAGE-CHOICE-GUIDE.md) for detailed guidance.
+
+---
+
 ## Quick Start
 
-### 1. Clone and Setup
+### 1. Clone and Navigate
 ```bash
-# Navigate to training directory
 cd /path/to/AI_Training
+```
 
+### 2. Setup Your Language
+
+<details>
+<summary><b>Python Setup</b></summary>
+
+```bash
 # Create Python virtual environment
 python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install Python dependencies
 pip install -r requirements.txt
+```
 
-# Install Node.js dependencies (for TypeScript labs)
+</details>
+
+<details>
+<summary><b>TypeScript Setup</b></summary>
+
+```bash
+# Install Node.js dependencies
+npm install
+
+# For individual labs
+cd labs/lab02-code-analyzer-agent/typescript
 npm install
 ```
 
-### 2. Configure API Keys
+</details>
+
+### 3. Configure API Keys
 ```bash
 # Copy the environment template
 cp .env.example .env
@@ -100,11 +135,22 @@ cp .env.example .env
 # GOOGLE_API_KEY=...
 ```
 
-### 3. Verify Setup
+### 4. Verify Setup
+
+Run the universal setup verification script:
+
 ```bash
-# Run the setup verification script
-python scripts/verify_setup.py
+# Verify all environments (Python + TypeScript)
+./scripts/verify-setup.sh
+
+# Verify Python only
+./scripts/verify-setup.sh python
+
+# Verify TypeScript only
+./scripts/verify-setup.sh typescript
 ```
+
+The script checks versions, API keys, and installed packages for your chosen language.
 
 ---
 
@@ -115,7 +161,8 @@ AI_Training/
 ├── README.md                 # You are here
 ├── SCHEDULE.md               # Detailed daily/hourly schedule
 ├── requirements.txt          # Python dependencies
-├── package.json              # Node.js dependencies
+├── package.json              # Node.js/TypeScript dependencies
+├── tsconfig.base.json        # TypeScript base configuration
 ├── .env.example              # Environment template
 │
 ├── DAY1-FOUNDATIONS.md       # GenAI Foundations & Vibe Coding
@@ -127,8 +174,14 @@ AI_Training/
 ├── CHECKLISTS.md             # Daily progress tracking
 ├── CAPSTONE-RUBRIC.md        # Final project evaluation
 │
+├── docs/                     # Additional documentation
+│   └── LANGUAGE-CHOICE-GUIDE.md  # Python vs TypeScript guidance
+│
 ├── labs/                     # Hands-on lab exercises
 │   ├── lab01-vibe-coding-intro/
+│   │   ├── README.md         # Lab instructions
+│   │   ├── python/           # Python implementation
+│   │   └── typescript/       # TypeScript implementation
 │   ├── lab02-code-analyzer-agent/
 │   ├── lab03-migration-workflow/
 │   ├── lab04-rag-system/
@@ -136,7 +189,8 @@ AI_Training/
 │   └── capstone-options/
 │
 ├── templates/                # Reusable starter templates
-│   ├── python-agent/
+│   ├── python-agent/         # Python agent template
+│   ├── typescript-agent/     # TypeScript agent template
 │   ├── typescript-api/
 │   ├── rag-starter/
 │   └── deployment/
@@ -256,22 +310,46 @@ By the end of this program, you will be able to:
 ## Quick Reference
 
 ### Common Commands
+
+<details>
+<summary><b>Python</b></summary>
+
 ```bash
-# Activate Python environment
+# Activate environment
 source .venv/bin/activate
 
-# Run a Python lab
-python labs/lab01-vibe-coding-intro/main.py
+# Run a lab
+cd labs/lab02-code-analyzer-agent/python
+uvicorn main:app --reload
 
-# Run TypeScript lab
-npx ts-node labs/lab01-vibe-coding-intro/main.ts
-
-# Deploy to Vercel
-vercel --prod
+# Run tests
+pytest
 
 # Deploy to Railway
 railway up
 ```
+
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```bash
+# Run a lab
+cd labs/lab02-code-analyzer-agent/typescript
+npm run dev
+
+# Build for production
+npm run build
+
+# Run production build
+npm start
+
+# Deploy to Vercel
+vercel --prod
+```
+
+</details>
 
 ### Cost Options
 

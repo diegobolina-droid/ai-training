@@ -1050,6 +1050,9 @@ Perform root cause analysis:
 
 ### 5.5 Code Prompting Library
 
+<details>
+<summary><b>Python</b></summary>
+
 ```python
 # prompts/code_prompts.py
 """Reusable prompt templates for code tasks."""
@@ -1160,6 +1163,144 @@ Include tests for:
 {additional_test_requirements}
 """
 ```
+
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// prompts/code-prompts.ts
+/**
+ * Reusable prompt templates for code tasks.
+ */
+
+export const ANALYZE_CODE = `
+Analyze this code and provide:
+
+1. **Purpose** (2-3 sentences)
+   What problem does this solve?
+
+2. **Key Components**
+   - Main functions/classes and their roles
+   - Important data structures
+
+3. **Flow**
+   Step-by-step execution for the main use case.
+
+4. **Dependencies**
+   External libraries and why they're used.
+
+5. **Edge Cases**
+   Potential inputs that might cause issues.
+
+Code:
+\`\`\`{language}
+{code}
+\`\`\`
+`;
+
+export const REVIEW_CODE = `
+Review this code as a senior {role} engineer.
+
+Context: {context}
+
+Focus areas:
+{focus_areas}
+
+For each issue found:
+1. Severity: Critical/High/Medium/Low
+2. Location: Line numbers or function names
+3. Issue: Clear description
+4. Impact: Why this matters
+5. Fix: Specific code change
+
+Code:
+\`\`\`{language}
+{code}
+\`\`\`
+`;
+
+export const GENERATE_CODE = `
+Implement the following:
+
+Task: {task_description}
+
+Requirements:
+{requirements}
+
+Constraints:
+- Language: {language}
+- Style: {style_guide}
+- Must integrate with: {integrations}
+
+Provide:
+1. Complete implementation with type hints
+2. Docstrings for public interfaces
+3. Example usage
+4. Key design decisions explained
+`;
+
+export const DEBUG_CODE = `
+Debug this code:
+
+Observed: {observed}
+Expected: {expected}
+Error: {error_message}
+
+Code:
+\`\`\`{language}
+{code}
+\`\`\`
+
+Steps:
+1. Identify the bug location
+2. Explain why it occurs
+3. Provide the fix
+4. Explain how the fix resolves the issue
+5. Suggest how to prevent similar bugs
+`;
+
+export const WRITE_TESTS = `
+Generate comprehensive tests for:
+
+\`\`\`{language}
+{code}
+\`\`\`
+
+Requirements:
+- Framework: {test_framework}
+- Coverage: {coverage_requirements}
+- Style: {test_style}
+
+Include tests for:
+1. Happy path cases
+2. Edge cases
+3. Error handling
+4. Boundary conditions
+{additional_test_requirements}
+`;
+
+// Helper function to fill in template variables
+export function fillTemplate(
+  template: string,
+  variables: Record<string, string>
+): string {
+  let result = template;
+  for (const [key, value] of Object.entries(variables)) {
+    result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
+  }
+  return result;
+}
+
+// Usage example
+const prompt = fillTemplate(ANALYZE_CODE, {
+  language: 'typescript',
+  code: 'function add(a: number, b: number) { return a + b; }',
+});
+```
+
+</details>
 
 ---
 

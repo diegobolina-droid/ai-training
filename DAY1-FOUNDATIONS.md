@@ -47,72 +47,48 @@ Day 5: Capstone Project (your choice)
 
 ### Environment Setup Verification
 
-Run this script to verify your setup:
+Run the verification script to check your setup:
 
-```python
-# scripts/verify_setup.py
-import sys
-import os
+```bash
+# Verify all environments (Python + TypeScript)
+./scripts/verify-setup.sh
 
-def check_python():
-    version = sys.version_info
-    if version.major >= 3 and version.minor >= 10:
-        print(f"✓ Python {version.major}.{version.minor}.{version.micro}")
-        return True
-    print(f"✗ Python {version.major}.{version.minor} (need 3.10+)")
-    return False
+# Verify Python only
+./scripts/verify-setup.sh python
 
-def check_env_vars():
-    required = ["OPENAI_API_KEY", "ANTHROPIC_API_KEY"]
-    optional = ["GOOGLE_API_KEY"]
+# Verify TypeScript only
+./scripts/verify-setup.sh typescript
+```
 
-    all_good = True
-    for var in required:
-        if os.getenv(var):
-            print(f"✓ {var} is set")
-        else:
-            print(f"✗ {var} is missing (required)")
-            all_good = False
+The script will check:
+- **Python**: version 3.10+, pip, packages (openai, anthropic, fastapi, etc.)
+- **TypeScript**: Node.js 18+, npm, packages (@anthropic-ai/sdk, openai, hono, etc.)
+- **API Keys**: ANTHROPIC_API_KEY, OPENAI_API_KEY, GOOGLE_API_KEY
+- **Tools**: git, curl, deployment CLIs
 
-    for var in optional:
-        if os.getenv(var):
-            print(f"✓ {var} is set")
-        else:
-            print(f"○ {var} is missing (optional)")
+Example output:
+```
+=== Python Environment ===
 
-    return all_good
+✓ Python 3.11.5
+✓ pip 23.2.1
+✓ Virtual environment active: .venv
 
-def check_packages():
-    packages = ["openai", "anthropic", "langchain", "fastapi", "chromadb"]
-    all_good = True
+Python Packages:
+✓ openai (1.12.0)
+✓ anthropic (0.18.1)
+✓ fastapi (0.109.0)
+...
 
-    for pkg in packages:
-        try:
-            __import__(pkg)
-            print(f"✓ {pkg}")
-        except ImportError:
-            print(f"✗ {pkg} not installed")
-            all_good = False
+=== Summary ===
 
-    return all_good
+Passed: 12
+Failed: 0
+Warnings: 3
 
-if __name__ == "__main__":
-    print("\n=== Environment Verification ===\n")
-
-    print("Python Version:")
-    py_ok = check_python()
-
-    print("\nEnvironment Variables:")
-    env_ok = check_env_vars()
-
-    print("\nPython Packages:")
-    pkg_ok = check_packages()
-
-    print("\n" + "="*35)
-    if py_ok and env_ok and pkg_ok:
-        print("✓ All checks passed! Ready to go.")
-    else:
-        print("✗ Some checks failed. Please fix before continuing.")
+============================================
+  All required checks passed! Ready to go.
+============================================
 ```
 
 ---
@@ -156,6 +132,9 @@ LLMs don't see characters or words—they see **tokens**. Understanding tokens i
 - Working within context limits
 - Debugging unexpected behavior
 
+<details>
+<summary><b>Python</b></summary>
+
 ```python
 # Token counting example (works with any tiktoken-compatible model)
 import tiktoken
@@ -178,6 +157,36 @@ for text in examples:
     ratio = len(text) / tokens
     print(f"{tokens:3d} tokens | {len(text):3d} chars | ratio: {ratio:.1f} | {text[:50]}...")
 ```
+
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// Token counting example using gpt-tokenizer
+import { encode } from 'gpt-tokenizer';
+
+function countTokens(text: string): number {
+  return encode(text).length;
+}
+
+// Examples
+const examples = [
+  'Hello, world!',
+  'def fibonacci(n): return n if n < 2 else fibonacci(n-1) + fibonacci(n-2)',
+  'The quick brown fox jumps over the lazy dog.',
+  'supercalifragilisticexpialidocious',
+];
+
+for (const text of examples) {
+  const tokens = countTokens(text);
+  const ratio = text.length / tokens;
+  console.log(`${tokens.toString().padStart(3)} tokens | ${text.length.toString().padStart(3)} chars | ratio: ${ratio.toFixed(1)} | ${text.slice(0, 50)}...`);
+}
+```
+
+</details>
 
 **Token Rules of Thumb:**
 - English: ~4 characters per token
@@ -243,6 +252,9 @@ Top-p 1.0: Considers all tokens
 
 Here's a pattern that works across all major providers:
 
+<details>
+<summary><b>Python</b></summary>
+
 ```python
 # utils/llm_client.py
 from abc import ABC, abstractmethod
@@ -295,29 +307,11 @@ class AnthropicClient(LLMClient):
         )
         return response.content[0].text
 
-class GeminiClient(LLMClient):
-    def __init__(self, model: str = "gemini-1.5-pro"):
-        import google.generativeai as genai
-        genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-        self.model = genai.GenerativeModel(model)
-
-    def chat(self, messages: List[Dict[str, str]], **kwargs) -> str:
-        # Convert to Gemini format
-        history = []
-        for msg in messages[:-1]:
-            role = "user" if msg["role"] == "user" else "model"
-            history.append({"role": role, "parts": [msg["content"]]})
-
-        chat = self.model.start_chat(history=history)
-        response = chat.send_message(messages[-1]["content"])
-        return response.text
-
 def get_llm_client(provider: str = "anthropic") -> LLMClient:
     """Factory function to get the appropriate LLM client."""
     providers = {
         "openai": OpenAIClient,
         "anthropic": AnthropicClient,
-        "gemini": GeminiClient,
     }
 
     if provider not in providers:
@@ -327,17 +321,120 @@ def get_llm_client(provider: str = "anthropic") -> LLMClient:
 
 # Usage example
 if __name__ == "__main__":
-    # Same code works with any provider
-    client = get_llm_client("anthropic")  # or "openai" or "gemini"
+    client = get_llm_client("anthropic")  # or "openai"
 
     messages = [
         {"role": "system", "content": "You are a helpful coding assistant."},
-        {"role": "user", "content": "Write a Python function to reverse a string."}
+        {"role": "user", "content": "Write a function to reverse a string."}
     ]
 
     response = client.chat(messages)
     print(response)
 ```
+
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// utils/llm-client.ts
+import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
+
+export interface Message {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
+export abstract class LLMClient {
+  abstract chat(messages: Message[]): Promise<string>;
+}
+
+export class OpenAIClient extends LLMClient {
+  private client: OpenAI;
+  private model: string;
+
+  constructor(model: string = 'gpt-4o') {
+    super();
+    this.client = new OpenAI();
+    this.model = model;
+  }
+
+  async chat(messages: Message[]): Promise<string> {
+    const response = await this.client.chat.completions.create({
+      model: this.model,
+      messages,
+    });
+    return response.choices[0].message.content || '';
+  }
+}
+
+export class AnthropicClient extends LLMClient {
+  private client: Anthropic;
+  private model: string;
+
+  constructor(model: string = 'claude-3-5-sonnet-20241022') {
+    super();
+    this.client = new Anthropic();
+    this.model = model;
+  }
+
+  async chat(messages: Message[]): Promise<string> {
+    // Anthropic uses 'system' separately
+    let system: string | undefined;
+    const filtered: Array<{ role: 'user' | 'assistant'; content: string }> = [];
+
+    for (const msg of messages) {
+      if (msg.role === 'system') {
+        system = msg.content;
+      } else {
+        filtered.push({ role: msg.role, content: msg.content });
+      }
+    }
+
+    const response = await this.client.messages.create({
+      model: this.model,
+      max_tokens: 4096,
+      system,
+      messages: filtered,
+    });
+
+    const textBlock = response.content.find((block) => block.type === 'text');
+    return textBlock?.type === 'text' ? textBlock.text : '';
+  }
+}
+
+export type LLMProvider = 'anthropic' | 'openai';
+
+export function getLLMClient(provider: LLMProvider = 'anthropic'): LLMClient {
+  switch (provider) {
+    case 'anthropic':
+      return new AnthropicClient();
+    case 'openai':
+      return new OpenAIClient();
+    default:
+      throw new Error(`Unknown provider: ${provider}`);
+  }
+}
+
+// Usage example
+async function main() {
+  const client = getLLMClient('anthropic'); // or 'openai'
+
+  const messages: Message[] = [
+    { role: 'system', content: 'You are a helpful coding assistant.' },
+    { role: 'user', content: 'Write a function to reverse a string.' },
+  ];
+
+  const response = await client.chat(messages);
+  console.log(response);
+}
+
+main();
+```
+
+</details>
 
 ---
 
@@ -527,6 +624,9 @@ Compare behavior across three LLM providers to understand their differences.
 
 ### Setup
 
+<details>
+<summary><b>Python</b></summary>
+
 ```python
 # exercise1_model_comparison.py
 from utils.llm_client import get_llm_client
@@ -537,7 +637,7 @@ from datetime import datetime
 TEST_PROMPTS = [
     {
         "name": "code_generation",
-        "prompt": "Write a Python function that finds the longest palindromic substring in a string. Include type hints and a docstring.",
+        "prompt": "Write a function that finds the longest palindromic substring. Include type hints and a docstring.",
         "evaluate": ["correctness", "code_quality", "documentation"]
     },
     {
@@ -547,33 +647,19 @@ TEST_PROMPTS = [
     },
     {
         "name": "refactoring",
-        "prompt": """Refactor this code to be more Pythonic:
-
-def get_evens(numbers):
-    result = []
-    for i in range(len(numbers)):
-        if numbers[i] % 2 == 0:
-            result.append(numbers[i])
-    return result
-""",
+        "prompt": "Refactor this code to be more idiomatic:\n\ndef get_evens(numbers):\n    result = []\n    for i in range(len(numbers)):\n        if numbers[i] % 2 == 0:\n            result.append(numbers[i])\n    return result",
         "evaluate": ["improvement", "explanation"]
-    },
-    {
-        "name": "ambiguous_request",
-        "prompt": "Make this better: x = [i for i in range(10) if i % 2]",
-        "evaluate": ["interpretation", "suggestions"]
     },
 ]
 
 def run_comparison():
-    providers = ["openai", "anthropic", "gemini"]
+    providers = ["openai", "anthropic"]
     results = {}
 
     for test in TEST_PROMPTS:
         results[test["name"]] = {}
         print(f"\n{'='*60}")
         print(f"Test: {test['name']}")
-        print(f"{'='*60}")
 
         for provider in providers:
             try:
@@ -583,7 +669,7 @@ def run_comparison():
                     {"role": "user", "content": test["prompt"]}
                 ]
 
-                response = client.chat(messages, temperature=0.0)
+                response = client.chat(messages)
                 results[test["name"]][provider] = {
                     "response": response,
                     "timestamp": datetime.now().isoformat()
@@ -606,6 +692,83 @@ def run_comparison():
 if __name__ == "__main__":
     run_comparison()
 ```
+
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// exercise1_model_comparison.ts
+import { getLLMClient, type LLMProvider, type Message } from './utils/llm-client';
+import { writeFileSync } from 'fs';
+
+interface TestPrompt {
+  name: string;
+  prompt: string;
+  evaluate: string[];
+}
+
+const TEST_PROMPTS: TestPrompt[] = [
+  {
+    name: 'code_generation',
+    prompt: 'Write a function that finds the longest palindromic substring. Include type annotations and JSDoc.',
+    evaluate: ['correctness', 'code_quality', 'documentation'],
+  },
+  {
+    name: 'reasoning',
+    prompt: 'A farmer has 17 sheep. All but 9 die. How many sheep are left? Explain your reasoning step by step.',
+    evaluate: ['correct_answer', 'explanation_quality'],
+  },
+  {
+    name: 'refactoring',
+    prompt: 'Refactor this code to be more idiomatic:\n\nfunction getEvens(numbers) {\n  const result = [];\n  for (let i = 0; i < numbers.length; i++) {\n    if (numbers[i] % 2 === 0) {\n      result.push(numbers[i]);\n    }\n  }\n  return result;\n}',
+    evaluate: ['improvement', 'explanation'],
+  },
+];
+
+async function runComparison() {
+  const providers: LLMProvider[] = ['openai', 'anthropic'];
+  const results: Record<string, Record<string, unknown>> = {};
+
+  for (const test of TEST_PROMPTS) {
+    results[test.name] = {};
+    console.log(`\n${'='.repeat(60)}`);
+    console.log(`Test: ${test.name}`);
+
+    for (const provider of providers) {
+      try {
+        const client = getLLMClient(provider);
+        const messages: Message[] = [
+          { role: 'system', content: 'You are a helpful programming assistant.' },
+          { role: 'user', content: test.prompt },
+        ];
+
+        const response = await client.chat(messages);
+        results[test.name][provider] = {
+          response,
+          timestamp: new Date().toISOString(),
+        };
+
+        console.log(`\n--- ${provider.toUpperCase()} ---`);
+        console.log(response.length > 500 ? response.slice(0, 500) + '...' : response);
+      } catch (error) {
+        results[test.name][provider] = { error: String(error) };
+        console.log(`\n--- ${provider.toUpperCase()} ---`);
+        console.log(`Error: ${error}`);
+      }
+    }
+  }
+
+  // Save results
+  writeFileSync('model_comparison_results.json', JSON.stringify(results, null, 2));
+  return results;
+}
+
+runComparison();
+```
+
+</details>
 
 ### Your Task
 

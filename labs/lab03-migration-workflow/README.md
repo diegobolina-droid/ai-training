@@ -13,6 +13,17 @@ Build a multi-step agent that can migrate code between frameworks using the plan
 
 ---
 
+## Choose Your Language
+
+| Aspect | Python | TypeScript |
+|--------|--------|------------|
+| Directory | `./python` | `./typescript` |
+| Framework | FastAPI | Hono |
+| State | dataclasses | interfaces + functions |
+| Run | `uvicorn main:app --reload` | `npm run dev` |
+
+---
+
 ## What You'll Build
 
 An agent that can:
@@ -66,9 +77,38 @@ An agent that can:
 
 ---
 
+## Quick Start
+
+### Python Setup
+
+```bash
+cd python
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+export ANTHROPIC_API_KEY=your-key
+uvicorn main:app --reload
+```
+
+### TypeScript Setup
+
+```bash
+cd typescript
+npm install
+
+export ANTHROPIC_API_KEY=your-key
+npm run dev
+```
+
+---
+
 ## Step-by-Step Instructions
 
 ### Step 1: Define the Agent State (15 min)
+
+<details>
+<summary><b>Python</b></summary>
 
 ```python
 # state.py
@@ -87,7 +127,7 @@ class Phase(Enum):
 class MigrationStep:
     id: int
     description: str
-    status: str = "pending"  # pending, in_progress, completed, failed
+    status: str = "pending"
     input_files: List[str] = field(default_factory=list)
     output_files: List[str] = field(default_factory=list)
     result: Optional[str] = None
@@ -96,7 +136,7 @@ class MigrationStep:
 class MigrationState:
     source_framework: str
     target_framework: str
-    source_files: Dict[str, str]  # filename -> content
+    source_files: Dict[str, str]
     phase: Phase = Phase.ANALYSIS
     analysis: Optional[Dict[str, Any]] = None
     plan: List[MigrationStep] = field(default_factory=list)
@@ -106,149 +146,73 @@ class MigrationState:
     errors: List[str] = field(default_factory=list)
 ```
 
-### Step 2: Implement the Agent Tools (20 min)
+</details>
 
-```python
-# tools.py
-from typing import Dict, List
+<details>
+<summary><b>TypeScript</b></summary>
 
-def analyze_code_tool(code: str, language: str) -> Dict:
-    """Analyze code structure and patterns."""
-    # This would use LLM in real implementation
-    return {
-        "name": "analyze_code",
-        "description": "Analyze source code to understand structure and patterns",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "code": {"type": "string"},
-                "language": {"type": "string"}
-            },
-            "required": ["code", "language"]
-        }
-    }
+```typescript
+// types.ts
+export type Phase = 'analysis' | 'planning' | 'execution' | 'verification' | 'complete';
 
-def create_plan_tool() -> Dict:
-    """Create a migration plan."""
-    return {
-        "name": "create_plan",
-        "description": "Create a step-by-step migration plan",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "analysis": {"type": "object"},
-                "target_framework": {"type": "string"}
-            },
-            "required": ["analysis", "target_framework"]
-        }
-    }
+export interface MigrationStep {
+  id: number;
+  description: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'failed';
+  inputFiles: string[];
+  outputFiles: string[];
+  result?: string;
+}
 
-def migrate_code_tool() -> Dict:
-    """Migrate a piece of code."""
-    return {
-        "name": "migrate_code",
-        "description": "Migrate code from source to target framework",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "source_code": {"type": "string"},
-                "source_framework": {"type": "string"},
-                "target_framework": {"type": "string"},
-                "context": {"type": "string"}
-            },
-            "required": ["source_code", "source_framework", "target_framework"]
-        }
-    }
+export interface MigrationState {
+  sourceFramework: string;
+  targetFramework: string;
+  sourceFiles: Record<string, string>;
+  phase: Phase;
+  analysis: Record<string, unknown> | null;
+  plan: MigrationStep[];
+  currentStep: number;
+  migratedFiles: Record<string, string>;
+  verificationResult: unknown | null;
+  errors: string[];
+}
 
-def verify_code_tool() -> Dict:
-    """Verify migrated code."""
-    return {
-        "name": "verify_code",
-        "description": "Verify that migrated code is valid",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "code": {"type": "string"},
-                "language": {"type": "string"}
-            },
-            "required": ["code", "language"]
-        }
-    }
+// state.ts - Helper functions
+export function createInitialState(
+  sourceFramework: string,
+  targetFramework: string,
+  sourceFiles: Record<string, string>
+): MigrationState {
+  return {
+    sourceFramework,
+    targetFramework,
+    sourceFiles,
+    phase: 'analysis',
+    analysis: null,
+    plan: [],
+    currentStep: 0,
+    migratedFiles: {},
+    verificationResult: null,
+    errors: [],
+  };
+}
 ```
 
-### Step 3: Implement the Agent Core (25 min)
+</details>
+
+### Step 2: Implement the Agent Core (25 min)
+
+<details>
+<summary><b>Python</b></summary>
 
 ```python
 # agent.py
-from state import MigrationState, Phase, MigrationStep
-from typing import Dict, List
-import json
-
-ANALYSIS_PROMPT = """Analyze this code for migration from {source} to {target}.
-
-Code:
-```{language}
-{code}
-```
-
-Identify:
-1. Main components (classes, functions, routes)
-2. Dependencies and imports
-3. Framework-specific patterns
-4. Potential migration challenges
-
-Return as JSON:
-{{
-  "components": [...],
-  "dependencies": [...],
-  "patterns": [...],
-  "challenges": [...]
-}}"""
-
-PLANNING_PROMPT = """Create a migration plan based on this analysis.
-
-Analysis: {analysis}
-
-Source Framework: {source}
-Target Framework: {target}
-
-Create a step-by-step plan. Each step should be:
-- Independent enough to execute separately
-- Ordered by dependencies
-- Specific about what changes
-
-Return as JSON:
-{{
-  "steps": [
-    {{
-      "id": 1,
-      "description": "...",
-      "input_files": ["..."],
-      "dependencies": [],
-      "complexity": "low|medium|high"
-    }}
-  ]
-}}"""
-
-MIGRATION_PROMPT = """Migrate this code from {source} to {target}.
-
-Source Code:
-```
-{code}
-```
-
-Context from previous steps:
-{context}
-
-Provide the migrated code that follows {target} best practices.
-Explain any significant changes."""
-
 class MigrationAgent:
     def __init__(self, llm_client):
         self.llm = llm_client
 
     def run(self, state: MigrationState) -> MigrationState:
-        """Run the migration agent through all phases."""
+        """Run through all phases."""
         while state.phase != Phase.COMPLETE:
             state = self._step(state)
             if state.errors:
@@ -256,7 +220,6 @@ class MigrationAgent:
         return state
 
     def _step(self, state: MigrationState) -> MigrationState:
-        """Execute one phase of the migration."""
         if state.phase == Phase.ANALYSIS:
             return self._analyze(state)
         elif state.phase == Phase.PLANNING:
@@ -268,248 +231,146 @@ class MigrationAgent:
         return state
 
     def _analyze(self, state: MigrationState) -> MigrationState:
-        """Analyze source code."""
-        all_analysis = {}
-
-        for filename, code in state.source_files.items():
-            prompt = ANALYSIS_PROMPT.format(
-                source=state.source_framework,
-                target=state.target_framework,
-                language=self._detect_language(filename),
-                code=code
-            )
-
-            response = self.llm.chat([
-                {"role": "user", "content": prompt}
-            ])
-
-            all_analysis[filename] = self._parse_json(response)
-
-        state.analysis = all_analysis
+        """Phase 1: Analyze source code."""
+        # ... analyze each file
         state.phase = Phase.PLANNING
         return state
 
     def _plan(self, state: MigrationState) -> MigrationState:
-        """Create migration plan."""
-        prompt = PLANNING_PROMPT.format(
-            analysis=json.dumps(state.analysis, indent=2),
-            source=state.source_framework,
-            target=state.target_framework
-        )
-
-        response = self.llm.chat([
-            {"role": "user", "content": prompt}
-        ])
-
-        plan_data = self._parse_json(response)
-
-        state.plan = [
-            MigrationStep(
-                id=step["id"],
-                description=step["description"],
-                input_files=step.get("input_files", [])
-            )
-            for step in plan_data.get("steps", [])
-        ]
-
+        """Phase 2: Create migration plan."""
+        # ... create step-by-step plan
         state.phase = Phase.EXECUTION
         return state
 
     def _execute(self, state: MigrationState) -> MigrationState:
-        """Execute migration steps."""
-        while state.current_step < len(state.plan):
-            step = state.plan[state.current_step]
-            step.status = "in_progress"
-
-            # Get relevant source code
-            source_code = self._get_step_code(state, step)
-
-            prompt = MIGRATION_PROMPT.format(
-                source=state.source_framework,
-                target=state.target_framework,
-                code=source_code,
-                context=self._get_context(state)
-            )
-
-            response = self.llm.chat([
-                {"role": "user", "content": prompt}
-            ])
-
-            # Extract code from response
-            migrated_code = self._extract_code(response)
-
-            # Store result
-            for filename in step.input_files:
-                new_filename = self._transform_filename(filename, state.target_framework)
-                state.migrated_files[new_filename] = migrated_code
-
-            step.status = "completed"
-            step.result = migrated_code
-            state.current_step += 1
-
+        """Phase 3: Execute migration steps."""
+        # ... execute each step
         state.phase = Phase.VERIFICATION
         return state
 
     def _verify(self, state: MigrationState) -> MigrationState:
-        """Verify migration results."""
-        verification = {
-            "files_migrated": len(state.migrated_files),
-            "steps_completed": len([s for s in state.plan if s.status == "completed"]),
-            "issues": []
-        }
-
-        # Check each migrated file
-        for filename, code in state.migrated_files.items():
-            # Basic syntax check
-            issues = self._check_syntax(code, state.target_framework)
-            if issues:
-                verification["issues"].extend(issues)
-
-        state.verification_result = verification
+        """Phase 4: Verify results."""
+        # ... verify migrated code
         state.phase = Phase.COMPLETE
         return state
-
-    def _detect_language(self, filename: str) -> str:
-        """Detect language from filename."""
-        ext_map = {
-            ".py": "python",
-            ".js": "javascript",
-            ".ts": "typescript",
-            ".java": "java"
-        }
-        for ext, lang in ext_map.items():
-            if filename.endswith(ext):
-                return lang
-        return "unknown"
-
-    def _parse_json(self, response: str) -> Dict:
-        """Parse JSON from LLM response."""
-        if "```json" in response:
-            response = response.split("```json")[1].split("```")[0]
-        elif "```" in response:
-            response = response.split("```")[1].split("```")[0]
-        return json.loads(response.strip())
-
-    def _extract_code(self, response: str) -> str:
-        """Extract code block from response."""
-        if "```" in response:
-            parts = response.split("```")
-            if len(parts) >= 2:
-                code = parts[1]
-                if code.startswith(("python", "javascript", "typescript")):
-                    code = code.split("\n", 1)[1] if "\n" in code else ""
-                return code.strip()
-        return response
-
-    def _get_step_code(self, state: MigrationState, step: MigrationStep) -> str:
-        """Get source code for a migration step."""
-        code_parts = []
-        for filename in step.input_files:
-            if filename in state.source_files:
-                code_parts.append(f"# {filename}\n{state.source_files[filename]}")
-        return "\n\n".join(code_parts)
-
-    def _get_context(self, state: MigrationState) -> str:
-        """Get context from previous steps."""
-        completed = [s for s in state.plan if s.status == "completed"]
-        if not completed:
-            return "No previous steps completed."
-        return "\n".join([f"Step {s.id}: {s.description}" for s in completed[-3:]])
-
-    def _transform_filename(self, filename: str, target: str) -> str:
-        """Transform filename for target framework."""
-        # Example: Express routes/users.js -> FastAPI routers/users.py
-        if target == "fastapi":
-            return filename.replace(".js", ".py").replace("routes/", "routers/")
-        return filename
-
-    def _check_syntax(self, code: str, framework: str) -> List[str]:
-        """Basic syntax check."""
-        issues = []
-        # Add framework-specific checks
-        return issues
 ```
 
-### Step 4: Build the API (15 min)
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// agent.ts
+export class MigrationAgent {
+  private llm: LLMClient;
+
+  constructor(llmClient: LLMClient) {
+    this.llm = llmClient;
+  }
+
+  async run(state: MigrationState): Promise<MigrationState> {
+    while (state.phase !== 'complete') {
+      state = await this.step(state);
+      if (state.errors.length > 0) break;
+    }
+    return state;
+  }
+
+  private async step(state: MigrationState): Promise<MigrationState> {
+    switch (state.phase) {
+      case 'analysis':
+        return this.analyze(state);
+      case 'planning':
+        return this.plan(state);
+      case 'execution':
+        return this.execute(state);
+      case 'verification':
+        return this.verify(state);
+      default:
+        return state;
+    }
+  }
+
+  private async analyze(state: MigrationState): Promise<MigrationState> {
+    // ... analyze each file
+    return { ...state, phase: 'planning' };
+  }
+
+  private async plan(state: MigrationState): Promise<MigrationState> {
+    // ... create step-by-step plan
+    return { ...state, phase: 'execution' };
+  }
+
+  private async execute(state: MigrationState): Promise<MigrationState> {
+    // ... execute each step
+    return { ...state, phase: 'verification' };
+  }
+
+  private async verify(state: MigrationState): Promise<MigrationState> {
+    // ... verify migrated code
+    return { ...state, phase: 'complete' };
+  }
+}
+```
+
+</details>
+
+### Step 3: Build the API (15 min)
+
+<details>
+<summary><b>Python (FastAPI)</b></summary>
 
 ```python
 # main.py
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import Dict
-from agent import MigrationAgent
-from state import MigrationState
-from llm_client import get_llm_client
-
-app = FastAPI(title="Migration Workflow Agent")
-
-class MigrationRequest(BaseModel):
-    source_framework: str
-    target_framework: str
-    files: Dict[str, str]  # filename -> content
-
-class MigrationResponse(BaseModel):
-    success: bool
-    migrated_files: Dict[str, str]
-    plan_executed: list
-    verification: dict
-    errors: list
-
 @app.post("/migrate", response_model=MigrationResponse)
 async def migrate(request: MigrationRequest):
-    """Run migration workflow."""
-    llm = get_llm_client("anthropic")
     agent = MigrationAgent(llm)
-
     state = MigrationState(
         source_framework=request.source_framework,
         target_framework=request.target_framework,
         source_files=request.files
     )
-
     result = agent.run(state)
-
     return MigrationResponse(
         success=len(result.errors) == 0,
         migrated_files=result.migrated_files,
-        plan_executed=[
-            {"id": s.id, "description": s.description, "status": s.status}
-            for s in result.plan
-        ],
+        plan_executed=[...],
         verification=result.verification_result or {},
         errors=result.errors
     )
-
-@app.get("/health")
-async def health():
-    return {"status": "healthy"}
 ```
 
-### Step 5: Test with Sample Migration (15 min)
+</details>
 
-Test migrating Express.js to FastAPI:
+<details>
+<summary><b>TypeScript (Hono)</b></summary>
+
+```typescript
+// index.ts
+app.post('/migrate', zValidator('json', MigrationRequestSchema), async (c) => {
+  const { source_framework, target_framework, files } = c.req.valid('json');
+
+  const agent = new MigrationAgent(llm);
+  const initialState = createInitialState(source_framework, target_framework, files);
+  const result = await agent.run(initialState);
+
+  return c.json({
+    success: result.errors.length === 0,
+    migrated_files: result.migratedFiles,
+    plan_executed: result.plan.map(s => ({ id: s.id, description: s.description, status: s.status })),
+    verification: result.verificationResult || {},
+    errors: result.errors,
+  });
+});
+```
+
+</details>
+
+### Step 4: Test with Sample Migration (15 min)
 
 ```bash
-# Sample Express.js code
-cat > sample_express.js << 'EOF'
-const express = require('express');
-const router = express.Router();
-
-router.get('/users', async (req, res) => {
-    const users = await db.getUsers();
-    res.json(users);
-});
-
-router.post('/users', async (req, res) => {
-    const { name, email } = req.body;
-    const user = await db.createUser({ name, email });
-    res.status(201).json(user);
-});
-
-module.exports = router;
-EOF
-
-# Test migration
+# Test migrating Express.js to FastAPI
 curl -X POST http://localhost:8000/migrate \
   -H "Content-Type: application/json" \
   -d '{
@@ -521,17 +382,29 @@ curl -X POST http://localhost:8000/migrate \
   }'
 ```
 
-### Step 6: Deploy to Railway (10 min)
+---
 
-```bash
-# Initialize Railway
-railway init
+## Project Structure
 
-# Deploy
-railway up
-
-# Set environment variables
-railway variables set ANTHROPIC_API_KEY=xxx
+```
+lab03-migration-workflow/
+├── README.md
+├── python/
+│   ├── main.py           # FastAPI application
+│   ├── agent.py          # MigrationAgent class
+│   ├── state.py          # State dataclasses
+│   ├── prompts.py        # System prompts
+│   └── requirements.txt
+└── typescript/
+    ├── src/
+    │   ├── index.ts      # Hono application
+    │   ├── agent.ts      # MigrationAgent class
+    │   ├── state.ts      # State management
+    │   ├── types.ts      # Type definitions
+    │   ├── prompts.ts    # System prompts
+    │   └── llm-client.ts
+    ├── package.json
+    └── tsconfig.json
 ```
 
 ---
@@ -542,7 +415,7 @@ railway variables set ANTHROPIC_API_KEY=xxx
 - [ ] Proper state management
 - [ ] Plan creation and execution
 - [ ] Verification step
-- [ ] Deployed to Railway
+- [ ] Deployed to Railway/Vercel
 
 ---
 
