@@ -52,10 +52,10 @@ An **agent** is an LLM-powered system that can:
 │                           │                        │            │
 │                           ▼                        │            │
 │                    ┌─────────────┐                 │            │
-│          ┌─────────│   DECIDE    │─────────┐      │            │
-│          │         └─────────────┘         │      │            │
-│          │                                 │      │            │
-│          ▼                                 ▼      │            │
+│          ┌─────────│   DECIDE    │─────────┐       │            │
+│          │         └─────────────┘         │       │            │
+│          │                                 │       │            │
+│          ▼                                 ▼       │            │
 │   ┌─────────────┐                   ┌─────────────┐│            │
 │   │  USE TOOL   │───────────────────│    DONE     ││            │
 │   └─────────────┘                   └─────────────┘│            │
@@ -373,17 +373,17 @@ Function calling lets LLMs request execution of predefined functions with struct
 │                                                                 │
 │  1. Define tools → 2. Send to LLM → 3. LLM decides → 4. Execute │
 │                                                                 │
-│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐       │
-│  │   Tools     │     │    LLM      │     │  Your Code  │       │
-│  │ Definition  │────▶│  Decides    │────▶│  Executes   │       │
-│  │             │     │  Which Tool │     │  The Tool   │       │
-│  └─────────────┘     └─────────────┘     └─────────────┘       │
+│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐        │
+│  │   Tools     │     │    LLM      │     │  Your Code  │        │
+│  │ Definition  │────▶│  Decides    │────▶│  Executes   │        │
+│  │             │     │  Which Tool │     │  The Tool   │        │
+│  └─────────────┘     └─────────────┘     └─────────────┘        │
 │                                                 │               │
 │                                                 │               │
-│  ┌─────────────┐     ┌─────────────┐           │               │
-│  │   Final     │◀────│  LLM Uses   │◀──────────┘               │
-│  │  Response   │     │   Result    │                           │
-│  └─────────────┘     └─────────────┘                           │
+│  ┌─────────────┐     ┌─────────────┐            │               │
+│  │   Final     │◀────│  LLM Uses   │◀───────────┘               │
+│  │  Response   │     │   Result    │                            │
+│  └─────────────┘     └─────────────┘                            │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -860,26 +860,26 @@ The ReAct pattern alternates between reasoning (thinking) and acting (using tool
 │                      ReAct Pattern                              │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  Task: "Find the largest file in the src directory"            │
+│  Task: "Find the largest file in the src directory"             │
 │                                                                 │
-│  Thought 1: I need to list the contents of src first           │
-│  Action 1: list_directory(path="src", recursive=True)          │
-│  Observation 1: [FILE] src/main.py, [FILE] src/utils.py, ...   │
+│  Thought 1: I need to list the contents of src first            │
+│  Action 1: list_directory(path="src", recursive=True)           │
+│  Observation 1: [FILE] src/main.py, [FILE] src/utils.py, ...    │
 │                                                                 │
-│  Thought 2: I have file names but not sizes. Need to check     │
+│  Thought 2: I have file names but not sizes. Need to check      │
 │             each file's size.                                   │
-│  Action 2: get_file_info(path="src/main.py")                   │
-│  Observation 2: size: 15KB, modified: 2024-01-10               │
+│  Action 2: get_file_info(path="src/main.py")                    │
+│  Observation 2: size: 15KB, modified: 2024-01-10                │
 │                                                                 │
-│  Thought 3: Continue checking other files...                   │
-│  Action 3: get_file_info(path="src/utils.py")                  │
-│  Observation 3: size: 42KB, modified: 2024-01-08               │
+│  Thought 3: Continue checking other files...                    │
+│  Action 3: get_file_info(path="src/utils.py")                   │
+│  Observation 3: size: 42KB, modified: 2024-01-08                │
 │                                                                 │
 │  ... (continues until all files checked)                        │
 │                                                                 │
-│  Thought N: src/utils.py is the largest at 42KB                │
-│  Action N: (no action - provide answer)                        │
-│  Final Answer: The largest file is src/utils.py (42KB)         │
+│  Thought N: src/utils.py is the largest at 42KB                 │
+│  Action N: (no action - provide answer)                         │
+│  Final Answer: The largest file is src/utils.py (42KB)          │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -957,32 +957,32 @@ Planning agents create a plan before executing, enabling complex multi-step task
 │                    Planning Agent Flow                          │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  Task: "Migrate auth module from Express to FastAPI"           │
+│  Task: "Migrate auth module from Express to FastAPI"            │
 │                                                                 │
-│  ┌─────────────────────────────────────────────┐               │
-│  │              PLANNING PHASE                  │               │
-│  │                                              │               │
-│  │  1. Analyze existing Express auth code       │               │
-│  │  2. Identify dependencies (bcrypt, jwt)      │               │
-│  │  3. Map Express patterns to FastAPI          │               │
-│  │  4. Create new file structure                │               │
-│  │  5. Implement user model (Pydantic)          │               │
-│  │  6. Implement auth endpoints                 │               │
-│  │  7. Add tests                                │               │
-│  │  8. Verify functionality                     │               │
-│  └─────────────────────────────────────────────┘               │
+│  ┌─────────────────────────────────────────────┐                │
+│  │              PLANNING PHASE                 │                │
+│  │                                             │                │
+│  │  1. Analyze existing Express auth code      │                │
+│  │  2. Identify dependencies (bcrypt, jwt)     │                │
+│  │  3. Map Express patterns to FastAPI         │                │
+│  │  4. Create new file structure               │                │
+│  │  5. Implement user model (Pydantic)         │                │
+│  │  6. Implement auth endpoints                │                │
+│  │  7. Add tests                               │                │
+│  │  8. Verify functionality                    │                │
+│  └─────────────────────────────────────────────┘                │
 │                          │                                      │
 │                          ▼                                      │
-│  ┌─────────────────────────────────────────────┐               │
-│  │             EXECUTION PHASE                  │               │
-│  │                                              │               │
-│  │  Step 1: ✓ Read routes/auth.js              │               │
-│  │  Step 2: ✓ Found bcryptjs, jsonwebtoken     │               │
-│  │  Step 3: ✓ Mapped to FastAPI equivalents    │               │
-│  │  Step 4: ⟳ Creating routers/auth.py         │ ← Current     │
-│  │  Step 5: ○ Pending                          │               │
-│  │  ...                                        │               │
-│  └─────────────────────────────────────────────┘               │
+│  ┌─────────────────────────────────────────────┐                │
+│  │             EXECUTION PHASE                 │                │
+│  │                                             │                │
+│  │  Step 1: ✓ Read routes/auth.js              │                │
+│  │  Step 2: ✓ Found bcryptjs, jsonwebtoken     │                │
+│  │  Step 3: ✓ Mapped to FastAPI equivalents    │                │
+│  │  Step 4: ⟳ Creating routers/auth.py         │ ← Current      │
+│  │  Step 5: ○ Pending                          │                │
+│  │  ...                                        │                │
+│  └─────────────────────────────────────────────┘                │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -1318,10 +1318,10 @@ Typical iterations for a project:
 │         ┌─────────────────┼─────────────────┐                   │
 │         │                 │                 │                   │
 │         ▼                 ▼                 ▼                   │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐             │
-│  │  RESEARCH   │  │   CODING    │  │   REVIEW    │             │
-│  │   AGENT     │  │   AGENT     │  │   AGENT     │             │
-│  └─────────────┘  └─────────────┘  └─────────────┘             │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
+│  │  RESEARCH   │  │   CODING    │  │   REVIEW    │              │
+│  │   AGENT     │  │   AGENT     │  │   AGENT     │              │
+│  └─────────────┘  └─────────────┘  └─────────────┘              │
 │                                                                 │
 │  Supervisor:                                                    │
 │  - Receives task from user                                      │
@@ -1338,13 +1338,13 @@ Typical iterations for a project:
 │                     Pipeline Pattern                            │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  ┌───────────┐   ┌───────────┐   ┌───────────┐   ┌───────────┐ │
-│  │  ANALYZE  │──▶│  PLAN     │──▶│  EXECUTE  │──▶│  VERIFY   │ │
-│  │  AGENT    │   │  AGENT    │   │  AGENT    │   │  AGENT    │ │
-│  └───────────┘   └───────────┘   └───────────┘   └───────────┘ │
-│       │               │               │               │        │
-│       ▼               ▼               ▼               ▼        │
-│  [Analysis]      [Plan Doc]      [Output]       [Verified]     │
+│  ┌───────────┐   ┌───────────┐   ┌───────────┐   ┌───────────┐  │
+│  │  ANALYZE  │──▶│  PLAN     │──▶│  EXECUTE  │──▶│  VERIFY   │  │
+│  │  AGENT    │   │  AGENT    │   │  AGENT    │   │  AGENT    │  │
+│  └───────────┘   └───────────┘   └───────────┘   └───────────┘  │
+│       │               │               │               │         │
+│       ▼               ▼               ▼               ▼         │
+│  [Analysis]      [Plan Doc]      [Output]       [Verified]      │
 │                                                                 │
 │  Each agent:                                                    │
 │  - Specialized for one phase                                    │
@@ -1360,10 +1360,10 @@ Typical iterations for a project:
 │                  Debate/Consensus Pattern                       │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│         ┌─────────────┐     ┌─────────────┐                    │
-│         │  AGENT A    │     │  AGENT B    │                    │
-│         │ (Advocate)  │     │ (Skeptic)   │                    │
-│         └──────┬──────┘     └──────┬──────┘                    │
+│         ┌─────────────┐     ┌─────────────┐                     │
+│         │  AGENT A    │     │  AGENT B    │                     │
+│         │ (Advocate)  │     │ (Skeptic)   │                     │
+│         └──────┬──────┘     └──────┬──────┘                     │
 │                │                   │                            │
 │                └─────────┬─────────┘                            │
 │                          │                                      │
