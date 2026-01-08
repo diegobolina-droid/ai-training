@@ -111,17 +111,20 @@
 | | | - Prompts for code generation | | |
 | | | - Prompts for code review | | |
 | | | - Prompts for debugging | | |
-| 14:30-15:30 | 1 hr | **Migration & Refactoring Prompts** | Theory+Demo | [DAY2-PROMPTING.md#migration-prompts](./DAY2-PROMPTING.md#migration-prompts) |
+| 14:30-15:30 | 1 hr | **Multimodal Prompting** ⭐ NEW | Theory+Demo | [DAY2-PROMPTING.md#multimodal-prompting](./DAY2-PROMPTING.md#multimodal-prompting) |
+| | | - Working with images (screenshots, diagrams) | | |
+| | | - Processing PDFs and documents | | |
+| | | - Code extraction from images | | |
+| | | - Real-world multimodal use cases | | |
+| 15:30-15:45 | 15 min | **Break** | - | - |
+| 15:45-16:30 | 45 min | **Migration & Refactoring Prompts** | Theory+Demo | [DAY2-PROMPTING.md#migration-prompts](./DAY2-PROMPTING.md#migration-prompts) |
 | | | - Large-scale code transformation | | |
 | | | - Framework migration strategies | | |
 | | | - Technical debt identification | | |
-| | | - Live demo: Migrate Express to FastAPI | | |
-| 15:30-15:45 | 15 min | **Break** | - | - |
-| 15:45-17:00 | 1h 15m | **Lab 02: Build Code Analyzer Agent** | Lab | [labs/lab02-code-analyzer-agent/](./labs/lab02-code-analyzer-agent/) |
-| | | - Build a Python agent that analyzes code | | |
-| | | - Implement custom prompts for analysis | | |
-| | | - Output structured recommendations | | |
+| 16:30-17:00 | 30 min | **Lab 02: Build Code Analyzer Agent** | Lab | [labs/lab02-code-analyzer-agent/](./labs/lab02-code-analyzer-agent/) |
+| | | - Build agent with custom prompts | | |
 | | | - Deploy to Railway | | |
+| | | **Continue after hours if needed** | | |
 
 ### Day 2 Deliverables
 - [ ] Personal prompt library (10+ prompts)
@@ -142,45 +145,51 @@
 | 09:00-10:00 | 1 hr | **Agent Fundamentals** | Theory | [DAY3-AGENTS.md#fundamentals](./DAY3-AGENTS.md#fundamentals) |
 | | | - What makes an "agent"? | | |
 | | | - The agent loop: Observe → Think → Act | | |
-| | | - Memory: short-term, long-term, episodic | | |
+| | | - Memory types overview | | |
 | | | - State management patterns | | |
-| 10:00-11:00 | 1 hr | **Tool-Use & Function Calling** | Theory+Demo | [DAY3-AGENTS.md#tool-use](./DAY3-AGENTS.md#tool-use) |
+| 10:00-10:30 | 30 min | **Context Management Strategies** ⭐ NEW | Theory+Code | [DAY3-AGENTS.md#context-management](./DAY3-AGENTS.md#context-management) |
+| | | - Sliding window, summarization, selective retention | | |
+| | | - When to use each strategy | | |
+| | | - Implementation examples | | |
+| 10:30-11:00 | 30 min | **Memory Systems Implementation** ⭐ NEW | Theory+Code | [DAY3-AGENTS.md#memory-systems](./DAY3-AGENTS.md#memory-systems) |
+| | | - Long-term memory with Vector DB | | |
+| | | - Episodic memory (task history) | | |
+| | | - Integrating multiple memory types | | |
+| 11:00-11:15 | 15 min | **Break** | - | - |
+| 11:15-12:00 | 45 min | **Tool-Use & Function Calling** | Theory+Demo | [DAY3-AGENTS.md#tool-use](./DAY3-AGENTS.md#tool-use) |
 | | | - Function calling across providers | | |
 | | | - Tool definition best practices | | |
 | | | - Error handling and retries | | |
-| | | - Live demo: File system agent | | |
-| 11:00-11:15 | 15 min | **Break** | - | - |
-| 11:15-12:15 | 1 hr | **Agent Patterns** | Theory | [DAY3-AGENTS.md#patterns](./DAY3-AGENTS.md#patterns) |
-| | | - ReAct: Reasoning + Acting | | |
-| | | - Planning agents and task decomposition | | |
-| | | - Verification and self-correction | | |
-| | | - When to use which pattern | | |
-| 12:15-12:30 | 15 min | **Exercise: Design an Agent** | Hands-on | [DAY3-AGENTS.md#exercise-1](./DAY3-AGENTS.md#exercise-1) |
-| | | - Whiteboard an agent architecture | | |
-| | | - Define tools and capabilities | | |
-| | | - Identify failure modes | | |
+| 12:00-12:30 | 30 min | **Structured Output & Schema Validation** ⭐ NEW | Theory+Code | [DAY3-AGENTS.md#structured-output](./DAY3-AGENTS.md#structured-output) |
+| | | - Pydantic/Zod schema enforcement | | |
+| | | - Smart retry with validation feedback | | |
+| | | - Production reliability patterns | | |
 | 12:30-13:30 | 1 hr | **Lunch Break** | - | - |
 
 ### Afternoon Session (13:30 - 17:00)
 
 | Time | Duration | Topic | Type | Materials |
 |------|----------|-------|------|-----------|
-| 13:30-14:30 | 1 hr | **Multi-Agent Systems** | Theory | [DAY3-AGENTS.md#multi-agent](./DAY3-AGENTS.md#multi-agent) |
+| 13:30-14:00 | 30 min | **Agent Patterns** | Theory | [DAY3-AGENTS.md#patterns](./DAY3-AGENTS.md#patterns) |
+| | | - ReAct: Reasoning + Acting | | |
+| | | - Planning and verification patterns | | |
+| | | - When to use which pattern | | |
+| 14:00-14:15 | 15 min | **Exercise: Design an Agent** | Hands-on | [DAY3-AGENTS.md#exercise-1](./DAY3-AGENTS.md#exercise-1) |
+| | | - Whiteboard agent architecture | | |
+| | | - Define tools and capabilities | | |
+| 14:15-15:00 | 45 min | **Multi-Agent Systems** | Theory | [DAY3-AGENTS.md#multi-agent](./DAY3-AGENTS.md#multi-agent) |
 | | | - When single agents aren't enough | | |
-| | | - Communication patterns | | |
-| | | - Orchestration strategies | | |
+| | | - Communication & orchestration patterns | | |
 | | | - Avoiding infinite loops | | |
-| 14:30-15:00 | 30 min | **Framework Comparison** | Comparison | [DAY3-AGENTS.md#frameworks](./DAY3-AGENTS.md#frameworks) |
-| | | - LangChain/LangGraph overview | | |
-| | | - CrewAI for multi-agent teams | | |
-| | | - AutoGen conversational agents | | |
+| 15:00-15:30 | 30 min | **Framework Comparison** | Comparison | [DAY3-AGENTS.md#frameworks](./DAY3-AGENTS.md#frameworks) |
+| | | - LangChain/LangGraph, CrewAI, AutoGen | | |
 | | | - Choosing the right framework | | |
-| 15:00-15:15 | 15 min | **Break** | - | - |
-| 15:15-17:00 | 1h 45m | **Lab 03: Migration Workflow Agent** | Lab | [labs/lab03-migration-workflow/](./labs/lab03-migration-workflow/) |
+| 15:30-15:45 | 15 min | **Break** | - | - |
+| 15:45-17:00 | 1h 15m | **Lab 03: Migration Workflow Agent** | Lab | [labs/lab03-migration-workflow/](./labs/lab03-migration-workflow/) |
 | | | - Build multi-step migration agent | | |
 | | | - Implement planning and execution | | |
-| | | - Add verification and rollback | | |
 | | | - Deploy to Railway | | |
+| | | **Continue after hours if needed** | | |
 
 ### Day 3 Deliverables
 - [ ] Agent architecture diagrams
@@ -262,24 +271,26 @@
 | | | - Caching strategies for LLM calls | | |
 | | | - Fallback and retry patterns | | |
 | | | - Graceful degradation | | |
-| 09:45-10:30 | 45 min | **Security & Cost Management** | Theory | [DAY5-PRODUCTION-CAPSTONE.md#security](./DAY5-PRODUCTION-CAPSTONE.md#security) |
+| 09:45-10:15 | 30 min | **Security & Cost Management** | Theory | [DAY5-PRODUCTION-CAPSTONE.md#security](./DAY5-PRODUCTION-CAPSTONE.md#security) |
 | | | - Prompt injection attacks | | |
 | | | - Output validation | | |
 | | | - API key management | | |
-| | | - Cost estimation and budgeting | | |
-| 10:30-10:45 | 15 min | **Break** | - | - |
-| 10:45-11:30 | 45 min | **Deployment Deep Dive** | Demo | [DAY5-PRODUCTION-CAPSTONE.md#deployment](./DAY5-PRODUCTION-CAPSTONE.md#deployment) |
+| 10:15-10:45 | 30 min | **Advanced Cost Optimization** ⭐ NEW | Theory | [DAY5-PRODUCTION-CAPSTONE.md#advanced-cost-optimization](./DAY5-PRODUCTION-CAPSTONE.md#advanced-cost-optimization) |
+| | | - Semantic caching (60-80% savings) | | |
+| | | - Model routing strategies | | |
+| | | - Prompt compression techniques | | |
+| | | - Batch processing optimization | | |
+| 10:45-11:00 | 15 min | **Break** | - | - |
+| 11:00-11:45 | 45 min | **Integration Patterns** ⭐ NEW | Theory + Demo | [DAY5-PRODUCTION-CAPSTONE.md#integration-patterns](./DAY5-PRODUCTION-CAPSTONE.md#integration-patterns) |
+| | | - Webhook integration (GitHub, Slack) | | |
+| | | - Message queues with Celery/Redis | | |
+| | | - Event-driven architecture | | |
+| | | - Microservices patterns | | |
+| 11:45-12:30 | 45 min | **Deployment & Capstone Briefing** | Demo + Intro | [DAY5-PRODUCTION-CAPSTONE.md#deployment](./DAY5-PRODUCTION-CAPSTONE.md#deployment) |
 | | | - Vercel: serverless AI apps | | |
 | | | - Railway: backend services | | |
-| | | - Render: alternative deployments | | |
-| | | - Environment management | | |
-| 11:30-12:00 | 30 min | **Lab 05: Multi-Agent Mini-Lab** | Lab | [labs/lab05-multi-agent/](./labs/lab05-multi-agent/) |
-| | | - Quick multi-agent orchestration | | |
-| | | - Supervisor pattern implementation | | |
-| 12:00-12:30 | 30 min | **Capstone Briefing & Selection** | Intro | [CAPSTONE-RUBRIC.md](./CAPSTONE-RUBRIC.md) |
 | | | - Review 4 capstone options | | |
 | | | - Select your project | | |
-| | | - Get starter template | | |
 | 12:30-13:30 | 1 hr | **Lunch Break** | - | - |
 
 ### Afternoon Session (13:30 - 17:00)
@@ -300,7 +311,8 @@
 ### Day 5 Deliverables
 - [ ] Production patterns checklist completed
 - [ ] Security audit checklist completed
-- [ ] Multi-agent mini-lab completed
+- [ ] **Advanced cost optimization strategies implemented** ⭐ NEW
+- [ ] **Integration pattern selected and applied** ⭐ NEW
 - [ ] **Capstone project deployed and demoed**
 
 ---
@@ -310,23 +322,25 @@
 ### By Activity Type
 | Type | Total Hours | Percentage |
 |------|-------------|------------|
-| Theory | 13.5 | 34% |
-| Demos | 4.0 | 10% |
+| Theory | 16.5 | 41% |
+| Demos | 4.5 | 11% |
 | Exercises | 2.5 | 6% |
-| Labs | 9.0 | 23% |
+| Labs | 8.5 | 21% |
 | Capstone | 3.0 | 8% |
 | Breaks/Lunch | 8.0 | 20% |
+
+**Note:** +3 hours theory added (Multimodal, Context/Memory/Structured Output, Testing, Cost Opt, Integration)
 
 ### By Topic Area
 | Topic | Hours |
 |-------|-------|
 | GenAI Foundations | 4.5 |
 | Vibe Coding & Tools | 3.0 |
-| Prompting | 5.0 |
-| Agents | 5.5 |
+| Prompting | 6.0 | ⭐ +1.0 (Multimodal)
+| Agents | 7.0 | ⭐ +1.5 (Context/Memory/Structured)
 | RAG | 4.0 |
-| Evaluation | 2.5 |
-| Production | 3.0 |
+| Evaluation | 3.25 | ⭐ +0.75 (Testing)
+| Production | 4.25 | ⭐ +1.25 (Cost Opt/Integration)
 | Capstone | 4.0 |
 
 ---

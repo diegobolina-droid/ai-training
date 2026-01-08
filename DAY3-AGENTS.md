@@ -4,7 +4,9 @@
 
 By the end of Day 3, you will be able to:
 - Explain what makes an AI "agent" vs. a simple LLM call
+- **Implement context management and memory systems** **NEW**
 - Implement tool-use and function calling across LLM providers
+- **Ensure structured, validated outputs from agents** **NEW**
 - Apply agent patterns like ReAct, Planning, and Verification
 - Design and build multi-agent systems
 - Choose the right framework for different agent needs
@@ -15,7 +17,11 @@ By the end of Day 3, you will be able to:
 ## Table of Contents
 
 1. [Agent Fundamentals](#fundamentals)
+   - 1.3 Memory Types
+   - 1.4 Context Management Strategies **NEW**
+   - 1.5 Memory Systems Implementation **NEW**
 2. [Tool-Use & Function Calling](#tool-use)
+   - 2.4 Structured Output & Schema Validation **NEW**
 3. [Agent Patterns](#patterns)
 4. [Exercise 1: Design an Agent](#exercise-1)
 5. [Multi-Agent Systems](#multi-agent)
@@ -629,6 +635,773 @@ function finishTask(
 ```
 
 </details>
+
+### 1.4 Context Management Strategies (30 min)
+
+As conversations grow, managing context becomes critical. The LLM's context window is finite, and costs scale with context size.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                  Context Management Strategies                  │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  CHALLENGE: Context Window Limitations                          │
+│  • Claude: 200K tokens (~150K words)                            │
+│  • GPT-4: 128K tokens (~96K words)                              │
+│  • Costs increase linearly with context                         │
+│  • Performance degrades with very long contexts                 │
+│                                                                 │
+│  STRATEGIES:                                                    │
+│                                                                 │
+│  1. SLIDING WINDOW                                              │
+│     Keep recent N messages, drop oldest                         │
+│     ┌─────┬─────┬─────┬─────┬─────┐                            │
+│     │ M1  │ M2  │ M3  │ M4  │ M5  │ → Keep last 3              │
+│     └─────┴─────┴─────┴─────┴─────┘                            │
+│                   ↓     ↓     ↓                                 │
+│                 ┌─────┬─────┬─────┐                            │
+│                 │ M3  │ M4  │ M5  │                            │
+│                 └─────┴─────┴─────┘                            │
+│                                                                 │
+│  2. ROLLING SUMMARIZATION                                       │
+│     Periodically summarize and compress history                 │
+│     ┌─────┬─────┬─────┬─────┐                                  │
+│     │ M1  │ M2  │ M3  │ M4  │ → Summarize M1-M3               │
+│     └─────┴─────┴─────┴─────┘                                  │
+│           ↓                                                     │
+│     ┌───────────┬─────┐                                        │
+│     │  Summary  │ M4  │                                        │
+│     └───────────┴─────┘                                        │
+│                                                                 │
+│  3. SELECTIVE RETENTION                                         │
+│     Keep important messages, drop routine ones                  │
+│     • Always keep: System prompt, user goals                    │
+│     • Sometimes keep: Key decisions, errors                     │
+│     • Usually drop: Routine confirmations                       │
+│                                                                 │
+│  4. EXTERNAL MEMORY                                             │
+│     Store in vector DB, retrieve when needed                    │
+│     ┌─────────────┐         ┌──────────────┐                   │
+│     │   Context   │────────▶│  Vector DB   │                   │
+│     │   Window    │◀────────│  (All History)│                   │
+│     └─────────────┘ Retrieve└──────────────┘                   │
+│                      Relevant                                   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Strategy 1: Sliding Window Implementation**
+
+<details>
+<summary><b>Python</b></summary>
+
+```python
+# agents/context_manager.py
+"""Context management strategies for agents."""
+from typing import List, Dict, Any
+from dataclasses import dataclass
+
+@dataclass
+class ContextWindow:
+    """Manages a sliding window of messages."""
+    messages: List[Dict[str, str]]
+    max_messages: int
+    system_prompt: str
+
+    def add_message(self, role: str, content: str) -> None:
+        """Add message and maintain window size."""
+        self.messages.append({"role": role, "content": content})
+
+        # Keep system prompt + last N messages
+        if len(self.messages) > self.max_messages + 1:  # +1 for system
+            # Keep system prompt and drop oldest user/assistant messages
+            system_msg = self.messages[0]
+            recent_messages = self.messages[-(self.max_messages):]
+            self.messages = [system_msg] + recent_messages
+
+    def get_messages(self) -> List[Dict[str, str]]:
+        """Get current message window."""
+        return self.messages
+
+    def get_context_size(self) -> int:
+        """Estimate token count (rough)."""
+        total_chars = sum(len(m["content"]) for m in self.messages)
+        return total_chars // 4  # Rough token estimate
+
+# Usage
+context = ContextWindow(
+    messages=[{"role": "system", "content": "You are a helpful assistant."}],
+    max_messages=10,
+    system_prompt="You are a helpful assistant."
+)
+
+context.add_message("user", "What's 2+2?")
+context.add_message("assistant", "2+2 equals 4.")
+# ... continues with sliding window behavior
+```
+
+</details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// agents/context-manager.ts
+/**
+ * Context management strategies for agents.
+ */
+
+interface Message {
+  role: string;
+  content: string;
+}
+
+export class ContextWindow {
+  private messages: Message[];
+
+  constructor(
+    private systemPrompt: string,
+    private maxMessages: number
+  ) {
+    this.messages = [{ role: 'system', content: systemPrompt }];
+  }
+
+  addMessage(role: string, content: string): void {
+    this.messages.push({ role, content });
+
+    // Keep system prompt + last N messages
+    if (this.messages.length > this.maxMessages + 1) {
+      const systemMsg = this.messages[0];
+      const recentMessages = this.messages.slice(-(this.maxMessages));
+      this.messages = [systemMsg, ...recentMessages];
+    }
+  }
+
+  getMessages(): Message[] {
+    return [...this.messages];
+  }
+
+  getContextSize(): number {
+    const totalChars = this.messages.reduce(
+      (sum, m) => sum + m.content.length,
+      0
+    );
+    return Math.floor(totalChars / 4); // Rough token estimate
+  }
+}
+
+// Usage
+const context = new ContextWindow(
+  'You are a helpful assistant.',
+  10
+);
+
+context.addMessage('user', "What's 2+2?");
+context.addMessage('assistant', '2+2 equals 4.');
+```
+
+</details>
+
+**Strategy 2: Rolling Summarization**
+
+<details>
+<summary><b>Python</b></summary>
+
+```python
+# agents/summarizing_context.py
+"""Context manager with automatic summarization."""
+from typing import List, Dict
+import anthropic
+
+class SummarizingContext:
+    """Manages context with periodic summarization."""
+
+    def __init__(
+        self,
+        llm_client,
+        system_prompt: str,
+        summarize_every: int = 10,
+        keep_recent: int = 3
+    ):
+        self.llm = llm_client
+        self.system_prompt = system_prompt
+        self.messages = [{"role": "system", "content": system_prompt}]
+        self.summary = ""
+        self.summarize_every = summarize_every
+        self.keep_recent = keep_recent
+        self.message_count = 0
+
+    def add_message(self, role: str, content: str) -> None:
+        """Add message and summarize if needed."""
+        self.messages.append({"role": role, "content": content})
+        self.message_count += 1
+
+        # Check if we need to summarize
+        if self.message_count >= self.summarize_every:
+            self._summarize_and_compress()
+
+    def _summarize_and_compress(self) -> None:
+        """Summarize old messages and keep recent ones."""
+        # Separate messages to summarize from recent messages
+        to_summarize = self.messages[1:-self.keep_recent]  # Skip system
+        recent = self.messages[-self.keep_recent:]
+
+        if not to_summarize:
+            return
+
+        # Create summarization prompt
+        conversation = "\n".join([
+            f"{m['role']}: {m['content']}"
+            for m in to_summarize
+        ])
+
+        summary_prompt = f"""
+        Summarize this conversation concisely. Focus on:
+        1. Key information exchanged
+        2. Decisions made
+        3. Important context for future messages
+
+        Previous summary: {self.summary if self.summary else "None"}
+
+        New conversation:
+        {conversation}
+
+        Provide a concise summary (3-5 sentences):
+        """
+
+        # Get summary from LLM
+        response = self.llm.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=300,
+            messages=[{"role": "user", "content": summary_prompt}]
+        )
+
+        self.summary = response.content[0].text
+
+        # Rebuild message list with summary
+        self.messages = [
+            {"role": "system", "content": self.system_prompt},
+            {"role": "system", "content": f"Summary of previous conversation: {self.summary}"}
+        ] + recent
+
+        self.message_count = 0
+
+    def get_messages(self) -> List[Dict[str, str]]:
+        """Get current messages including summary."""
+        return self.messages
+```
+
+</details>
+
+**Strategy 3: Selective Retention**
+
+```python
+# agents/selective_context.py
+"""Selective retention of important messages."""
+from typing import List, Dict, Callable
+
+class SelectiveContext:
+    """Keeps messages based on importance scoring."""
+
+    def __init__(
+        self,
+        system_prompt: str,
+        max_messages: int,
+        importance_fn: Callable[[Dict[str, str]], float]
+    ):
+        self.system_prompt = system_prompt
+        self.messages = [{"role": "system", "content": system_prompt}]
+        self.max_messages = max_messages
+        self.importance_fn = importance_fn
+
+    def add_message(self, role: str, content: str) -> None:
+        """Add message with importance scoring."""
+        msg = {"role": role, "content": content}
+        importance = self.importance_fn(msg)
+        msg["_importance"] = importance
+
+        self.messages.append(msg)
+
+        # If over limit, drop least important
+        if len(self.messages) > self.max_messages + 1:
+            # Sort by importance (keep system prompt)
+            system = self.messages[0]
+            user_msgs = sorted(
+                self.messages[1:],
+                key=lambda m: m.get("_importance", 0),
+                reverse=True
+            )
+            self.messages = [system] + user_msgs[:self.max_messages]
+
+    def get_messages(self) -> List[Dict[str, str]]:
+        """Get messages without importance scores."""
+        return [
+            {k: v for k, v in m.items() if not k.startswith("_")}
+            for m in self.messages
+        ]
+
+# Example importance function
+def importance_scorer(message: Dict[str, str]) -> float:
+    """Score message importance (0-1)."""
+    content = message["content"].lower()
+    score = 0.5  # baseline
+
+    # High importance indicators
+    if any(word in content for word in ["error", "fail", "bug", "issue"]):
+        score += 0.3
+    if any(word in content for word in ["decision", "requirement", "must"]):
+        score += 0.2
+    if "?" in content:  # Questions are important
+        score += 0.1
+
+    # Low importance indicators
+    if any(word in content for word in ["ok", "thanks", "got it"]):
+        score -= 0.2
+
+    return min(1.0, max(0.0, score))
+
+# Usage
+context = SelectiveContext(
+    system_prompt="You are a helpful assistant.",
+    max_messages=10,
+    importance_fn=importance_scorer
+)
+```
+
+**When to Use Each Strategy:**
+
+| Strategy | Best For | Pros | Cons |
+|----------|----------|------|------|
+| **Sliding Window** | Short tasks, uniform importance | Simple, predictable | Loses old context completely |
+| **Summarization** | Long conversations | Preserves key info | Summary may miss details |
+| **Selective** | Mixed-importance messages | Keeps what matters | Requires good scoring function |
+| **External Memory** | Very long-term context | Unlimited history | Adds retrieval latency |
+
+**Context Management Best Practices:**
+
+1. **Always preserve system prompt** - Never drop it from context
+2. **Monitor token usage** - Log context size and costs
+3. **Test with long conversations** - Verify behavior at limits
+4. **Combine strategies** - Use summarization + selective retention
+5. **Make it configurable** - Different tasks need different strategies
+
+### 1.5 Memory Systems Implementation (30 min)
+
+Building on the memory types from section 1.3, here we implement practical memory systems.
+
+**Long-Term Memory with Vector Storage:**
+
+<details>
+<summary><b>Python</b></summary>
+
+```python
+# agents/long_term_memory.py
+"""Long-term memory implementation using vector storage."""
+from typing import List, Dict, Any, Optional
+from dataclasses import dataclass
+from datetime import datetime
+import chromadb
+from chromadb.config import Settings
+
+@dataclass
+class MemoryEntry:
+    """A single memory entry."""
+    content: str
+    metadata: Dict[str, Any]
+    timestamp: datetime
+    embedding: Optional[List[float]] = None
+
+class LongTermMemory:
+    """Persistent memory using ChromaDB."""
+
+    def __init__(
+        self,
+        collection_name: str,
+        embedding_function
+    ):
+        self.client = chromadb.Client(Settings(
+            chroma_db_impl="duckdb+parquet",
+            persist_directory="./.chroma"
+        ))
+        self.collection = self.client.get_or_create_collection(
+            name=collection_name,
+            embedding_function=embedding_function
+        )
+
+    def store(
+        self,
+        content: str,
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> str:
+        """Store a memory."""
+        memory_id = f"mem_{datetime.now().timestamp()}"
+
+        self.collection.add(
+            ids=[memory_id],
+            documents=[content],
+            metadatas=[metadata or {}]
+        )
+
+        return memory_id
+
+    def recall(
+        self,
+        query: str,
+        n_results: int = 5,
+        filter_metadata: Optional[Dict[str, Any]] = None
+    ) -> List[Dict[str, Any]]:
+        """Recall relevant memories."""
+        results = self.collection.query(
+            query_texts=[query],
+            n_results=n_results,
+            where=filter_metadata
+        )
+
+        memories = []
+        for i in range(len(results['ids'][0])):
+            memories.append({
+                'id': results['ids'][0][i],
+                'content': results['documents'][0][i],
+                'metadata': results['metadatas'][0][i],
+                'distance': results['distances'][0][i]
+            })
+
+        return memories
+
+    def forget(self, memory_id: str) -> None:
+        """Delete a memory."""
+        self.collection.delete(ids=[memory_id])
+
+# Usage example
+from chromadb.utils import embedding_functions
+
+embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
+    model_name="all-MiniLM-L6-v2"
+)
+
+memory = LongTermMemory(
+    collection_name="agent_memories",
+    embedding_function=embedding_fn
+)
+
+# Store memories
+memory.store(
+    "User prefers Python over JavaScript",
+    metadata={"type": "preference", "user": "john"}
+)
+
+memory.store(
+    "Successfully migrated authentication to OAuth2",
+    metadata={"type": "task_completion", "date": "2024-01-15"}
+)
+
+# Recall relevant memories
+relevant = memory.recall(
+    query="What language does the user prefer?",
+    n_results=3
+)
+
+for mem in relevant:
+    print(f"Memory: {mem['content']}")
+    print(f"Relevance: {1 - mem['distance']:.2f}")
+```
+
+</details>
+
+**Episodic Memory (Task History):**
+
+<details>
+<summary><b>Python</b></summary>
+
+```python
+# agents/episodic_memory.py
+"""Episodic memory for tracking task completions."""
+from typing import List, Dict, Any, Optional
+from dataclasses import dataclass, asdict
+from datetime import datetime
+import json
+
+@dataclass
+class Episode:
+    """A completed task episode."""
+    task: str
+    outcome: str  # "success" or "failure"
+    steps_taken: List[str]
+    tools_used: List[str]
+    duration_seconds: float
+    errors_encountered: List[str]
+    timestamp: datetime
+    learning: Optional[str] = None  # What was learned
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dict for storage."""
+        d = asdict(self)
+        d['timestamp'] = self.timestamp.isoformat()
+        return d
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Episode':
+        """Load from dict."""
+        data['timestamp'] = datetime.fromisoformat(data['timestamp'])
+        return cls(**data)
+
+class EpisodicMemory:
+    """Manages episodic memory of task completions."""
+
+    def __init__(self, storage_path: str = "./episodes.json"):
+        self.storage_path = storage_path
+        self.episodes: List[Episode] = []
+        self._load()
+
+    def record_episode(self, episode: Episode) -> None:
+        """Record a completed task episode."""
+        self.episodes.append(episode)
+        self._save()
+
+    def find_similar_tasks(
+        self,
+        task_description: str,
+        limit: int = 5
+    ) -> List[Episode]:
+        """Find similar past tasks."""
+        # Simple keyword matching (in production, use embeddings)
+        keywords = set(task_description.lower().split())
+
+        scored_episodes = []
+        for episode in self.episodes:
+            episode_keywords = set(episode.task.lower().split())
+            similarity = len(keywords & episode_keywords) / len(keywords | episode_keywords)
+            scored_episodes.append((similarity, episode))
+
+        scored_episodes.sort(reverse=True, key=lambda x: x[0])
+        return [ep for _, ep in scored_episodes[:limit]]
+
+    def get_success_rate(self, task_type: Optional[str] = None) -> float:
+        """Calculate success rate for task type."""
+        relevant_episodes = self.episodes
+
+        if task_type:
+            relevant_episodes = [
+                ep for ep in self.episodes
+                if task_type.lower() in ep.task.lower()
+            ]
+
+        if not relevant_episodes:
+            return 0.0
+
+        successes = sum(1 for ep in relevant_episodes if ep.outcome == "success")
+        return successes / len(relevant_episodes)
+
+    def get_learnings(self, task_type: Optional[str] = None) -> List[str]:
+        """Extract learnings from past episodes."""
+        relevant_episodes = self.episodes
+
+        if task_type:
+            relevant_episodes = [
+                ep for ep in self.episodes
+                if task_type.lower() in ep.task.lower()
+            ]
+
+        return [
+            ep.learning
+            for ep in relevant_episodes
+            if ep.learning
+        ]
+
+    def _save(self) -> None:
+        """Persist episodes to disk."""
+        with open(self.storage_path, 'w') as f:
+            json.dump(
+                [ep.to_dict() for ep in self.episodes],
+                f,
+                indent=2
+            )
+
+    def _load(self) -> None:
+        """Load episodes from disk."""
+        try:
+            with open(self.storage_path, 'r') as f:
+                data = json.load(f)
+                self.episodes = [Episode.from_dict(ep) for ep in data]
+        except FileNotFoundError:
+            self.episodes = []
+
+# Usage in an agent
+episodic_memory = EpisodicMemory()
+
+# Before starting a task, check history
+similar_tasks = episodic_memory.find_similar_tasks(
+    "Migrate Express.js API to FastAPI"
+)
+
+if similar_tasks:
+    print(f"Found {len(similar_tasks)} similar past tasks")
+    for task in similar_tasks:
+        print(f"  - {task.task}: {task.outcome}")
+        if task.learning:
+            print(f"    Learning: {task.learning}")
+
+# After completing a task
+episode = Episode(
+    task="Migrate Express.js API to FastAPI",
+    outcome="success",
+    steps_taken=[
+        "Analyzed Express routes",
+        "Created FastAPI equivalents",
+        "Migrated authentication middleware",
+        "Updated tests"
+    ],
+    tools_used=["code_analyzer", "test_runner"],
+    duration_seconds=1847.5,
+    errors_encountered=["Authentication middleware initially failed"],
+    timestamp=datetime.now(),
+    learning="FastAPI's Depends() is cleaner than Express middleware chains"
+)
+
+episodic_memory.record_episode(episode)
+```
+
+</details>
+
+**Complete Memory System Integration:**
+
+```python
+# agents/memory_agent.py
+"""Agent with comprehensive memory system."""
+from typing import List, Dict, Any
+from .long_term_memory import LongTermMemory
+from .episodic_memory import EpisodicMemory, Episode
+from .context_manager import SummarizingContext
+from datetime import datetime
+
+class MemoryEnhancedAgent:
+    """Agent with short-term, long-term, and episodic memory."""
+
+    def __init__(
+        self,
+        llm_client,
+        system_prompt: str,
+        long_term_memory: LongTermMemory,
+        episodic_memory: EpisodicMemory
+    ):
+        self.llm = llm_client
+        self.short_term = SummarizingContext(
+            llm_client=llm_client,
+            system_prompt=system_prompt,
+            summarize_every=10,
+            keep_recent=3
+        )
+        self.long_term = long_term_memory
+        self.episodic = episodic_memory
+        self.current_task_start = None
+        self.current_task_steps = []
+
+    async def process(self, user_input: str) -> str:
+        """Process input with full memory context."""
+        # 1. Recall relevant long-term memories
+        relevant_memories = self.long_term.recall(user_input, n_results=3)
+        memory_context = "\n".join([
+            f"- {m['content']}"
+            for m in relevant_memories
+        ])
+
+        # 2. Recall similar past tasks
+        similar_tasks = self.episodic.find_similar_tasks(user_input, limit=2)
+        task_context = ""
+        if similar_tasks:
+            task_context = "\n".join([
+                f"- Previous: {t.task} → {t.outcome}"
+                + (f" (Learning: {t.learning})" if t.learning else "")
+                for t in similar_tasks
+            ])
+
+        # 3. Build enhanced prompt with memory context
+        enhanced_prompt = f"""
+        Relevant memories:
+        {memory_context if memory_context else "None"}
+
+        Similar past tasks:
+        {task_context if task_context else "None"}
+
+        Current request:
+        {user_input}
+        """
+
+        # 4. Add to short-term memory and process
+        self.short_term.add_message("user", enhanced_prompt)
+
+        response = await self.llm.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=2000,
+            messages=self.short_term.get_messages()
+        )
+
+        response_text = response.content[0].text
+        self.short_term.add_message("assistant", response_text)
+
+        # 5. Store important information in long-term memory
+        if self._is_important(user_input):
+            self.long_term.store(
+                f"User said: {user_input}",
+                metadata={"type": "user_input", "timestamp": datetime.now().isoformat()}
+            )
+
+        return response_text
+
+    def start_task(self, task_description: str) -> None:
+        """Mark the start of a task for episodic memory."""
+        self.current_task_start = datetime.now()
+        self.current_task_steps = []
+
+    def record_step(self, step_description: str) -> None:
+        """Record a step in the current task."""
+        self.current_task_steps.append(step_description)
+
+    def complete_task(
+        self,
+        outcome: str,
+        learning: Optional[str] = None
+    ) -> None:
+        """Record task completion in episodic memory."""
+        if not self.current_task_start:
+            return
+
+        duration = (datetime.now() - self.current_task_start).total_seconds()
+
+        episode = Episode(
+            task=self.current_task_steps[0] if self.current_task_steps else "Unknown task",
+            outcome=outcome,
+            steps_taken=self.current_task_steps,
+            tools_used=[],  # Track from actual tool usage
+            duration_seconds=duration,
+            errors_encountered=[],  # Track from actual errors
+            timestamp=datetime.now(),
+            learning=learning
+        )
+
+        self.episodic.record_episode(episode)
+
+        # Reset task tracking
+        self.current_task_start = None
+        self.current_task_steps = []
+
+    def _is_important(self, text: str) -> bool:
+        """Determine if information should be stored long-term."""
+        important_keywords = [
+            "prefer", "always", "never", "remember",
+            "important", "critical", "requirement"
+        ]
+        return any(keyword in text.lower() for keyword in important_keywords)
+```
+
+**Memory System Summary:**
+
+| Memory Type | Storage | Retrieval | Use Case |
+|-------------|---------|-----------|----------|
+| **Short-term** | Context window | Automatic | Current conversation |
+| **Long-term** | Vector DB | Semantic search | User preferences, facts |
+| **Episodic** | JSON/Database | Similarity matching | Learning from past tasks |
+| **Working** | Agent state | Direct access | Current task execution |
 
 ---
 
@@ -1619,6 +2392,466 @@ runFileAgent();
 ```
 
 </details>
+
+### 2.4 Structured Output & Schema Validation (30 min)
+
+In production, you need predictable, parseable outputs from LLMs. Structured output ensures consistency and enables robust error handling.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   Structured Output Hierarchy                   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  LEVEL 1: Prompt-Based (Least Reliable)                        │
+│  "Return JSON with fields: name, age, email"                   │
+│  ❌ May return malformed JSON                                   │
+│  ❌ Fields may be missing or extra                              │
+│                                                                 │
+│  LEVEL 2: JSON Mode (Better)                                   │
+│  Tell LLM to return valid JSON                                 │
+│  ✅ Valid JSON guaranteed (most providers)                      │
+│  ❌ Schema not enforced                                         │
+│                                                                 │
+│  LEVEL 3: Schema Enforcement (Best)                            │
+│  Define exact schema, validate response                         │
+│  ✅ Valid JSON                                                  │
+│  ✅ Correct schema                                              │
+│  ✅ Type safety                                                 │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Level 1: Prompt-Based (Not Recommended)**
+
+```python
+# Bad: Relying only on prompts
+prompt = """
+Return a JSON object with these fields:
+- name (string)
+- age (integer)
+- email (string)
+
+User data: John Doe, 30 years old, john@example.com
+"""
+
+response = llm.complete(prompt)
+data = json.loads(response)  # May fail!
+```
+
+**Level 2: JSON Mode**
+
+<details>
+<parameter name="summary"><b>Python</b></summary>
+
+```python
+# agents/json_output.py
+"""JSON mode for structured outputs."""
+import anthropic
+import json
+from typing import Dict, Any
+
+def get_structured_response(
+    client: anthropic.Anthropic,
+    prompt: str,
+    schema_description: str
+) -> Dict[str, Any]:
+    """Get JSON response with JSON mode."""
+
+    full_prompt = f"""
+    {prompt}
+
+    Return your response as a JSON object matching this structure:
+    {schema_description}
+
+    IMPORTANT: Return ONLY the JSON object, no other text.
+    """
+
+    response = client.messages.create(
+        model="claude-3-5-sonnet-20241022",
+        max_tokens=1024,
+        messages=[{
+            "role": "user",
+            "content": full_prompt
+        }]
+    )
+
+    # Parse and validate JSON
+    try:
+        result = json.loads(response.content[0].text)
+        return result
+    except json.JSONDecodeError as e:
+        # Retry or raise error
+        raise ValueError(f"LLM returned invalid JSON: {e}")
+
+# Usage
+schema = """
+{
+  "name": "string",
+  "age": "integer",
+  "email": "string (valid email format)"
+}
+"""
+
+result = get_structured_response(
+    client=anthropic.Anthropic(),
+    prompt="Extract information about: John Doe, 30, john@example.com",
+    schema_description=schema
+)
+```
+
+</details>
+
+**Level 3: Schema Enforcement with Pydantic/Zod**
+
+<details>
+<parameter name="summary"><b>Python with Pydantic</b></summary>
+
+```python
+# agents/structured_agent.py
+"""Agent with schema-validated outputs."""
+from pydantic import BaseModel, EmailStr, Field, ValidationError
+from typing import List, Optional
+import anthropic
+import json
+
+# Define output schemas
+class UserInfo(BaseModel):
+    """Schema for user information."""
+    name: str = Field(..., min_length=1, max_length=100)
+    age: int = Field(..., ge=0, le=150)
+    email: EmailStr
+    phone: Optional[str] = None
+
+class CodeAnalysis(BaseModel):
+    """Schema for code analysis results."""
+    issues: List[str] = Field(default_factory=list)
+    severity: str = Field(..., pattern="^(low|medium|high|critical)$")
+    recommendations: List[str] = Field(default_factory=list)
+    estimated_fix_time_minutes: int = Field(..., ge=0)
+
+class StructuredAgent:
+    """Agent that returns validated structured outputs."""
+
+    def __init__(self, client: anthropic.Anthropic):
+        self.client = client
+
+    def get_structured_output[T: BaseModel](
+        self,
+        prompt: str,
+        output_schema: type[T],
+        max_retries: int = 3
+    ) -> T:
+        """Get LLM output and validate against schema."""
+
+        # Generate JSON schema from Pydantic model
+        json_schema = output_schema.model_json_schema()
+
+        # Create prompt with schema
+        full_prompt = f"""
+        {prompt}
+
+        Return your response as a JSON object matching this EXACT schema:
+        {json.dumps(json_schema, indent=2)}
+
+        CRITICAL REQUIREMENTS:
+        - Return ONLY valid JSON, no markdown, no explanations
+        - Include ALL required fields
+        - Match the specified types exactly
+        - Follow any constraints (min/max, patterns, etc.)
+        """
+
+        for attempt in range(max_retries):
+            try:
+                # Get LLM response
+                response = self.client.messages.create(
+                    model="claude-3-5-sonnet-20241022",
+                    max_tokens=2048,
+                    messages=[{"role": "user", "content": full_prompt}]
+                )
+
+                # Extract JSON (handle markdown code blocks)
+                text = response.content[0].text.strip()
+                if text.startswith("```json"):
+                    text = text[7:]
+                if text.startswith("```"):
+                    text = text[3:]
+                if text.endswith("```"):
+                    text = text[:-3]
+                text = text.strip()
+
+                # Parse JSON
+                data = json.loads(text)
+
+                # Validate with Pydantic
+                validated = output_schema.model_validate(data)
+                return validated
+
+            except (json.JSONDecodeError, ValidationError) as e:
+                if attempt == max_retries - 1:
+                    raise ValueError(f"Failed to get valid output after {max_retries} attempts: {e}")
+
+                # Add error feedback for retry
+                full_prompt += f"\n\nPrevious attempt failed: {str(e)}\nPlease try again with correct format."
+
+        raise ValueError("Should not reach here")
+
+# Usage
+agent = StructuredAgent(client=anthropic.Anthropic())
+
+# Example 1: Extract user info
+user = agent.get_structured_output(
+    prompt="Extract user information from: John Doe, 30 years old, contact: john@example.com",
+    output_schema=UserInfo
+)
+print(f"Name: {user.name}, Age: {user.age}, Email: {user.email}")
+# Type-safe access! IDE autocomplete works
+
+# Example 2: Code analysis
+analysis = agent.get_structured_output(
+    prompt="""
+    Analyze this code for issues:
+    ```python
+    def divide(a, b):
+        return a / b
+    ```
+    """,
+    output_schema=CodeAnalysis
+)
+
+print(f"Severity: {analysis.severity}")
+for issue in analysis.issues:
+    print(f"  - {issue}")
+```
+
+</details>
+
+<details>
+<parameter name="summary"><b>TypeScript with Zod</b></summary>
+
+```typescript
+// agents/structured-agent.ts
+import { z } from 'zod';
+import Anthropic from '@anthropic-ai/sdk';
+
+// Define schemas with Zod
+const UserInfoSchema = z.object({
+  name: z.string().min(1).max(100),
+  age: z.number().int().min(0).max(150),
+  email: z.string().email(),
+  phone: z.string().optional(),
+});
+
+const CodeAnalysisSchema = z.object({
+  issues: z.array(z.string()).default([]),
+  severity: z.enum(['low', 'medium', 'high', 'critical']),
+  recommendations: z.array(z.string()).default([]),
+  estimatedFixTimeMinutes: z.number().int().min(0),
+});
+
+type UserInfo = z.infer<typeof UserInfoSchema>;
+type CodeAnalysis = z.infer<typeof CodeAnalysisSchema>;
+
+export class StructuredAgent {
+  constructor(private client: Anthropic) {}
+
+  async getStructuredOutput<T>(
+    prompt: string,
+    schema: z.ZodSchema<T>,
+    maxRetries: number = 3
+  ): Promise<T> {
+    // Generate JSON schema description
+    const schemaDescription = JSON.stringify(schema._def, null, 2);
+
+    let fullPrompt = `
+${prompt}
+
+Return your response as a JSON object. Be precise and follow the schema exactly.
+
+CRITICAL REQUIREMENTS:
+- Return ONLY valid JSON, no markdown, no explanations
+- Include ALL required fields
+- Match the specified types exactly
+    `;
+
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        // Get LLM response
+        const response = await this.client.messages.create({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 2048,
+          messages: [{ role: 'user', content: fullPrompt }],
+        });
+
+        // Extract JSON (handle markdown code blocks)
+        let text = response.content[0].text.trim();
+        if (text.startsWith('```json')) {
+          text = text.slice(7);
+        }
+        if (text.startsWith('```')) {
+          text = text.slice(3);
+        }
+        if (text.endsWith('```')) {
+          text = text.slice(0, -3);
+        }
+        text = text.trim();
+
+        // Parse and validate
+        const data = JSON.parse(text);
+        const validated = schema.parse(data);
+        return validated;
+
+      } catch (error) {
+        if (attempt === maxRetries - 1) {
+          throw new Error(
+            `Failed to get valid output after ${maxRetries} attempts: ${error}`
+          );
+        }
+
+        // Add error feedback for retry
+        fullPrompt += `\n\nPrevious attempt failed: ${error}\nPlease try again with correct format.`;
+      }
+    }
+
+    throw new Error('Should not reach here');
+  }
+}
+
+// Usage
+const agent = new StructuredAgent(new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }));
+
+// Example 1: Extract user info
+const user = await agent.getStructuredOutput(
+  'Extract user information from: John Doe, 30 years old, contact: john@example.com',
+  UserInfoSchema
+);
+console.log(`Name: ${user.name}, Age: ${user.age}, Email: ${user.email}`);
+// Type-safe! TypeScript knows the shape
+
+// Example 2: Code analysis
+const analysis = await agent.getStructuredOutput(
+  `
+  Analyze this code for issues:
+  \`\`\`python
+  def divide(a, b):
+      return a / b
+  \`\`\`
+  `,
+  CodeAnalysisSchema
+);
+
+console.log(`Severity: ${analysis.severity}`);
+analysis.issues.forEach(issue => console.log(`  - ${issue}`));
+```
+
+</details>
+
+**Advanced: Retry with Validation Feedback**
+
+```python
+# agents/smart_retry.py
+"""Smart retry with validation feedback."""
+from pydantic import BaseModel, ValidationError
+import anthropic
+
+class SmartRetryAgent:
+    """Agent that provides specific validation errors to LLM."""
+
+    def __init__(self, client: anthropic.Anthropic):
+        self.client = client
+
+    def get_validated_output[T: BaseModel](
+        self,
+        prompt: str,
+        schema: type[T],
+        max_retries: int = 3
+    ) -> T:
+        """Get output with smart retry on validation errors."""
+
+        conversation = [
+            {"role": "user", "content": self._build_prompt(prompt, schema)}
+        ]
+
+        for attempt in range(max_retries):
+            response = self.client.messages.create(
+                model="claude-3-5-sonnet-20241022",
+                max_tokens=2048,
+                messages=conversation
+            )
+
+            response_text = response.content[0].text
+            conversation.append({"role": "assistant", "content": response_text})
+
+            try:
+                # Try to parse and validate
+                data = self._extract_json(response_text)
+                return schema.model_validate(data)
+
+            except ValidationError as e:
+                # Build specific error message
+                error_details = []
+                for error in e.errors():
+                    field = " -> ".join(str(x) for x in error['loc'])
+                    error_details.append(
+                        f"Field '{field}': {error['msg']} (got: {error.get('input', 'missing')})"
+                    )
+
+                feedback = f"""
+                Your response had validation errors:
+
+                {chr(10).join(error_details)}
+
+                Please fix these specific issues and return a corrected JSON object.
+                """
+
+                conversation.append({"role": "user", "content": feedback})
+
+                if attempt == max_retries - 1:
+                    raise ValueError(f"Failed after {max_retries} attempts:\n{chr(10).join(error_details)}")
+
+        raise ValueError("Should not reach here")
+
+    def _build_prompt(self, prompt: str, schema: type[BaseModel]) -> str:
+        """Build prompt with schema."""
+        return f"""
+        {prompt}
+
+        Return a JSON object with this schema:
+        {schema.model_json_schema()}
+
+        Return ONLY the JSON, nothing else.
+        """
+
+    def _extract_json(self, text: str) -> dict:
+        """Extract JSON from response."""
+        import json
+        text = text.strip()
+        if "```json" in text:
+            text = text.split("```json")[1].split("```")[0]
+        elif "```" in text:
+            text = text.split("```")[1].split("```")[0]
+        return json.loads(text.strip())
+```
+
+**Best Practices for Structured Output:**
+
+1. **Always use schemas** in production - Don't rely on prompts alone
+2. **Implement retries** - LLMs occasionally return malformed output
+3. **Provide specific error feedback** - Tell the LLM exactly what was wrong
+4. **Use type-safe schemas** - Pydantic (Python) or Zod (TypeScript)
+5. **Test edge cases** - Empty arrays, null values, boundary conditions
+6. **Log failures** - Track when validation fails to improve prompts
+7. **Set reasonable retries** - 2-3 attempts is usually sufficient
+8. **Handle partial success** - Sometimes you can salvage partial data
+
+**When Structured Output Fails:**
+
+| Scenario | Solution |
+|----------|----------|
+| **Repeated validation errors** | Simplify schema, provide more examples |
+| **LLM ignores format** | Use explicit "JSON mode" in prompt |
+| **Missing fields** | Mark fields as optional, provide defaults |
+| **Wrong types** | Add type examples in prompt ("age: 25, not '25'") |
+| **Extra fields** | Configure schema to allow extras or strip them |
 
 ---
 

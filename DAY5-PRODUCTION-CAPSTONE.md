@@ -6,6 +6,8 @@ By the end of Day 5, you will be able to:
 - Apply production patterns for AI systems (rate limiting, caching, fallbacks)
 - Implement security measures against prompt injection and other attacks
 - Manage costs effectively in production AI systems
+- **Apply advanced cost optimization strategies (semantic caching, model routing, batch processing)** **NEW**
+- **Integrate AI agents into existing systems using webhooks, queues, and event-driven patterns** **NEW**
 - Deploy to multiple platforms (Vercel, Railway, Render)
 - Build and present a complete AI-powered capstone project
 
@@ -15,6 +17,8 @@ By the end of Day 5, you will be able to:
 
 1. [Production Patterns](#production)
 2. [Security & Cost Management](#security)
+   - 2.8 Advanced Cost Optimization **NEW**
+   - 2.9 Integration Patterns **NEW**
 3. [Deployment Deep Dive](#deployment)
 4. [Lab 05: Multi-Agent Orchestration](#lab-05)
 5. [Capstone Project](#capstone)
@@ -1324,6 +1328,794 @@ if settings.environment == "production":
     # Production-specific config
     pass
 ```
+
+### 2.8 Advanced Cost Optimization (30 min)
+
+Beyond basic cost management, these strategies significantly reduce production costs.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              Advanced Cost Optimization Strategies              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  1. SEMANTIC CACHING                                            │
+│     Cache similar queries, not just exact matches               │
+│     ┌─────────────────────────────────────┐                    │
+│     │ Query: "What's 2+2?"              │                    │
+│     │ Cached: "What is two plus two?"   │ ← 95% similar     │
+│     └─────────────────────────────────────┘                    │
+│     Savings: 60-80% on repeated concepts                        │
+│                                                                 │
+│  2. PROMPT COMPRESSION                                          │
+│     Reduce tokens while preserving meaning                      │
+│     Before: 500 tokens → After: 200 tokens                      │
+│     Savings: 60% on input costs                                 │
+│                                                                 │
+│  3. MODEL ROUTING                                               │
+│     Use cheaper models when possible                            │
+│     Simple → Haiku ($0.25/MTok)                                 │
+│     Complex → Sonnet ($3/MTok)                                  │
+│     Savings: 70-90% on simple tasks                             │
+│                                                                 │
+│  4. BATCH PROCESSING                                            │
+│     Process multiple items in one call                          │
+│     Single calls: 100 × $0.01 = $1.00                          │
+│     Batched: 1 × $0.15 = $0.15                                 │
+│     Savings: 85%                                                │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Strategy 1: Semantic Caching**
+
+<details>
+<summary><b>Python</b></summary>
+
+```python
+# production/semantic_cache.py
+"""Semantic caching using embedding similarity."""
+from typing import Optional, Dict, Any
+import numpy as np
+from datetime import datetime, timedelta
+import json
+
+class SemanticCache:
+    """Cache that matches similar queries, not just exact ones."""
+
+    def __init__(
+        self,
+        embedding_function,
+        similarity_threshold: float = 0.95,
+        ttl_seconds: int = 3600
+    ):
+        self.embed = embedding_function
+        self.similarity_threshold = similarity_threshold
+        self.ttl_seconds = ttl_seconds
+        self.cache: Dict[str, Dict[str, Any]] = {}
+        self.embeddings: Dict[str, np.ndarray] = {}
+
+    def get(self, query: str) -> Optional[str]:
+        """Get cached response for query or similar query."""
+        query_embedding = self.embed(query)
+
+        # Check for similar cached queries
+        best_match = None
+        best_similarity = 0.0
+
+        for cache_key, cache_embedding in self.embeddings.items():
+            # Check if cache entry is still valid
+            cache_entry = self.cache[cache_key]
+            if datetime.now() > cache_entry["expires_at"]:
+                continue
+
+            # Calculate cosine similarity
+            similarity = np.dot(query_embedding, cache_embedding) / (
+                np.linalg.norm(query_embedding) * np.linalg.norm(cache_embedding)
+            )
+
+            if similarity > best_similarity and similarity >= self.similarity_threshold:
+                best_similarity = similarity
+                best_match = cache_key
+
+        if best_match:
+            return self.cache[best_match]["response"]
+
+        return None
+
+    def set(self, query: str, response: str) -> None:
+        """Cache a response."""
+        query_embedding = self.embed(query)
+
+        self.cache[query] = {
+            "response": response,
+            "expires_at": datetime.now() + timedelta(seconds=self.ttl_seconds),
+            "created_at": datetime.now()
+        }
+        self.embeddings[query] = query_embedding
+
+    def clear_expired(self) -> int:
+        """Remove expired entries."""
+        now = datetime.now()
+        expired_keys = [
+            key for key, entry in self.cache.items()
+            if now > entry["expires_at"]
+        ]
+
+        for key in expired_keys:
+            del self.cache[key]
+            del self.embeddings[key]
+
+        return len(expired_keys)
+
+# Usage
+from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer('all-MiniLM-L6-v2')
+cache = SemanticCache(
+    embedding_function=lambda text: model.encode(text),
+    similarity_threshold=0.95
+)
+
+# First query
+query1 = "What's the capital of France?"
+response1 = call_expensive_llm(query1)
+cache.set(query1, response1)
+
+# Similar query - hits cache!
+query2 = "Tell me the capital city of France"
+cached = cache.get(query2)
+if cached:
+    print("Cache hit! Saved $$$")
+    response2 = cached
+else:
+    response2 = call_expensive_llm(query2)
+    cache.set(query2, response2)
+```
+
+</details>
+
+**Strategy 2: Prompt Compression**
+
+```python
+# production/prompt_compression.py
+"""Compress prompts to reduce token usage."""
+from typing import List
+import re
+
+class PromptCompressor:
+    """Compress prompts while preserving meaning."""
+
+    @staticmethod
+    def remove_redundancy(text: str) -> str:
+        """Remove redundant phrases and words."""
+        # Remove excessive whitespace
+        text = re.sub(r'\s+', ' ', text)
+
+        # Remove common filler words in instructions
+        fillers = [
+            r'\bplease\b', r'\bkindly\b', r'\bthank you\b',
+            r'\bi would like\b', r'\bcould you\b'
+        ]
+        for filler in fillers:
+            text = re.sub(filler, '', text, flags=re.IGNORECASE)
+
+        return text.strip()
+
+    @staticmethod
+    def abbreviate_examples(text: str, max_examples: int = 3) -> str:
+        """Limit number of examples."""
+        # Detect example patterns
+        example_pattern = r'(Example \d+:|Example:|e\.g\.|for example)'
+        examples = re.split(example_pattern, text, flags=re.IGNORECASE)
+
+        if len(examples) > max_examples * 2 + 1:
+            # Keep first max_examples, drop the rest
+            compressed = examples[0]
+            for i in range(1, max_examples * 2 + 1, 2):
+                compressed += examples[i] + examples[i + 1]
+            compressed += f"\n\n[{len(examples) // 2 - max_examples} more examples omitted for brevity]"
+            return compressed
+
+        return text
+
+    @staticmethod
+    def compress_code(code: str) -> str:
+        """Compress code by removing comments and extra whitespace."""
+        # Remove single-line comments
+        code = re.sub(r'#.*$', '', code, flags=re.MULTILINE)
+        code = re.sub(r'//.*$', '', code, flags=re.MULTILINE)
+
+        # Remove docstrings (Python)
+        code = re.sub(r'"""[\s\S]*?"""', '', code)
+        code = re.sub(r"'''[\s\S]*?'''", '', code)
+
+        # Remove blank lines
+        code = re.sub(r'\n\s*\n', '\n', code)
+
+        return code.strip()
+
+    def compress(self, prompt: str, aggressive: bool = False) -> str:
+        """Compress a prompt."""
+        compressed = self.remove_redundancy(prompt)
+
+        if aggressive:
+            compressed = self.abbreviate_examples(compressed, max_examples=2)
+
+        return compressed
+
+# Usage
+compressor = PromptCompressor()
+
+original = """
+Please analyze the following code and tell me if there are any issues.
+I would like you to be thorough.
+
+Example 1: def add(a, b): return a + b  # This is fine
+Example 2: def sub(a, b): return a - b  # This is also fine
+Example 3: def mul(a, b): return a * b  # Good
+Example 4: def div(a, b): return a / b  # Has issue!
+
+Code to analyze:
+def process(data):
+    # Process the data
+    result = []
+    for item in data:
+        # Do something
+        result.append(item * 2)
+    return result
+"""
+
+compressed = compressor.compress(original, aggressive=True)
+print(f"Original: {len(original)} chars")
+print(f"Compressed: {len(compressed)} chars")
+print(f"Savings: {(1 - len(compressed)/len(original)) * 100:.1f}%")
+```
+
+**Strategy 3: Model Routing**
+
+```python
+# production/model_router.py
+"""Route requests to appropriate models based on complexity."""
+from typing import Optional
+from enum import Enum
+
+class TaskComplexity(Enum):
+    SIMPLE = "simple"
+    MODERATE = "moderate"
+    COMPLEX = "complex"
+
+class ModelRouter:
+    """Route tasks to cost-appropriate models."""
+
+    # Model costs per million tokens (example)
+    MODEL_COSTS = {
+        "claude-3-haiku": {"input": 0.25, "output": 1.25},
+        "claude-3-5-sonnet": {"input": 3.0, "output": 15.0},
+        "claude-3-opus": {"input": 15.0, "output": 75.0}
+    }
+
+    @staticmethod
+    def assess_complexity(prompt: str, context_length: int = 0) -> TaskComplexity:
+        """Assess task complexity."""
+        # Simple heuristics (in production, use an ML classifier)
+
+        # Check for complexity indicators
+        complex_indicators = [
+            "analyze", "design", "architect", "complex",
+            "multi-step", "reasoning", "explain why"
+        ]
+        simple_indicators = [
+            "summarize", "extract", "list", "what is",
+            "translate", "format", "convert"
+        ]
+
+        prompt_lower = prompt.lower()
+
+        # Long context suggests complex task
+        if context_length > 10000:
+            return TaskComplexity.COMPLEX
+
+        # Check indicators
+        if any(indicator in prompt_lower for indicator in complex_indicators):
+            return TaskComplexity.COMPLEX
+        elif any(indicator in prompt_lower for indicator in simple_indicators):
+            return TaskComplexity.SIMPLE
+        else:
+            return TaskComplexity.MODERATE
+
+    def route(
+        self,
+        prompt: str,
+        context_length: int = 0,
+        force_model: Optional[str] = None
+    ) -> str:
+        """Route to appropriate model."""
+        if force_model:
+            return force_model
+
+        complexity = self.assess_complexity(prompt, context_length)
+
+        if complexity == TaskComplexity.SIMPLE:
+            return "claude-3-haiku"
+        elif complexity == TaskComplexity.MODERATE:
+            return "claude-3-5-sonnet"
+        else:
+            return "claude-3-opus"
+
+    def estimate_cost(
+        self,
+        model: str,
+        input_tokens: int,
+        output_tokens: int
+    ) -> float:
+        """Estimate cost in USD."""
+        costs = self.MODEL_COSTS[model]
+        input_cost = (input_tokens / 1_000_000) * costs["input"]
+        output_cost = (output_tokens / 1_000_000) * costs["output"]
+        return input_cost + output_cost
+
+# Usage
+router = ModelRouter()
+
+# Simple task → cheap model
+prompt1 = "Extract the email address from: Contact John at john@example.com"
+model1 = router.route(prompt1)
+print(f"Task 1: {model1}")  # claude-3-haiku
+
+# Complex task → expensive model
+prompt2 = "Design a distributed system architecture for handling 1M requests/sec with multi-region failover"
+model2 = router.route(prompt2)
+print(f"Task 2: {model2}")  # claude-3-opus
+
+# Estimate savings
+simple_cost = router.estimate_cost("claude-3-haiku", 100, 50)
+complex_cost = router.estimate_cost("claude-3-opus", 100, 50)
+print(f"Savings: {((complex_cost - simple_cost) / complex_cost * 100):.1f}%")
+```
+
+**Strategy 4: Batch Processing**
+
+```python
+# production/batch_processor.py
+"""Batch multiple requests into single LLM call."""
+from typing import List, Dict, Any
+import json
+
+class BatchProcessor:
+    """Process multiple items in a single LLM call."""
+
+    def __init__(self, llm_client):
+        self.llm = llm_client
+
+    def batch_analyze(self, items: List[str], analysis_type: str) -> List[Dict[str, Any]]:
+        """Analyze multiple items in one call."""
+        # Build batch prompt
+        batch_prompt = f"""
+        Analyze these {len(items)} items for {analysis_type}.
+
+        Return a JSON array with one object per item, in order:
+
+        [
+          {{"item_index": 0, "analysis": "..."}},
+          {{"item_index": 1, "analysis": "..."}},
+          ...
+        ]
+
+        Items:
+        """
+
+        for i, item in enumerate(items):
+            batch_prompt += f"\n\n[Item {i}]\n{item}"
+
+        # Single LLM call for all items
+        response = self.llm.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=4096,
+            messages=[{"role": "user", "content": batch_prompt}]
+        )
+
+        # Parse batch results
+        results = json.loads(response.content[0].text)
+        return results
+
+# Usage
+processor = BatchProcessor(llm_client)
+
+# Instead of 100 separate calls...
+codes = [
+    "def add(a,b): return a+b",
+    "def sub(a,b): return a-b",
+    # ... 98 more
+]
+
+# One call processes all
+results = processor.batch_analyze(codes, "security issues")
+
+# Cost comparison
+# Individual: 100 calls × $0.01 = $1.00
+# Batched: 1 call × $0.15 = $0.15
+# Savings: 85%
+```
+
+**Cost Optimization Summary:**
+
+| Strategy | Complexity | Savings | When to Use |
+|----------|-----------|---------|-------------|
+| **Semantic Caching** | Medium | 60-80% | Repeated similar queries |
+| **Prompt Compression** | Low | 30-60% | Long prompts with redundancy |
+| **Model Routing** | Medium | 70-90% | Mixed task complexity |
+| **Batch Processing** | High | 80-90% | Multiple similar items |
+
+**Combined Savings Example:**
+
+```
+Original monthly cost: $10,000
+
+1. Semantic caching (70% cache hit rate): -$7,000
+2. Model routing (50% to cheaper models): -$1,500
+3. Prompt compression (40% reduction): -$600
+4. Batch processing (10% of workload): -$300
+
+Total savings: -$9,400
+New monthly cost: $600
+ROI: 94% cost reduction
+```
+
+---
+
+### 2.9 Integration Patterns (45 min)
+
+How to integrate AI agents into existing systems and workflows.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Integration Patterns                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  PATTERN 1: WEBHOOK INTEGRATION                                 │
+│  External system → Webhook → Agent → Response                   │
+│  Use: GitHub, Slack, Stripe events                              │
+│                                                                 │
+│  PATTERN 2: MESSAGE QUEUE                                       │
+│  Producer → Queue → Agent Worker → Results                      │
+│  Use: Async processing, high volume                             │
+│                                                                 │
+│  PATTERN 3: API GATEWAY                                         │
+│  Client → Gateway → Agent Services → Response                   │
+│  Use: Microservices, load balancing                             │
+│                                                                 │
+│  PATTERN 4: EVENT-DRIVEN                                        │
+│  Event Bus → Multiple Agents → Actions                          │
+│  Use: Loosely coupled systems                                   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Pattern 1: Webhook Integration**
+
+<details>
+<summary><b>Python with FastAPI</b></summary>
+
+```python
+# integrations/github_webhook.py
+"""GitHub webhook integration for AI code review."""
+from fastapi import FastAPI, Request, HTTPException, Header
+from typing import Optional
+import hmac
+import hashlib
+from app.agents import CodeReviewAgent
+
+app = FastAPI()
+review_agent = CodeReviewAgent()
+
+def verify_github_signature(payload: bytes, signature: str, secret: str) -> bool:
+    """Verify GitHub webhook signature."""
+    expected_signature = "sha256=" + hmac.new(
+        secret.encode(),
+        payload,
+        hashlib.sha256
+    ).hexdigest()
+
+    return hmac.compare_digest(expected_signature, signature)
+
+@app.post("/webhooks/github")
+async def github_webhook(
+    request: Request,
+    x_hub_signature_256: Optional[str] = Header(None),
+    x_github_event: Optional[str] = Header(None)
+):
+    """Handle GitHub webhook events."""
+    # Verify signature
+    payload = await request.body()
+    if not verify_github_signature(payload, x_hub_signature_256, WEBHOOK_SECRET):
+        raise HTTPException(status_code=401, detail="Invalid signature")
+
+    data = await request.json()
+
+    # Handle pull request events
+    if x_github_event == "pull_request":
+        action = data.get("action")
+
+        if action in ["opened", "synchronize"]:
+            # New PR or new commits
+            pr_number = data["pull_request"]["number"]
+            repo = data["repository"]["full_name"]
+
+            # Get PR diff
+            diff = await get_pr_diff(repo, pr_number)
+
+            # Review with AI
+            review = await review_agent.review_diff(diff)
+
+            # Post review as comment
+            await post_github_comment(repo, pr_number, review)
+
+            return {"status": "review_posted"}
+
+    return {"status": "ignored"}
+
+# Usage with ngrok for local testing:
+# ngrok http 8000
+# → Add webhook URL to GitHub: https://xxx.ngrok.io/webhooks/github
+```
+
+</details>
+
+**Pattern 2: Message Queue (with Celery)**
+
+<details>
+<summary><b>Python</b></summary>
+
+```python
+# integrations/queue_worker.py
+"""Message queue integration with Celery."""
+from celery import Celery
+from app.agents import DocumentAnalyzer
+
+app = Celery('tasks', broker='redis://localhost:6379/0')
+analyzer = DocumentAnalyzer()
+
+@app.task(bind=True, max_retries=3)
+def analyze_document_task(self, document_id: str):
+    """Async task to analyze a document."""
+    try:
+        # Fetch document
+        document = fetch_document(document_id)
+
+        # Analyze with AI
+        analysis = analyzer.analyze(document)
+
+        # Store results
+        store_analysis(document_id, analysis)
+
+        return {"status": "completed", "document_id": document_id}
+
+    except Exception as exc:
+        # Retry with exponential backoff
+        raise self.retry(exc=exc, countdown=60 * (2 ** self.request.retries))
+
+# Producer (FastAPI endpoint)
+from fastapi import FastAPI
+
+api = FastAPI()
+
+@api.post("/documents/{document_id}/analyze")
+async def trigger_analysis(document_id: str):
+    """Trigger async document analysis."""
+    # Enqueue task
+    task = analyze_document_task.delay(document_id)
+
+    return {
+        "task_id": task.id,
+        "status": "processing",
+        "check_status_url": f"/tasks/{task.id}"
+    }
+
+@api.get("/tasks/{task_id}")
+async def check_task_status(task_id: str):
+    """Check task status."""
+    task = analyze_document_task.AsyncResult(task_id)
+
+    return {
+        "task_id": task_id,
+        "status": task.status,
+        "result": task.result if task.ready() else None
+    }
+
+# Start worker:
+# celery -A integrations.queue_worker worker --loglevel=info
+```
+
+</details>
+
+**Pattern 3: Event-Driven Architecture**
+
+<details>
+<summary><b>Python</b></summary>
+
+```python
+# integrations/event_bus.py
+"""Event-driven agent integration."""
+from typing import Dict, Callable, List
+import asyncio
+import json
+
+class EventBus:
+    """Simple event bus for agent coordination."""
+
+    def __init__(self):
+        self.subscribers: Dict[str, List[Callable]] = {}
+
+    def subscribe(self, event_type: str, handler: Callable):
+        """Subscribe to an event type."""
+        if event_type not in self.subscribers:
+            self.subscribers[event_type] = []
+        self.subscribers[event_type].append(handler)
+
+    async def publish(self, event_type: str, data: Dict):
+        """Publish an event."""
+        if event_type in self.subscribers:
+            # Call all subscribers
+            tasks = [
+                handler(data)
+                for handler in self.subscribers[event_type]
+            ]
+            await asyncio.gather(*tasks)
+
+# Agent handlers
+event_bus = EventBus()
+
+async def on_code_committed(data: Dict):
+    """Handler: Run code analysis on commit."""
+    code = data["code"]
+    analysis = await code_analyzer.analyze(code)
+
+    if analysis.severity == "high":
+        # Publish high-severity event
+        await event_bus.publish("security_issue_found", {
+            "analysis": analysis,
+            "commit_id": data["commit_id"]
+        })
+
+async def on_security_issue(data: Dict):
+    """Handler: Notify team of security issue."""
+    await slack.send_alert(
+        channel="#security",
+        message=f"High severity issue in commit {data['commit_id']}"
+    )
+
+async def on_security_issue_create_ticket(data: Dict):
+    """Handler: Create Jira ticket."""
+    await jira.create_ticket(
+        project="SEC",
+        summary=f"Security issue: {data['analysis'].issues[0]}",
+        description=data['analysis'].recommendations
+    )
+
+# Subscribe handlers
+event_bus.subscribe("code_committed", on_code_committed)
+event_bus.subscribe("security_issue_found", on_security_issue)
+event_bus.subscribe("security_issue_found", on_security_issue_create_ticket)
+
+# Trigger event (from webhook, queue, etc.)
+await event_bus.publish("code_committed", {
+    "commit_id": "abc123",
+    "code": "def query(id): return f'SELECT * FROM users WHERE id={id}'"
+})
+
+# Event flow:
+# 1. code_committed event
+# 2. on_code_committed analyzes code
+# 3. Publishes security_issue_found event
+# 4. on_security_issue sends Slack alert
+# 5. on_security_issue_create_ticket creates Jira ticket
+```
+
+</details>
+
+**Pattern 4: Microservices Integration**
+
+```yaml
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # API Gateway
+  gateway:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+
+  # Agent services
+  code-review-agent:
+    build: ./services/code-review
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    deploy:
+      replicas: 3
+
+  document-analyzer-agent:
+    build: ./services/document-analyzer
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    deploy:
+      replicas: 2
+
+  # Message queue
+  redis:
+    image: redis:alpine
+
+  # Worker pool
+  celery-worker:
+    build: ./services/worker
+    command: celery worker
+    depends_on:
+      - redis
+    deploy:
+      replicas: 5
+```
+
+**Integration Best Practices:**
+
+| Practice | Why | How |
+|----------|-----|-----|
+| **Async everything** | Don't block on LLM calls | Use queues, webhooks, async/await |
+| **Idempotency** | Webhooks may retry | Track processed event IDs |
+| **Timeouts** | LLMs can be slow | Set reasonable timeouts (30-60s) |
+| **Error handling** | External systems fail | Retry logic, fallbacks, dead letter queues |
+| **Monitoring** | Track integration health | Log all events, alert on failures |
+| **Security** | Verify webhook signatures | HMAC verification, API keys |
+
+**Real-World Integration Example: Slack Bot**
+
+```python
+# integrations/slack_bot.py
+"""Slack bot integration."""
+from slack_bolt.async_app import AsyncApp
+from slack_bolt.adapter.socket_mode.async_handler import AsyncSocketModeHandler
+from app.agents import Assistant
+
+app = AsyncApp(token=SLACK_BOT_TOKEN)
+assistant = Assistant()
+
+@app.event("app_mention")
+async def handle_mention(event, say):
+    """Handle @bot mentions."""
+    user_message = event["text"]
+
+    # Remove bot mention
+    user_message = user_message.split(">", 1)[1].strip()
+
+    # Get AI response
+    response = await assistant.chat(user_message)
+
+    await say(response, thread_ts=event["ts"])
+
+@app.command("/analyze")
+async def handle_analyze_command(ack, command, say):
+    """Handle /analyze command."""
+    await ack()
+
+    file_url = command.get("text")
+
+    if not file_url:
+        await say("Usage: /analyze <file_url>")
+        return
+
+    # Fetch and analyze file
+    analysis = await assistant.analyze_url(file_url)
+
+    await say(f"Analysis:\n{analysis}")
+
+# Start bot
+if __name__ == "__main__":
+    handler = AsyncSocketModeHandler(app, APP_TOKEN)
+    asyncio.run(handler.start_async())
+```
+
+---
 
 ### 3.6 Deployment Checklist
 

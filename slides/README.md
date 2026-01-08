@@ -7,12 +7,12 @@ Support slides for the 5-day Agentic AI Training Program.
 | File | Day | Topic | Slides |
 |------|-----|-------|--------|
 | `day1-foundations.md` | Day 1 | GenAI Foundations & Vibe Coding | ~30 |
-| `day2-prompting.md` | Day 2 | Advanced Prompting | ~40 |
-| `day3-agents.md` | Day 3 | Agent Architectures | ~40 |
-| `day4-rag-eval.md` | Day 4 | RAG & Evaluation | ~40 |
-| `day5-production.md` | Day 5 | Production & Capstone | ~35 |
+| `day2-prompting.md` | Day 2 | Advanced Prompting + **Multimodal** | ~56 (+16) |
+| `day3-agents.md` | Day 3 | Agent Architectures + **Context/Memory/Structured** | ~66 (+26) |
+| `day4-rag-eval.md` | Day 4 | RAG & Evaluation + **Testing** | ~56 (+16) |
+| `day5-production.md` | Day 5 | Production + **Cost Opt/Integration** | ~61 (+26) |
 
-**Total: ~185 slides**
+**Total: ~269 slides** (+84 new slides)
 
 ---
 

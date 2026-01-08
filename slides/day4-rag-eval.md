@@ -755,6 +755,235 @@ By now you should have:
 
 ---
 
+<!-- Day 4 New Slides: Testing Strategies -->
+
+<!-- Insert after Evaluation section, before Observability -->
+
+---
+
+<!-- _class: lead -->
+# Testing Strategies for AI
+## **NEW**: CI/CD for LLM Applications
+
+---
+
+# The AI Testing Challenge
+
+**Traditional testing assumptions:**
+- Deterministic outputs
+- Clear pass/fail criteria
+- Fast, repeatable tests
+
+**AI testing reality:**
+- Non-deterministic outputs
+- Fuzzy success criteria
+- Slow, expensive tests
+
+**Solution:** AI Testing Pyramid
+
+---
+
+# AI Testing Pyramid
+
+```
+        ┌─────────────┐
+        │   E2E Tests │  ← Few, expensive, manual
+        │   (Manual)  │
+        └─────────────┘
+      ┌───────────────────┐
+      │ Integration Tests │  ← Some, moderate cost
+      │  (Real LLM Calls) │
+      └───────────────────┘
+    ┌─────────────────────────┐
+    │   Component Tests       │  ← Many, fast, cheap
+    │   (Mocked LLM)          │
+    └─────────────────────────┘
+  ┌───────────────────────────────┐
+  │      Unit Tests               │  ← Most tests here
+  │  (No AI, pure logic)          │
+  └───────────────────────────────┘
+```
+
+---
+
+# Level 1: Unit Tests
+
+Test everything **except** the LLM:
+
+```python
+def test_extract_code_blocks():
+    """Test code extraction logic."""
+    text = "Here's code:\n```python\nprint('hi')\n```"
+    blocks = extract_code_blocks(text)
+
+    assert len(blocks) == 1
+    assert blocks[0] == "print('hi')"
+
+def test_chunk_text_respects_max_size():
+    """Test chunking stays under limits."""
+    text = "word " * 1000
+    chunks = chunk_text(text, max_tokens=100)
+
+    for chunk in chunks:
+        assert len(chunk.split()) <= 130  # ~1.3 tokens/word
+```
+
+**Fast, cheap, reliable!**
+
+---
+
+# Level 2: Component Tests with Mocks
+
+Mock LLM responses for consistency:
+
+```python
+def test_agent_extracts_issues(mock_llm):
+    """Agent should parse issues from LLM response."""
+    # Setup: Define what LLM returns
+    mock_llm.complete.return_value = """
+    {
+        "issues": ["SQL injection", "Missing validation"],
+        "severity": "high"
+    }
+    """
+
+    agent = CodeAnalyzerAgent(llm=mock_llm)
+    result = agent.analyze("def query(id): ...")
+
+    assert len(result.issues) == 2
+    assert "SQL injection" in result.issues[0]
+    assert result.severity == "high"
+```
+
+**Still fast, tests your code!**
+
+---
+
+# Level 3: Integration Tests
+
+**Small set** with real LLM calls:
+
+```python
+@pytest.mark.skipif(not os.getenv("API_KEY"), reason="No API key")
+def test_detects_sql_injection(real_agent):
+    """Should detect SQL injection with real LLM."""
+    code = """
+    def get_user(user_id):
+        query = f"SELECT * FROM users WHERE id = {user_id}"
+        return db.execute(query)
+    """
+
+    result = real_agent.analyze(code)
+
+    # Check detection
+    issues_text = " ".join(result.issues).lower()
+    assert "sql" in issues_text or "injection" in issues_text
+    assert result.severity in ["high", "critical"]
+```
+
+**Slow, expensive - use sparingly!**
+
+---
+
+# Level 4: Regression Tests
+
+Prevent **prompt drift** - when changes break existing functionality:
+
+```python
+def test_security_analysis_regression(real_agent, baselines):
+    """Security analysis consistent with baseline."""
+    code = "def login(u, p): query = f'...{u}...{p}...'"
+    result = real_agent.analyze(code)
+
+    current = {
+        "found_sql_injection": "sql" in str(result.issues).lower(),
+        "severity": result.severity
+    }
+
+    if test_id not in baselines:
+        baselines[test_id] = current  # First run: save
+        save_baselines(baselines)
+    else:
+        baseline = baselines[test_id]
+        assert current["found_sql_injection"] == baseline["found_sql_injection"]
+```
+
+---
+
+# CI/CD Integration
+
+```yaml
+# .github/workflows/test.yml
+jobs:
+  unit-tests:
+    # Run on every commit - fast, free
+    steps:
+      - run: pytest tests/unit/
+
+  integration-tests:
+    # Run on main branch only - expensive
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - run: pytest tests/integration/
+
+  regression-tests:
+    # Nightly only - full baseline check
+    if: github.event_name == 'schedule'
+    steps:
+      - run: pytest tests/regression/
+```
+
+---
+
+# Testing Strategy by Environment
+
+| Environment | Test Type | Coverage |
+|-------------|-----------|----------|
+| **Local Dev** | Unit + Mocked Component | 100% of non-AI logic |
+| **PR Validation** | Unit + 5-10 Integration | Critical paths only |
+| **Main Branch** | Unit + Full Integration | 30-50 real LLM tests |
+| **Nightly** | All + Regression | Full baseline suite |
+| **Pre-Release** | All + Manual E2E | Human verification |
+
+---
+
+# Cost-Effective Testing
+
+**Monthly testing costs:**
+
+| Approach | Tests | Cost/Month |
+|----------|-------|------------|
+| **Naive** (all real LLM) | 500 tests × $0.10 | $50,000/month |
+| **Pyramid** (95% mocked) | 25 real × $0.10 | $2,500/month |
+| **+ CI optimization** | 10 per PR | $1,000/month |
+
+**Savings: 98% cost reduction!**
+
+---
+
+# Testing Best Practices
+
+1. **Test deterministic parts** - Mock the LLM
+2. **Sample real calls** - 5-10 integration tests per feature
+3. **Use regression baselines** - Track prompt changes
+4. **Version your prompts** - Git commit prompts with code
+5. **Log all LLM calls in tests** - Debug failures faster
+6. **CI for different environments** - Unit always, integration selectively
+7. **Budget for testing** - Set limits on test costs
+
+---
+
+# Testing Key Takeaways
+
+1. **AI Testing Pyramid** - Most tests without LLM calls
+2. **Unit test everything** - Parsing, validation, logic
+3. **Mock for component tests** - Fast, repeatable, cheap
+4. **Sparse integration tests** - 10-20 critical paths
+5. **Regression for prompt drift** - Save baselines
+6. **CI/CD optimization** - Different tests for different branches
+7. **98% cost savings** - Smart testing strategy pays off
+
+---
 <!-- _class: lead -->
 # Questions?
 

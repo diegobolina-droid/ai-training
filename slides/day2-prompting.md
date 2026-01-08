@@ -687,6 +687,261 @@ Debugging steps:
 ---
 
 <!-- _class: lead -->
+# Multimodal Prompting
+## **NEW**: Working with Images, PDFs & Documents
+
+---
+
+# Why Multimodal Matters
+
+Modern LLMs support visual inputs:
+- **Claude 3.5** - Images, PDFs, documents
+- **GPT-4o** - Images, screenshots, diagrams
+- **Gemini Pro** - Images, videos, PDFs
+
+**Real-world needs:**
+- Analyze error screenshots
+- Review UI mockups
+- Extract data from PDFs
+- Process architecture diagrams
+
+---
+
+# Multimodal Use Cases
+
+| Use Case | Input | Output |
+|----------|-------|--------|
+| **Bug Triage** | Error screenshot | Root cause + fix |
+| **UI Review** | Mockup image | UX feedback |
+| **Doc Extraction** | PDF report | Structured JSON |
+| **Code from Image** | Screenshot | Transcribed code |
+| **Diagram Analysis** | Architecture diagram | Components list |
+
+---
+
+# Prompting for Images
+
+**Bad:**
+```
+Look at this image
+```
+
+**Good:**
+```
+Analyze this error screenshot from a React app.
+
+Focus on:
+1. The error message in the console (bottom half)
+2. Stack trace details
+3. What operation was being performed
+
+Provide:
+- Error type and cause
+- Specific fix steps
+- How to prevent this
+
+[image: error_screenshot.png]
+```
+
+---
+
+# Screenshot Analysis Pattern
+
+```
+You are analyzing a screenshot of [context].
+
+Please provide:
+
+1. **Identification**
+   - What's shown in the image?
+   - Key elements and their purpose
+
+2. **Analysis**
+   - What's working correctly?
+   - What issues do you see?
+
+3. **Recommendations**
+   - Specific improvements
+   - Priority: High/Medium/Low
+
+4. **Implementation**
+   - Code changes needed
+   - Resources required
+
+[image attached]
+```
+
+---
+
+# PDF Document Processing
+
+```
+I've uploaded a PDF of our API documentation (25 pages).
+
+Extract:
+
+1. **All Endpoints**
+   - HTTP method and path
+   - Parameters (query, body, headers)
+   - Response format
+   - Status codes
+
+2. **Inconsistencies**
+   - Missing descriptions
+   - Undocumented endpoints
+   - Incomplete examples
+
+3. **Generate**
+   - OpenAPI 3.0 specification
+   - Include all extracted information
+
+[Attached: api_docs.pdf]
+```
+
+---
+
+# Code from Screenshots
+
+Perfect for Stack Overflow, documentation:
+
+```
+Extract and improve the code from this screenshot.
+
+Steps:
+1. **Transcribe** - Exact code as shown
+2. **Identify** - Language and framework
+3. **Analyze** - What does it do?
+4. **Issues** - Any bugs or problems?
+5. **Improve** - Enhanced version with:
+   - Error handling
+   - Type hints/definitions
+   - Better naming
+   - Comments
+
+[image: code_screenshot.png]
+```
+
+---
+
+# Architecture Diagram Analysis
+
+```
+Analyze this system architecture diagram.
+
+Provide:
+
+1. **Components**
+   - List all components
+   - Technology stack used
+   - Purpose of each
+
+2. **Data Flow**
+   - Trace data through system
+   - Identify bottlenecks
+
+3. **Assessment**
+   - Strengths
+   - Potential issues
+   - Scalability concerns
+
+4. **Recommendations**
+   - Specific improvements
+   - Alternative patterns
+
+[image: architecture.png]
+```
+
+---
+
+# Multimodal Best Practices
+
+**1. Provide Context**
+```
+This is a screenshot of a React app's console
+during checkout submission...
+```
+
+**2. Be Specific About Focus**
+```
+Focus on the stack trace in the bottom half.
+Ignore the code editor shown above.
+```
+
+**3. Request Structured Output**
+```
+Return analysis in this format:
+## Critical Issues
+## Warnings
+## Suggestions
+```
+
+---
+
+# Handling Quality Issues
+
+When image quality is poor:
+
+```
+This is a photo of a whiteboard from a design session.
+Image quality is not perfect.
+
+Please:
+1. Transcribe all readable text
+2. Describe diagrams/drawings
+3. Mark unclear sections: [UNCLEAR: approximate content]
+4. Infer overall design intent
+
+Try your best despite quality issues.
+
+[image: whiteboard_photo.jpg]
+```
+
+---
+
+# Multimodal Pitfalls to Avoid
+
+| Pitfall | Problem | Solution |
+|---------|---------|----------|
+| **Low resolution** | Can't read text | Use clear images, crop to relevant area |
+| **No context** | Model guesses wrong | Always explain what image shows |
+| **Assuming perfection** | OCR may misread | Verify transcribed text |
+| **Overloading** | Multiple images, unclear task | One image per focused question |
+| **Wrong expectations** | Model can't do everything | Know limitations (no video, no audio) |
+
+---
+
+# Real-World Multimodal Examples
+
+1. **Bug Triage Bot**
+   - Developers share screenshots in Slack
+   - Bot analyzes and categorizes automatically
+
+2. **UI Audit Tool**
+   - Batch analyze 50 mockups
+   - Generate accessibility reports
+
+3. **Documentation Generator**
+   - Process whiteboard photos
+   - Create structured requirements docs
+
+4. **Log Analysis**
+   - Screenshot of dashboard
+   - Identify patterns and anomalies
+
+---
+
+# Multimodal Key Takeaways
+
+1. **Modern LLMs are multimodal** - Use it!
+2. **Context is critical** - Explain what the image shows
+3. **Be specific** - Direct focus to relevant parts
+4. **Structure output** - Request specific format
+5. **Verify results** - OCR isn't perfect
+6. **Know limitations** - Images only, no video/audio
+
+---
+
+<!-- _class: lead -->
 # Migration & Refactoring Prompts
 
 ---

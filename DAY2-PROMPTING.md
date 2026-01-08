@@ -6,6 +6,7 @@ By the end of Day 2, you will be able to:
 - Write effective prompts using advanced patterns (CoT, few-shot, self-consistency)
 - Design system prompts and personas for different engineering tasks
 - Create specialized prompts for code analysis, generation, and review
+- **Work with multimodal inputs (images, PDFs, documents)** **NEW**
 - Build prompts for large-scale migrations and refactoring
 - Develop a personal prompt library for engineering tasks
 
@@ -18,8 +19,9 @@ By the end of Day 2, you will be able to:
 3. [System Prompts & Persona Engineering](#system-prompts)
 4. [Exercise 1: Prompt Optimization](#exercise-1)
 5. [Code-Focused Prompting](#code-prompting)
-6. [Migration & Refactoring Prompts](#migration-prompts)
-7. [Lab 02: Build Code Analyzer Agent](#lab-02)
+6. [Multimodal Prompting](#multimodal-prompting) **NEW**
+7. [Migration & Refactoring Prompts](#migration-prompts)
+8. [Lab 02: Build Code Analyzer Agent](#lab-02)
 
 ---
 
@@ -1298,9 +1300,540 @@ const prompt = fillTemplate(ANALYZE_CODE, {
   language: 'typescript',
   code: 'function add(a: number, b: number) { return a + b; }',
 });
+````
+
+</details>
+
+### 5.6 Multimodal Prompting (1 hour)
+
+Modern LLMs like Claude 3.5, GPT-4o, and Gemini Pro support multimodal inputs (images, PDFs, audio). This section covers how to prompt effectively with visual and document inputs.
+
+**Why Multimodal Matters:**
+- Analyze screenshots of errors or UI
+- Process diagrams and architecture drawings
+- Extract data from PDFs with tables and images
+- Review code from screenshots
+- Analyze data visualizations
+
+#### Image Analysis Prompts
+
+**Screenshot Analysis:**
+```
+You are analyzing a screenshot of an error message.
+
+Please provide:
+1. Error identification
+   - What is the error type?
+   - What is the root cause?
+2. Context clues
+   - What file/line is affected?
+   - What framework/language is this?
+3. Solution
+   - Specific steps to fix
+   - Code changes needed
+4. Prevention
+   - How to avoid this in the future
+
+[Image: error_screenshot.png]
+```
+
+**UI/UX Review:**
+```
+Analyze this user interface screenshot as a UX expert.
+
+Evaluate:
+1. Visual hierarchy and layout
+2. Accessibility issues (contrast, sizing, etc.)
+3. User flow and interaction patterns
+4. Responsive design considerations
+5. Specific improvement recommendations with mockup descriptions
+
+[Image: dashboard_ui.png]
+```
+
+**Architecture Diagram Analysis:**
+```
+Analyze this system architecture diagram.
+
+Provide:
+1. Component Identification
+   - List all components and their purposes
+   - Identify the technologies used
+
+2. Data Flow Analysis
+   - Trace the flow of data through the system
+   - Identify potential bottlenecks
+
+3. Architecture Assessment
+   - Strengths of this design
+   - Potential issues or anti-patterns
+   - Scalability concerns
+
+4. Recommendations
+   - Specific improvements
+   - Alternative patterns to consider
+
+[Image: system_architecture.png]
+```
+
+#### Code from Images
+
+When working with code screenshots (common in Stack Overflow, documentation):
+
+```
+Extract and analyze the code from this screenshot.
+
+Steps:
+1. Transcribe the code exactly as shown
+2. Identify the language and framework
+3. Analyze what the code does
+4. Identify any issues or bugs
+5. Provide an improved version
+
+Important:
+- Preserve indentation exactly
+- Include all comments
+- Note if any text is unclear or cut off
+
+[Image: code_screenshot.png]
+```
+
+#### PDF Document Processing
+
+**Technical Documentation:**
+```
+I've uploaded a PDF of our API documentation (25 pages).
+
+Your task:
+1. Extract all endpoint definitions
+   - HTTP method and path
+   - Parameters (query, body, headers)
+   - Response formats
+   - Status codes
+
+2. Identify inconsistencies
+   - Missing parameter descriptions
+   - Undocumented status codes
+   - Incomplete examples
+
+3. Generate OpenAPI/Swagger spec
+   - Convert to OpenAPI 3.0 format
+   - Include all extracted information
+
+[Attached: api_docs.pdf]
+```
+
+**Data Extraction from Mixed Content:**
+```
+This PDF contains tables, charts, and narrative text about our system performance.
+
+Extract and structure:
+1. All tables → Convert to CSV/JSON format
+2. All charts → Describe data trends and key metrics
+3. Text summaries → Key findings and recommendations
+
+Output as structured JSON:
+{
+  "tables": [...],
+  "charts": [...],
+  "key_findings": [...]
+}
+
+[Attached: performance_report.pdf]
+```
+
+#### Best Practices for Multimodal Prompting
+
+**1. Be Specific About What to Focus On:**
+```
+Bad: "Look at this image"
+Good: "In this error screenshot, focus on the stack trace in the terminal window (bottom half of the image) and ignore the code editor shown above."
+```
+
+**2. Provide Context:**
+```
+This is a screenshot of a React application's browser console.
+The application is an e-commerce checkout flow.
+We're seeing this error during the payment submission step.
+Please analyze the error and its likely cause.
+
+[Image: console_error.png]
+```
+
+**3. Request Structured Output:**
+```
+Analyze this UI mockup and provide feedback in this format:
+
+## Positive Aspects
+- [List 3-5 things done well]
+
+## Critical Issues
+- Issue: [description]
+  Location: [where in the image]
+  Fix: [specific recommendation]
+
+## Enhancement Suggestions
+- [Prioritized list]
+
+[Image: ui_mockup.png]
+```
+
+**4. Handle Quality Issues:**
+```
+This is a photo of a whiteboard from a design session. The image quality is not perfect, and some text may be hard to read.
+
+Please:
+1. Transcribe all readable text
+2. Describe diagrams and drawings
+3. Mark any sections that are unclear with [UNCLEAR: approximate content]
+4. Infer the overall design intent
+
+[Image: whiteboard_photo.jpg]
+```
+
+#### Multimodal Prompt Library
+
+<details>
+<summary><b>Python</b></summary>
+
+```python
+# prompts/multimodal_prompts.py
+"""Reusable multimodal prompt templates."""
+
+ANALYZE_ERROR_SCREENSHOT = """
+Analyze this error screenshot systematically.
+
+1. **Error Identification**
+   - Error type and message
+   - Stack trace key points
+   - Affected files/functions
+
+2. **Context Analysis**
+   - What operation was being performed?
+   - What framework/language?
+   - Any visible configuration or state
+
+3. **Root Cause**
+   - Most likely cause
+   - Why this error occurred
+
+4. **Solution**
+   - Immediate fix steps
+   - Code changes needed (be specific)
+   - How to verify the fix
+
+5. **Prevention**
+   - How to catch this earlier
+   - Tests to add
+   - Monitoring to implement
+"""
+
+EXTRACT_DIAGRAM_INFO = """
+Extract structured information from this {diagram_type} diagram.
+
+Output as JSON:
+{{
+  "components": [
+    {{"name": "...", "type": "...", "description": "..."}}
+  ],
+  "connections": [
+    {{"from": "...", "to": "...", "protocol": "...", "description": "..."}}
+  ],
+  "data_flows": [
+    {{"source": "...", "destination": "...", "data_type": "..."}}
+  ],
+  "notes": ["..."]
+}}
+
+Be thorough and include all visible information.
+"""
+
+CODE_FROM_IMAGE = """
+Extract and improve the code from this image.
+
+Step 1: Transcription
+Transcribe the code exactly as shown, preserving:
+- Exact indentation
+- All comments
+- Variable names
+- Any visible imports
+
+Step 2: Analysis
+- What does this code do?
+- What language/framework?
+- Any obvious issues?
+
+Step 3: Improvements
+Provide an improved version that:
+- Fixes any bugs
+- Adds error handling
+- Improves naming if needed
+- Adds type hints (Python) or types (TypeScript)
+- Includes helpful comments
+
+Step 4: Explanation
+Explain each improvement made and why.
+"""
+
+REVIEW_UI_SCREENSHOT = """
+Conduct a UX review of this interface screenshot.
+
+Evaluate:
+
+**Visual Design** (Rate 1-5)
+- Color scheme and contrast
+- Typography and readability
+- Spacing and alignment
+- Visual hierarchy
+
+**Usability** (Rate 1-5)
+- Clarity of actions
+- Feedback and affordances
+- Error prevention
+- Mobile responsiveness (if applicable)
+
+**Accessibility** (Rate 1-5)
+- Color contrast ratios
+- Touch target sizes
+- Screen reader compatibility
+- Keyboard navigation
+
+**Specific Issues**
+For each issue found:
+1. Severity: Critical/High/Medium/Low
+2. Location: Describe where in the UI
+3. Problem: What's wrong
+4. Impact: Who is affected
+5. Fix: Specific recommendation with CSS/HTML if needed
+
+**Summary**
+- Overall rating: X/15
+- Top 3 priorities to fix
+"""
+
+ANALYZE_PDF_DOCUMENT = """
+Analyze this PDF document and extract key information.
+
+Document type: {doc_type}
+Focus areas: {focus_areas}
+
+Extraction requirements:
+1. **Structure**
+   - Main sections and their hierarchy
+   - Page references for important content
+
+2. **Key Information**
+   - {specific_info_needed}
+
+3. **Data Tables**
+   - Convert all tables to structured format
+   - Preserve relationships between data
+
+4. **Action Items**
+   - Any TODOs, warnings, or requirements
+   - Who is responsible (if mentioned)
+
+5. **Summary**
+   - 3-5 bullet point summary
+   - Key takeaways for engineers
+
+Output format: {output_format}
+"""
 ```
 
 </details>
+
+<details>
+<summary><b>TypeScript</b></summary>
+
+```typescript
+// prompts/multimodal-prompts.ts
+/**
+ * Reusable multimodal prompt templates.
+ */
+
+export const ANALYZE_ERROR_SCREENSHOT = `
+Analyze this error screenshot systematically.
+
+1. **Error Identification**
+   - Error type and message
+   - Stack trace key points
+   - Affected files/functions
+
+2. **Context Analysis**
+   - What operation was being performed?
+   - What framework/language?
+   - Any visible configuration or state
+
+3. **Root Cause**
+   - Most likely cause
+   - Why this error occurred
+
+4. **Solution**
+   - Immediate fix steps
+   - Code changes needed (be specific)
+   - How to verify the fix
+
+5. **Prevention**
+   - How to catch this earlier
+   - Tests to add
+   - Monitoring to implement
+`;
+
+export const EXTRACT_DIAGRAM_INFO = `
+Extract structured information from this {diagram_type} diagram.
+
+Output as JSON:
+{
+  "components": [
+    {"name": "...", "type": "...", "description": "..."}
+  ],
+  "connections": [
+    {"from": "...", "to": "...", "protocol": "...", "description": "..."}
+  ],
+  "data_flows": [
+    {"source": "...", "destination": "...", "data_type": "..."}
+  ],
+  "notes": ["..."]
+}
+
+Be thorough and include all visible information.
+`;
+
+export const CODE_FROM_IMAGE = `
+Extract and improve the code from this image.
+
+Step 1: Transcription
+Transcribe the code exactly as shown, preserving:
+- Exact indentation
+- All comments
+- Variable names
+- Any visible imports
+
+Step 2: Analysis
+- What does this code do?
+- What language/framework?
+- Any obvious issues?
+
+Step 3: Improvements
+Provide an improved version that:
+- Fixes any bugs
+- Adds error handling
+- Improves naming if needed
+- Adds type definitions
+- Includes helpful comments
+
+Step 4: Explanation
+Explain each improvement made and why.
+`;
+
+export const REVIEW_UI_SCREENSHOT = `
+Conduct a UX review of this interface screenshot.
+
+Evaluate:
+
+**Visual Design** (Rate 1-5)
+- Color scheme and contrast
+- Typography and readability
+- Spacing and alignment
+- Visual hierarchy
+
+**Usability** (Rate 1-5)
+- Clarity of actions
+- Feedback and affordances
+- Error prevention
+- Mobile responsiveness (if applicable)
+
+**Accessibility** (Rate 1-5)
+- Color contrast ratios
+- Touch target sizes
+- Screen reader compatibility
+- Keyboard navigation
+
+**Specific Issues**
+For each issue found:
+1. Severity: Critical/High/Medium/Low
+2. Location: Describe where in the UI
+3. Problem: What's wrong
+4. Impact: Who is affected
+5. Fix: Specific recommendation with CSS/HTML if needed
+
+**Summary**
+- Overall rating: X/15
+- Top 3 priorities to fix
+`;
+
+export const ANALYZE_PDF_DOCUMENT = `
+Analyze this PDF document and extract key information.
+
+Document type: {doc_type}
+Focus areas: {focus_areas}
+
+Extraction requirements:
+1. **Structure**
+   - Main sections and their hierarchy
+   - Page references for important content
+
+2. **Key Information**
+   - {specific_info_needed}
+
+3. **Data Tables**
+   - Convert all tables to structured format
+   - Preserve relationships between data
+
+4. **Action Items**
+   - Any TODOs, warnings, or requirements
+   - Who is responsible (if mentioned)
+
+5. **Summary**
+   - 3-5 bullet point summary
+   - Key takeaways for engineers
+
+Output format: {output_format}
+`;
+
+// Type-safe template filling
+interface MultimodalPromptVars {
+  diagram_type?: string;
+  doc_type?: string;
+  focus_areas?: string;
+  specific_info_needed?: string;
+  output_format?: string;
+}
+
+export function fillMultimodalTemplate(
+  template: string,
+  vars: MultimodalPromptVars
+): string {
+  let result = template;
+  for (const [key, value] of Object.entries(vars)) {
+    if (value) {
+      result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
+    }
+  }
+  return result;
+}
+```
+
+</details>
+
+#### Common Pitfalls with Multimodal
+
+| Pitfall | Problem | Solution |
+|---------|---------|----------|
+| **Low resolution images** | Model can't read text/details | Ensure images are clear, crop to relevant area |
+| **No context** | Model guesses wrong | Always explain what the image shows |
+| **Assuming OCR perfection** | Model may misread text | Verify transcribed code/text |
+| **Overloading** | Multiple images without clear task | One image per focused question, or clear multi-image task |
+| **Ignoring format** | Mixed PDF content confuses model | Specify what to extract from PDFs explicitly |
+
+#### Real-World Use Cases
+
+1. **Bug Triage from Screenshots**: Developers share error screenshots in Slack → Analyze and classify automatically
+2. **Documentation Review**: Extract API endpoints from PDF specs → Generate Postman collections
+3. **UI Audits**: Batch analyze mockups → Generate accessibility reports
+4. **Whiteboard to Code**: Photo of design session → Structured requirements document
+5. **Log Analysis**: Screenshot of log dashboard → Identify patterns and issues
 
 ---
 

@@ -298,6 +298,323 @@ if response.tool_calls:
 
 <!-- _class: lead -->
 # Agent Patterns
+<!-- Day 3 New Slides: Context Management, Memory Systems, Structured Output -->
+
+<!-- Insert after Tool-Use section, before Agent Patterns -->
+
+---
+
+<!-- _class: lead -->
+# Context Management
+## **NEW**: Managing Long Conversations
+
+---
+
+# The Context Problem
+
+**Challenge:**
+- Claude: 200K tokens (~$50/million)
+- GPT-4: 128K tokens (~$30/million)
+- Conversations grow unbounded
+- Performance degrades with long contexts
+
+**Solution: Context Management Strategies**
+
+---
+
+# Context Management Strategies
+
+| Strategy | When to Use | Pros | Cons |
+|----------|-------------|------|------|
+| **Sliding Window** | Uniform importance | Simple, predictable | Loses old context |
+| **Summarization** | Long conversations | Preserves key info | May miss details |
+| **Selective Retention** | Mixed importance | Keeps what matters | Needs scoring function |
+| **External Memory** | Very long-term | Unlimited history | Adds latency |
+
+---
+
+# Sliding Window
+
+Keep recent N messages, drop oldest:
+
+```python
+class ContextWindow:
+    def __init__(self, max_messages=10):
+        self.messages = []
+        self.max_messages = max_messages
+
+    def add_message(self, role, content):
+        self.messages.append({"role": role, "content": content})
+
+        # Keep only recent messages
+        if len(self.messages) > self.max_messages:
+            self.messages = self.messages[-self.max_messages:]
+```
+
+**Best for:** Short tasks, uniform message importance
+
+---
+
+# Rolling Summarization
+
+Periodically summarize old messages:
+
+```
+Messages 1-10 → Summarize
+Messages 11-20 → Keep
+New message → Add
+
+Context = [Summary] + [Recent 10 messages]
+```
+
+**Savings:** 500 tokens → 100 token summary (80% reduction)
+
+**Best for:** Long conversations where context matters
+
+---
+
+# Selective Retention
+
+Keep important messages, drop routine ones:
+
+```python
+def importance_scorer(message):
+    content = message["content"].lower()
+    score = 0.5  # baseline
+
+    if any(word in content for word in ["error", "bug"]):
+        score += 0.3
+    if any(word in content for word in ["ok", "thanks"]):
+        score -= 0.2
+
+    return score
+```
+
+**Best for:** Mixed-importance conversations
+
+---
+
+# Context Management Best Practices
+
+1. **Always preserve system prompt** - Never drop it
+2. **Monitor token usage** - Log context size and costs
+3. **Test with long conversations** - Verify behavior at limits
+4. **Combine strategies** - Use summarization + selective retention
+5. **Make it configurable** - Different tasks need different strategies
+
+---
+
+<!-- _class: lead -->
+# Memory Systems
+## **NEW**: Long-Term & Episodic Memory
+
+---
+
+# Memory Types for Agents
+
+```
+┌─────────────────────────────────────────┐
+│   SHORT-TERM MEMORY                     │
+│   • Current conversation                │
+│   • Lives in context window             │
+│   • Lost when context is cleared        │
+├─────────────────────────────────────────┤
+│   LONG-TERM MEMORY                      │
+│   • Persisted to Vector DB              │
+│   • User preferences, facts             │
+│   • Retrieved via semantic search       │
+├─────────────────────────────────────────┤
+│   EPISODIC MEMORY                       │
+│   • Past task completions               │
+│   • "I did X before and it worked"      │
+│   • Helps agent learn from experience   │
+└─────────────────────────────────────────┘
+```
+
+---
+
+# Long-Term Memory with Vector DB
+
+```python
+class LongTermMemory:
+    def __init__(self, embedding_fn):
+        self.vector_db = ChromaDB()
+        self.embed = embedding_fn
+
+    def store(self, content, metadata=None):
+        """Store a memory."""
+        self.vector_db.add(
+            embedding=self.embed(content),
+            text=content,
+            metadata=metadata
+        )
+
+    def recall(self, query, n_results=5):
+        """Recall relevant memories."""
+        return self.vector_db.query(
+            query_embedding=self.embed(query),
+            n_results=n_results
+        )
+```
+
+---
+
+# Episodic Memory - Task History
+
+Track past task completions:
+
+```python
+@dataclass
+class Episode:
+    task: str
+    outcome: str  # "success" or "failure"
+    steps_taken: List[str]
+    duration_seconds: float
+    learning: Optional[str]
+
+episodic_memory.record(Episode(
+    task="Migrate Express to FastAPI",
+    outcome="success",
+    steps_taken=["Analyzed routes", "Created FastAPI equivalents", ...],
+    duration_seconds=1847.5,
+    learning="FastAPI's Depends() is cleaner than Express middleware"
+))
+```
+
+---
+
+# Using Memory in Agents
+
+```python
+async def process(user_input):
+    # 1. Recall relevant long-term memories
+    memories = long_term.recall(user_input, n_results=3)
+
+    # 2. Find similar past tasks
+    similar = episodic.find_similar_tasks(user_input)
+
+    # 3. Build enhanced prompt
+    prompt = f"""
+    Relevant memories: {memories}
+    Past similar tasks: {similar}
+    Current request: {user_input}
+    """
+
+    # 4. Process with full context
+    return await llm.complete(prompt)
+```
+
+---
+
+# Memory Systems Key Takeaways
+
+1. **Short-term = Context window** - Current conversation
+2. **Long-term = Vector DB** - Persistent facts and preferences
+3. **Episodic = Task history** - Learn from past successes/failures
+4. **Combine all three** - For truly intelligent agents
+5. **Cost-benefit trade-off** - More memory = more tokens
+
+---
+
+<!-- _class: lead -->
+# Structured Output & Validation
+## **NEW**: Reliable, Type-Safe Outputs
+
+---
+
+# The Structured Output Problem
+
+**Without validation:**
+```json
+{
+  "name": "John",
+  "age": "thirty",  // ❌ Should be number
+  "email": "invalid" // ❌ Not an email
+}
+```
+
+**Result:** Your code crashes!
+
+**Solution:** Schema validation with Pydantic/Zod
+
+---
+
+# Three Levels of Structure
+
+| Level | Reliability | Implementation |
+|-------|-------------|----------------|
+| **1. Prompt-based** | ⭐ Low | "Return JSON with fields..." |
+| **2. JSON Mode** | ⭐⭐ Medium | Tell LLM to return valid JSON |
+| **3. Schema Enforcement** | ⭐⭐⭐ High | Pydantic/Zod validation + retry |
+
+**Production systems need Level 3!**
+
+---
+
+# Schema Enforcement with Pydantic
+
+```python
+from pydantic import BaseModel, EmailStr
+
+class UserInfo(BaseModel):
+    name: str
+    age: int  # Must be integer
+    email: EmailStr  # Must be valid email
+
+# Get LLM response
+response = llm.complete(prompt)
+
+# Validate
+try:
+    user = UserInfo.model_validate(response)
+    # ✅ Type-safe, validated!
+except ValidationError as e:
+    # ❌ Retry with error feedback
+    retry_with_feedback(e)
+```
+
+---
+
+# Smart Retry with Validation Feedback
+
+```python
+def get_validated_output(prompt, schema, max_retries=3):
+    for attempt in range(max_retries):
+        response = llm.complete(prompt)
+
+        try:
+            return schema.model_validate(response)
+        except ValidationError as e:
+            # Tell LLM what was wrong
+            prompt += f"\n\nError: {e}\nPlease fix and try again."
+
+    raise ValueError("Failed after retries")
+```
+
+**Result:** 95%+ success rate on first try, 99%+ after retries
+
+---
+
+# Structured Output Best Practices
+
+1. **Always use schemas in production**
+2. **Implement retries** - LLMs occasionally fail
+3. **Provide specific error feedback** - Tell LLM what was wrong
+4. **Use type-safe schemas** - Pydantic (Python) or Zod (TypeScript)
+5. **Test edge cases** - Empty arrays, null values, boundaries
+6. **Log failures** - Track and improve over time
+
+---
+
+# Structured Output Key Takeaways
+
+1. **Never trust raw LLM output** - Always validate
+2. **Use schema libraries** - Pydantic/Zod, not manual checks
+3. **Retry with feedback** - Tell LLM what was wrong
+4. **Type safety** - IDE autocomplete, compile-time checks
+5. **Production reliability** - From 60% to 99%+ accuracy
+
+---
 
 ---
 

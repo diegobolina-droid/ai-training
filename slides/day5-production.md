@@ -466,6 +466,372 @@ def select_cost_effective_model(
 ---
 
 <!-- _class: lead -->
+<!-- Day 5 New Slides: Cost Optimization & Integration Patterns -->
+
+<!-- Insert after Cost Management section, before Deployment -->
+
+---
+
+<!-- _class: lead -->
+# Advanced Cost Optimization
+## **NEW**: 90%+ Cost Reduction Strategies
+
+---
+
+# Beyond Basic Cost Management
+
+**Basic:** Rate limiting, caching, timeouts
+**Advanced:** Semantic caching, model routing, batch processing
+
+**Example savings:**
+- Original: $10,000/month
+- After optimization: $600/month
+- **94% cost reduction!**
+
+---
+
+# Strategy 1: Semantic Caching
+
+Cache **similar** queries, not just exact matches:
+
+```
+Query 1: "What's 2+2?"
+Query 2: "What is two plus two?"
+         ↓ 95% similarity
+    Cache Hit! 💰
+```
+
+**How it works:**
+1. Embed query with text-embedding
+2. Search vector DB for similar past queries
+3. If similarity > 95%, return cached response
+4. Else, call LLM and cache result
+
+**Savings: 60-80% on repeated concepts**
+
+---
+
+# Semantic Caching Implementation
+
+```python
+class SemanticCache:
+    def get(self, query):
+        query_embedding = embed(query)
+
+        # Find similar cached queries
+        for cached_query, cached_embedding in self.cache:
+            similarity = cosine_sim(query_embedding, cached_embedding)
+
+            if similarity >= 0.95:
+                return self.cache[cached_query]  # Hit!
+
+        return None  # Miss
+
+    def set(self, query, response):
+        self.cache[query] = {
+            "response": response,
+            "embedding": embed(query)
+        }
+```
+
+---
+
+# Strategy 2: Model Routing
+
+Use **cheap models** for simple tasks:
+
+```python
+def route_request(prompt):
+    complexity = assess_complexity(prompt)
+
+    if "extract" in prompt or "list" in prompt:
+        return "claude-haiku"  # $0.25/MTok ✅
+
+    elif "design" in prompt or "analyze" in prompt:
+        return "claude-opus"   # $15/MTok 💸
+
+    else:
+        return "claude-sonnet" # $3/MTok
+```
+
+**Savings: 70-90% on simple tasks**
+
+---
+
+# Strategy 3: Prompt Compression
+
+Reduce tokens while preserving meaning:
+
+```python
+original = """
+Please analyze the following code and tell me if there
+are any issues. I would like you to be thorough.
+
+Example 1: def add(a,b): return a+b  # This is fine
+Example 2: def sub(a,b): return a-b  # Also fine
+Example 3: def mul(a,b): return a*b  # Good
+Example 4: def div(a,b): return a/b  # Has issue!
+
+Code: [actual code]
+"""
+
+compressed = """
+Analyze this code for issues:
+
+Examples:
+1. add(a,b): return a+b ✓
+2. div(a,b): return a/b ✗ (no zero check)
+
+Code: [actual code]
+"""
+```
+
+**Savings: 30-60% token reduction**
+
+---
+
+# Strategy 4: Batch Processing
+
+Process **multiple items** in one call:
+
+```
+❌ Individual: 100 calls × $0.01 = $1.00
+✅ Batched:    1 call  × $0.15 = $0.15
+
+Savings: 85%!
+```
+
+```python
+# Instead of 100 separate calls
+for code in codes:
+    analyze(code)  # $0.01 each
+
+# Batch them
+analyze_batch(codes)  # $0.15 total
+```
+
+---
+
+# Combined Savings Example
+
+```
+Original monthly cost: $10,000
+
+Applied optimizations:
+1. Semantic caching (70% hit rate):  -$7,000
+2. Model routing (50% to Haiku):     -$1,500
+3. Prompt compression (40% shorter): -$600
+4. Batch processing (10% batched):   -$300
+
+New monthly cost: $600
+
+ROI: 94% reduction! 🎉
+```
+
+---
+
+# Cost Optimization Best Practices
+
+1. **Monitor everything** - Track costs by feature/user
+2. **Start with caching** - Easiest 60-80% win
+3. **Route by complexity** - Measure prompt patterns
+4. **Compress carefully** - Don't lose critical context
+5. **Batch when possible** - Similar operations together
+6. **A/B test optimizations** - Verify quality stays high
+7. **Set budgets** - Alert on unusual spend
+
+---
+
+<!-- _class: lead -->
+# Integration Patterns
+## **NEW**: Connecting AI to Existing Systems
+
+---
+
+# Integration Challenge
+
+**AI agents don't live in isolation!**
+
+Need to integrate with:
+- Webhooks (GitHub, Slack, Stripe)
+- Message queues (Redis, RabbitMQ)
+- Event buses (Kafka, SNS)
+- APIs (REST, GraphQL)
+- Databases (PostgreSQL, MongoDB)
+
+---
+
+# Four Integration Patterns
+
+| Pattern | Use Case | Complexity |
+|---------|----------|------------|
+| **Webhooks** | External events → Agent | Low |
+| **Message Queue** | Async, high volume | Medium |
+| **Event-Driven** | Loosely coupled systems | Medium |
+| **Microservices** | Distributed agent services | High |
+
+---
+
+# Pattern 1: Webhook Integration
+
+**Example: GitHub PR Review Bot**
+
+```python
+@app.post("/webhooks/github")
+async def github_webhook(request):
+    # Verify signature
+    verify_signature(request.body, request.headers["X-Hub-Signature"])
+
+    data = await request.json()
+
+    if data["action"] == "opened":  # New PR
+        pr_number = data["pull_request"]["number"]
+
+        # Get diff & review with AI
+        diff = get_pr_diff(pr_number)
+        review = await code_review_agent.review(diff)
+
+        # Post as comment
+        post_comment(pr_number, review)
+```
+
+---
+
+# Pattern 2: Message Queue
+
+**Example: Document Analysis Pipeline**
+
+```python
+# Producer (FastAPI)
+@app.post("/documents/{id}/analyze")
+async def trigger_analysis(id: str):
+    task = analyze_document.delay(id)  # Queue it
+    return {"task_id": task.id, "status": "processing"}
+
+# Consumer (Celery worker)
+@celery.task
+def analyze_document(id: str):
+    doc = fetch_document(id)
+    analysis = analyzer.analyze(doc)
+    store_results(id, analysis)
+
+# Start worker: celery worker -A tasks
+```
+
+---
+
+# Pattern 3: Event-Driven
+
+**Example: Security Alert System**
+
+```python
+event_bus = EventBus()
+
+# Handler 1: Analyze code
+@event_bus.on("code_committed")
+async def analyze_commit(data):
+    analysis = await analyzer.analyze(data["code"])
+
+    if analysis.severity == "high":
+        await event_bus.emit("security_issue", {
+            "analysis": analysis,
+            "commit": data["commit_id"]
+        })
+
+# Handler 2: Alert team
+@event_bus.on("security_issue")
+async def alert_team(data):
+    await slack.send_alert(data["analysis"])
+
+# Handler 3: Create ticket
+@event_bus.on("security_issue")
+async def create_ticket(data):
+    await jira.create_issue(data["analysis"])
+```
+
+---
+
+# Pattern 4: Microservices
+
+**Docker Compose setup:**
+
+```yaml
+services:
+  gateway:
+    image: nginx
+    ports: ["80:80"]
+
+  code-review-agent:
+    build: ./services/code-review
+    replicas: 3
+
+  document-analyzer:
+    build: ./services/doc-analyzer
+    replicas: 2
+
+  redis:
+    image: redis
+
+  celery-workers:
+    build: ./services/worker
+    replicas: 5
+```
+
+---
+
+# Real-World Integration: Slack Bot
+
+```python
+from slack_bolt.async_app import AsyncApp
+
+app = AsyncApp(token=SLACK_BOT_TOKEN)
+
+@app.event("app_mention")
+async def handle_mention(event, say):
+    """Respond to @bot mentions."""
+    user_message = remove_mention(event["text"])
+
+    # Get AI response
+    response = await assistant.chat(user_message)
+
+    await say(response, thread_ts=event["ts"])
+
+@app.command("/analyze")
+async def analyze_command(ack, command, say):
+    """Handle /analyze command."""
+    await ack()
+
+    file_url = command["text"]
+    analysis = await assistant.analyze_url(file_url)
+
+    await say(f"Analysis:\n{analysis}")
+```
+
+---
+
+# Integration Best Practices
+
+1. **Async everything** - Don't block on LLM calls
+2. **Idempotency** - Webhooks may retry
+3. **Timeouts** - LLMs can be slow (30-60s limits)
+4. **Error handling** - Retries, fallbacks, dead letter queues
+5. **Security** - Verify signatures, use API keys
+6. **Monitoring** - Log all events, alert on failures
+7. **Rate limiting** - Protect against abuse
+
+---
+
+# Integration Key Takeaways
+
+1. **Webhooks** - Simplest for external events
+2. **Queues** - Best for async, high-volume processing
+3. **Event-driven** - Loosely coupled, scalable systems
+4. **Microservices** - Distributed agent architecture
+5. **Always async** - LLMs are slow
+6. **Security first** - Verify all external inputs
+7. **Monitor everything** - Track integration health
+
+---
 # Deployment Strategies
 
 ---

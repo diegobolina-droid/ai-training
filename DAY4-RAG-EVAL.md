@@ -7,6 +7,7 @@ By the end of Day 4, you will be able to:
 - Implement effective chunking and embedding strategies
 - Identify and avoid common RAG pitfalls
 - Build evaluation frameworks for AI systems
+- **Implement comprehensive testing strategies for AI systems** **NEW**
 - Debug and observe AI system behavior
 - Deploy a complete RAG system with evaluation
 
@@ -19,6 +20,7 @@ By the end of Day 4, you will be able to:
 3. [RAG Pitfalls & Advanced Patterns](#pitfalls)
 4. [Exercise 1: RAG Architecture Design](#exercise-1)
 5. [Evaluation Fundamentals](#evaluation)
+   - 5.5 Testing Strategies for AI Systems **NEW**
 6. [Debugging & Observability](#observability)
 7. [Lab 04: Build & Evaluate RAG System](#lab-04)
 
@@ -2667,6 +2669,451 @@ async function runEvaluation(rag: RAGSystem, judge: LLMJudge) {
 ```
 
 </details>
+
+### 5.5 Testing Strategies for AI Systems (45 min)
+
+Testing AI systems requires different approaches than traditional software. This section covers practical testing strategies for production AI applications.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    AI Testing Pyramid                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│                      ┌─────────────┐                            │
+│                      │   E2E Tests │  Few, expensive            │
+│                      │   (Manual)  │                            │
+│                      └─────────────┘                            │
+│                    ┌───────────────────┐                        │
+│                    │  Integration Tests│  Some, moderate cost   │
+│                    │  (With real LLMs) │                        │
+│                    └───────────────────┘                        │
+│              ┌─────────────────────────────────┐                │
+│              │    Component Tests              │  Many, fast    │
+│              │    (Mocked LLM responses)       │                │
+│              └─────────────────────────────────┘                │
+│        ┌───────────────────────────────────────────────┐        │
+│        │          Unit Tests                           │        │
+│        │  (Business logic, parsing, validation)        │        │
+│        └───────────────────────────────────────────────┘        │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Level 1: Unit Tests (Test Everything Non-AI)**
+
+<details>
+<summary><b>Python with pytest</b></summary>
+
+```python
+# tests/test_prompt_builder.py
+"""Unit tests for prompt building logic."""
+import pytest
+from app.prompts import build_analysis_prompt, extract_code_blocks
+
+def test_build_analysis_prompt_includes_code():
+    """Prompt should include the provided code."""
+    code = "def hello(): pass"
+    prompt = build_analysis_prompt(code, analysis_type="security")
+
+    assert code in prompt
+    assert "security" in prompt.lower()
+
+def test_extract_code_blocks_single_block():
+    """Should extract code from markdown blocks."""
+    text = "Here's code:\n```python\nprint('hi')\n```"
+    blocks = extract_code_blocks(text)
+
+    assert len(blocks) == 1
+    assert blocks[0] == "print('hi')"
+
+def test_extract_code_blocks_multiple_blocks():
+    """Should extract multiple code blocks."""
+    text = """
+    First:
+    ```python
+    x = 1
+    ```
+    Second:
+    ```python
+    y = 2
+    ```
+    """
+    blocks = extract_code_blocks(text)
+
+    assert len(blocks) == 2
+    assert "x = 1" in blocks[0]
+    assert "y = 2" in blocks[1]
+
+def test_extract_code_blocks_no_blocks():
+    """Should return empty list when no code blocks."""
+    text = "Just text, no code"
+    blocks = extract_code_blocks(text)
+
+    assert blocks == []
+
+# tests/test_chunking.py
+"""Unit tests for document chunking."""
+from app.rag import chunk_text, chunk_by_sentences
+
+def test_chunk_text_respects_max_size():
+    """Chunks should not exceed max size."""
+    text = "word " * 1000  # 1000 words
+    chunks = chunk_text(text, max_tokens=100)
+
+    for chunk in chunks:
+        # Rough estimate: 1 word ≈ 1.3 tokens
+        assert len(chunk.split()) <= 130
+
+def test_chunk_text_preserves_content():
+    """All content should appear in some chunk."""
+    text = "The quick brown fox jumps over the lazy dog"
+    chunks = chunk_text(text, max_tokens=5)
+
+    reconstructed = " ".join(chunks)
+    assert all(word in reconstructed for word in text.split())
+
+def test_chunk_by_sentences_splits_correctly():
+    """Should split on sentence boundaries."""
+    text = "First sentence. Second sentence. Third sentence."
+    chunks = chunk_by_sentences(text, max_sentences=1)
+
+    assert len(chunks) == 3
+    assert "First sentence." in chunks[0]
+```
+
+</details>
+
+**Level 2: Component Tests with Mocked LLM**
+
+<details>
+<summary><b>Python</b></summary>
+
+```python
+# tests/test_agent_with_mock.py
+"""Component tests with mocked LLM responses."""
+import pytest
+from unittest.mock import Mock, MagicMock
+from app.agent import CodeAnalyzerAgent
+
+@pytest.fixture
+def mock_llm():
+    """Create a mock LLM client."""
+    llm = Mock()
+    # Mock the messages.create method
+    llm.messages.create = Mock()
+    return llm
+
+def test_agent_extracts_issues_from_response(mock_llm):
+    """Agent should parse issues from LLM response."""
+    # Arrange: Define what LLM should return
+    mock_response = Mock()
+    mock_response.content = [Mock(text="""
+    {
+        "issues": ["SQL injection vulnerability", "Missing error handling"],
+        "severity": "high",
+        "recommendations": ["Use parameterized queries", "Add try-catch"]
+    }
+    """)]
+    mock_llm.messages.create.return_value = mock_response
+
+    agent = CodeAnalyzerAgent(llm=mock_llm)
+
+    # Act
+    result = agent.analyze("def query(id): return f'SELECT * FROM users WHERE id={id}'")
+
+    # Assert
+    assert len(result.issues) == 2
+    assert "SQL injection" in result.issues[0]
+    assert result.severity == "high"
+
+    # Verify LLM was called
+    mock_llm.messages.create.assert_called_once()
+
+def test_agent_retries_on_invalid_json(mock_llm):
+    """Agent should retry when LLM returns invalid JSON."""
+    # First call returns invalid JSON, second call succeeds
+    invalid_response = Mock()
+    invalid_response.content = [Mock(text="Not JSON")]
+
+    valid_response = Mock()
+    valid_response.content = [Mock(text='{"issues": [], "severity": "low", "recommendations": []}')]
+
+    mock_llm.messages.create.side_effect = [invalid_response, valid_response]
+
+    agent = CodeAnalyzerAgent(llm=mock_llm, max_retries=2)
+
+    # Should succeed on second try
+    result = agent.analyze("def safe_function(): pass")
+
+    assert result.severity == "low"
+    assert mock_llm.messages.create.call_count == 2
+
+def test_agent_handles_tool_use(mock_llm):
+    """Agent should execute tools when LLM requests them."""
+    # Mock LLM requesting a tool
+    tool_request = Mock()
+    tool_request.content = []
+    tool_request.stop_reason = "tool_use"
+    tool_request.content = [Mock(
+        type="tool_use",
+        id="tool_1",
+        name="read_file",
+        input={"path": "test.py"}
+    )]
+
+    final_response = Mock()
+    final_response.content = [Mock(text="Analysis complete")]
+    final_response.stop_reason = "end_turn"
+
+    mock_llm.messages.create.side_effect = [tool_request, final_response]
+
+    # Mock file system tool
+    mock_fs_tool = Mock()
+    mock_fs_tool.name = "read_file"
+    mock_fs_tool.execute.return_value = "print('test')"
+
+    agent = CodeAnalyzerAgent(llm=mock_llm, tools=[mock_fs_tool])
+
+    result = agent.analyze("Analyze test.py")
+
+    # Tool should have been executed
+    mock_fs_tool.execute.assert_called_once_with(path="test.py")
+```
+
+</details>
+
+**Level 3: Integration Tests with Real LLMs**
+
+<details>
+<summary><b>Python</b></summary>
+
+```python
+# tests/integration/test_real_llm.py
+"""Integration tests with real LLM calls."""
+import pytest
+import os
+from app.agent import CodeAnalyzerAgent
+from anthropic import Anthropic
+
+# Skip if no API key (for CI/CD)
+pytestmark = pytest.mark.skipif(
+    not os.getenv("ANTHROPIC_API_KEY"),
+    reason="No API key available"
+)
+
+@pytest.fixture
+def real_agent():
+    """Create agent with real LLM."""
+    client = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    return CodeAnalyzerAgent(llm=client)
+
+def test_detects_sql_injection(real_agent):
+    """Should detect SQL injection vulnerabilities."""
+    code = """
+    def get_user(user_id):
+        query = f"SELECT * FROM users WHERE id = {user_id}"
+        return db.execute(query)
+    """
+
+    result = real_agent.analyze(code)
+
+    # Check that SQL injection was detected
+    issues_text = " ".join(result.issues).lower()
+    assert "sql injection" in issues_text or "sql" in issues_text
+    assert result.severity in ["high", "critical"]
+
+def test_handles_safe_code(real_agent):
+    """Should recognize safe code."""
+    code = """
+    def add(a: int, b: int) -> int:
+        return a + b
+    """
+
+    result = real_agent.analyze(code)
+
+    # Should find no critical issues
+    assert result.severity in ["low", "none"]
+
+@pytest.mark.slow  # Mark as slow test
+def test_end_to_end_rag_system():
+    """Test complete RAG pipeline."""
+    from app.rag import RAGSystem
+
+    # Initialize RAG with small test dataset
+    rag = RAGSystem()
+    rag.index_documents([
+        "Python uses indentation for code blocks.",
+        "JavaScript uses curly braces for code blocks.",
+        "Both languages support functions and classes."
+    ])
+
+    # Query
+    result = rag.query("How does Python structure code?")
+
+    # Should mention indentation
+    assert "indentation" in result.lower() or "indent" in result.lower()
+
+    # Should retrieve relevant doc
+    assert any("indentation" in doc.lower() for doc in result.source_documents)
+```
+
+</details>
+
+**Level 4: Regression Testing for Prompts**
+
+<details>
+<summary><b>Python</b></summary>
+
+```python
+# tests/regression/test_prompt_regression.py
+"""Regression tests to catch prompt changes breaking functionality."""
+import pytest
+import json
+from pathlib import Path
+
+# Load baseline results (generated from known-good prompts)
+BASELINE_PATH = Path("tests/regression/baselines.json")
+
+def load_baselines():
+    """Load baseline test results."""
+    if BASELINE_PATH.exists():
+        with open(BASELINE_PATH) as f:
+            return json.load(f)
+    return {}
+
+def save_baselines(baselines):
+    """Save baseline test results."""
+    BASELINE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(BASELINE_PATH, "w") as f:
+        json.dump(baselines, f, indent=2)
+
+@pytest.fixture
+def baselines():
+    """Fixture providing baseline results."""
+    return load_baselines()
+
+def test_security_analysis_regression(real_agent, baselines):
+    """Security analysis should be consistent with baseline."""
+    test_id = "security_sql_injection"
+    code = """
+    def login(username, password):
+        query = f"SELECT * FROM users WHERE user='{username}' AND pass='{password}'"
+        return db.execute(query).fetchone()
+    """
+
+    result = real_agent.analyze(code)
+
+    current = {
+        "found_sql_injection": any("sql" in issue.lower() for issue in result.issues),
+        "severity": result.severity
+    }
+
+    if test_id not in baselines:
+        # First run: save baseline
+        baselines[test_id] = current
+        save_baselines(baselines)
+        pytest.skip("Baseline established")
+
+    baseline = baselines[test_id]
+
+    # Compare with baseline
+    assert current["found_sql_injection"] == baseline["found_sql_injection"], \
+        "Regression: SQL injection detection changed"
+
+    # Severity should be same or better
+    severity_order = {"none": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
+    assert severity_order[current["severity"]] >= severity_order[baseline["severity"]], \
+        f"Regression: Severity decreased from {baseline['severity']} to {current['severity']}"
+
+# Regenerate baselines:
+# pytest tests/regression --regenerate-baselines
+```
+
+</details>
+
+**Testing Best Practices for AI Systems:**
+
+| Practice | Why | How |
+|----------|-----|-----|
+| **Test deterministic parts** | Reliable, fast | Unit test parsing, validation, business logic |
+| **Mock LLM for component tests** | Fast, cheap, consistent | Use fixtures with predefined responses |
+| **Sample real LLM calls** | Catch real issues | Run subset in CI, full suite nightly |
+| **Use regression tests** | Prevent prompt drift | Baseline important test cases |
+| **Test error handling** | AI outputs fail often | Mock malformed JSON, timeouts, errors |
+| **Version your prompts** | Track changes | Git version system prompts |
+| **Log all LLM calls in tests** | Debug failures | Save request/response for failed tests |
+
+**CI/CD Integration:**
+
+```yaml
+# .github/workflows/test.yml
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run unit tests
+        run: pytest tests/ -m "not integration and not slow"
+        # Fast, no API calls
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    # Only run on main branch (expensive)
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run integration tests
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: pytest tests/integration/
+        # Sample of real LLM calls
+
+  regression-tests:
+    runs-on: ubuntu-latest
+    # Nightly only
+    if: github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run regression suite
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: pytest tests/regression/
+        # Full test against baselines
+```
+
+**Cost-Effective Testing Strategy:**
+
+1. **Local Development**: Mock all LLM calls
+2. **PR Validation**: Run 5-10 critical integration tests
+3. **Main Branch**: Run full integration suite (30-50 tests)
+4. **Nightly**: Run regression suite + regenerate baselines
+5. **Pre-Release**: Manual E2E testing
+
+**Example Test Suite Structure:**
+
+```
+tests/
+├── unit/                    # Fast, no external calls (100+ tests)
+│   ├── test_prompts.py
+│   ├── test_parsing.py
+│   └── test_chunking.py
+├── component/               # Mocked LLM (50+ tests)
+│   ├── test_agent.py
+│   ├── test_rag.py
+│   └── fixtures/
+│       └── mock_responses.json
+├── integration/             # Real LLM, subset (10-20 tests)
+│   ├── test_critical_paths.py
+│   └── test_security_detection.py
+├── regression/              # Baseline comparison (20+ tests)
+│   ├── test_regression.py
+│   └── baselines.json
+└── conftest.py             # Shared fixtures
+```
 
 ---
 
