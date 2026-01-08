@@ -5,1097 +5,175 @@ paginate: true
 header: 'Agentic AI Training'
 footer: 'Day 2 - Advanced Prompting'
 style: |
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code&display=swap');
+
   section {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+    color: #1a202c;
+    padding: 45px 60px;
+    line-height: 1.5;
   }
+
+  h1 {
+    color: #1a365d;
+    font-size: 1.9em;
+    font-weight: 700;
+    border-bottom: 3px solid #3182ce;
+    padding-bottom: 0.2em;
+    margin-bottom: 0.5em;
+    margin-top: 0;
+  }
+
+  h2 {
+    color: #2c5282;
+    font-size: 1.3em;
+    font-weight: 600;
+    margin: 0.6em 0 0.4em 0;
+  }
+
+  h3 {
+    color: #2d3748;
+    font-size: 1.1em;
+    font-weight: 600;
+    margin: 0.5em 0 0.3em 0;
+  }
+
   code {
-    background-color: #1e1e1e;
-    color: #d4d4d4;
+    background-color: #edf2f7;
+    color: #2d3748;
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+    font-family: 'Fira Code', Monaco, monospace;
+    font-size: 0.85em;
   }
+
   pre {
-    background-color: #1e1e1e;
-    border-radius: 8px;
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%) !important;
+    padding: 0.9em !important;
+    border-radius: 8px !important;
+    border: 2px solid #4a5568 !important;
+    overflow-x: auto !important;
+    max-height: 320px !important;
+    font-size: 0.62em !important;
+    line-height: 1.4 !important;
+    margin: 0.6em 0 !important;
+  }
+
+  pre code {
+    background: transparent !important;
+    color: #e2e8f0 !important;
+    border: none !important;
+    padding: 0 !important;
+    font-size: 1em !important;
+  }
+
+  ul, ol {
+    line-height: 1.6;
+    margin: 0.5em 0;
+  }
+
+  li {
+    margin-bottom: 0.3em;
+  }
+
+  p {
+    margin: 0.5em 0;
+  }
+
+  strong {
+    color: #2c5282;
+    font-weight: 700;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.75em;
+    margin: 0.5em 0;
+  }
+
+  th {
+    background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+    color: white;
+    padding: 0.5em;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 0.4em;
+    border-bottom: 1px solid #e2e8f0;
+    background-color: white;
+  }
+
+  tr:nth-child(even) td {
+    background-color: #f7fafc;
+  }
+
+  section.lead {
+    text-align: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+
+  section.lead h1 {
+    color: white;
+    border-bottom: none;
+    font-size: 2.5em;
+    margin-bottom: 0.3em;
+  }
+
+  section.lead h2 {
+    color: #e6fffa;
+    font-weight: 500;
+    font-size: 1.4em;
+  }
+
+  blockquote {
+    border-left: 3px solid #3182ce;
+    padding: 0.6em 1em;
+    background-color: #ebf8ff;
+    margin: 0.5em 0;
+    border-radius: 5px;
+    font-style: italic;
+    color: #2c5282;
+    font-size: 0.9em;
   }
 ---
 
 <!-- _class: lead -->
-# Day 2: Advanced Prompting for Engineering
+# Day 2: Advanced Prompting
 
-## Agentic AI Training Program
-
-**Master the art of communicating with LLMs**
+## Agentic AI Training
 
 ---
 
 # Learning Objectives
 
-By the end of Day 2, you will be able to:
-
-- Write effective prompts using advanced patterns
+- Write effective prompts using RCFG framework
+- Apply advanced patterns (CoT, Few-Shot, Tree-of-Thought)
 - Design system prompts and personas
 - Create specialized prompts for code tasks
-- Build prompts for migrations and refactoring
-- Develop your personal prompt library
+- Build migration and refactoring prompts
 
 ---
 
-# What is Prompt Engineering?
-
-**The practice of designing inputs to get desired outputs from LLMs**
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                The Prompt Engineering Stack                 │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  System Prompt       "You are a senior Python developer..." │
-│       ↓                                                     │
-│  Context/Examples    "Here's an example of good code..."    │
-│       ↓                                                     │
-│  Task Definition     "Refactor the following function to..."│
-│       ↓                                                     │
-│  Format Spec         "Return as JSON with fields..."        │
-│       ↓                                                     │
-│  Input               [The actual code/data to process]      │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-# The RCFG Framework
-
-Structure effective prompts with four components:
+# RCFG Framework
 
 | Component | Purpose | Example |
 |-----------|---------|---------|
-| **R**ole | Set expertise | "You are a security-focused code reviewer" |
-| **C**ontext | Provide background | "We're migrating Django 2.x to 4.x" |
-| **F**ormat | Specify output | "Return JSON with 'issues' and 'suggestions'" |
-| **G**oal | Define the task | "Identify breaking changes" |
-
----
-
-# RCFG Example: Before & After
-
-**Before (Vague):**
-```
-Review this code for issues.
-
-def calc(x,y):
-    return x+y
-```
-
-**After (RCFG-Structured):**
-```
-Role: You are a senior Python developer specializing in clean code.
-
-Context: This is part of a financial calculation library where
-precision and readability are critical.
-
-Goal: Review for naming, readability, bugs, and improvements.
-
-Format: Return as ## Issues and ## Suggestions sections.
-
-Code to review: [code here]
-```
-
----
-
-# Clarity Principles
-
-**Be Specific, Not Vague:**
-
-| Vague | Specific |
-|-------|----------|
-| "Make this better" | "Reduce time complexity from O(n²) to O(n log n)" |
-| "Fix the bug" | "Fix the off-by-one error in the loop bounds" |
-| "Add comments" | "Add docstrings with params, returns, and exceptions" |
-| "Optimize this" | "Reduce memory usage by avoiding list copies" |
-
----
-
-# Use Concrete Examples
-
-**Bad:**
-```
-Format output nicely
-```
-
-**Good:**
-```
-Format output as:
-{
-  "status": "success",
-  "data": {
-    "processed": 150,
-    "failed": 3
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
----
-
-# Common Prompting Mistakes
-
-| Mistake | Problem | Fix |
-|---------|---------|-----|
-| **Ambiguity** | Model guesses intent | Be explicit about requirements |
-| **Missing context** | Wrong assumptions | Provide relevant background |
-| **No format spec** | Inconsistent output | Define exact output structure |
-| **Too much at once** | Confused/incomplete | Break into steps |
-| **Assuming knowledge** | Hallucinations | Provide facts, don't expect them |
-
----
-
-<!-- _class: lead -->
-# Advanced Prompting Patterns
-
----
-
-# Chain-of-Thought (CoT) Prompting
-
-Encourage the model to **show its reasoning**
-
-```
-Solve this step by step:
-
-A function receives a list of timestamps and needs to find
-the longest gap between consecutive timestamps.
-The timestamps are not sorted.
-
-Think through each step before writing code.
-```
-
-**When to use**: Complex reasoning, math, multi-step logic
-
----
-
-# Structured Chain-of-Thought
-
-```
-Analyze this algorithm problem step by step:
-
-Problem: Find the longest palindromic substring in a string.
-
-Step 1: Understand the problem
-- What is a palindrome?
-- What does "longest" mean here?
-
-Step 2: Consider approaches
-- What algorithms could solve this?
-- What are their complexities?
-
-Step 3: Choose and justify
-- Which approach is best and why?
-
-Step 4: Implement with comments
-
-Step 5: Verify with an example
-```
-
----
-
-# Few-Shot Prompting
-
-Provide examples to establish patterns:
-
-```
-Convert English descriptions to SQL queries.
-
-Example 1:
-Description: Get all users who signed up in 2024
-SQL: SELECT * FROM users WHERE YEAR(signup_date) = 2024;
-
-Example 2:
-Description: Count orders by status
-SQL: SELECT status, COUNT(*) FROM orders GROUP BY status;
-
-Now convert:
-Description: Get active users with at least 3 orders
-SQL:
-```
-
----
-
-# Few-Shot for Code Style
-
-```
-Refactor functions to follow our team's style guide.
-
-Before:
-def getData(userID):
-    result = db.query(f"SELECT * FROM users WHERE id = {userID}")
-    return result
-
-After:
-def get_user_data(user_id: int) -> Optional[User]:
-    """Fetch user data by ID."""
-    return db.query(User).filter(User.id == user_id).first()
-
----
-Now refactor:
-def processOrder(o):
-    if o.status == "pending":
-        o.status = "processing"
-        sendEmail(o.user)
-        return True
-    return False
-```
-
----
-
-# Self-Consistency Pattern
-
-Ask the model to **verify its own output**:
-
-```
-Write a function to check if a binary tree is balanced.
-
-After writing the code:
-1. Verify the logic by tracing through an example
-2. Check edge cases (empty tree, single node)
-3. Confirm time and space complexity
-4. If you find any issues, revise the code
-```
-
----
-
-# Tree of Thought
-
-Explore **multiple approaches** before committing:
-
-```
-Problem: Design a rate limiter for an API.
-
-Approach 1: Fixed Window
-- How it works: [explain]
-- Pros: [list]
-- Cons: [list]
-
-Approach 2: Sliding Window
-- How it works: [explain]
-- Pros: [list]
-- Cons: [list]
-
-Approach 3: Token Bucket
-- How it works: [explain]
-- Pros: [list]
-- Cons: [list]
-
-Given our requirements (high-traffic, distributed),
-which is best and why?
-```
-
----
-
-# Prompt Chaining
-
-Break complex tasks into **sequential steps**:
-
-```python
-CHAIN = [
-    {
-        "name": "understand",
-        "prompt": "Analyze this code and provide:\n1. What it does\n2. Key functions\n3. Dependencies\n\nCode: {code}"
-    },
-    {
-        "name": "identify_issues",
-        "prompt": "Based on this understanding:\n{understanding}\n\nIdentify bugs, performance issues, security vulnerabilities."
-    },
-    {
-        "name": "suggest_fixes",
-        "prompt": "For each issue:\n{issues}\n\nProvide specific fix with code."
-    }
-]
-```
-
----
-
-# Pattern Quick Reference
-
-| Pattern | When to Use | Trigger Phrase |
-|---------|-------------|----------------|
-| **Chain-of-Thought** | Complex reasoning | "Think step by step" |
-| **Few-Shot** | Specific format needed | "Here are examples..." |
-| **Self-Consistency** | High accuracy needed | "Verify your answer" |
-| **Tree of Thought** | Design decisions | "Consider approaches..." |
-| **Prompt Chaining** | Multi-stage tasks | Multiple prompts in sequence |
-
----
-
-<!-- _class: lead -->
-# System Prompts & Persona Engineering
-
----
-
-# What is a System Prompt?
-
-Sets **overall behavior** that persists across the conversation:
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                   System Prompt Impact                      │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  System: "You are a helpful assistant"                      │
-│  User: "Write a function to delete files"                   │
-│  → Generic, may include unsafe patterns                     │
-│                                                             │
-│  System: "You are a security-conscious Python developer.    │
-│           Always validate inputs, handle errors safely,     │
-│           and never use shell=True or eval()."              │
-│  User: "Write a function to delete files"                   │
-│  → Includes path validation, error handling, safety checks  │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-# System Prompt Template
-
-```markdown
-## Identity & Expertise
-You are [role] with expertise in [domains].
-
-## Core Behaviors
-- Always [positive behaviors]
-- Never [negative behaviors/constraints]
-
-## Response Style
-- Tone: [professional/casual/technical]
-- Length: [concise/detailed]
-- Format: [default output format]
-
-## Special Instructions
-[Any project-specific rules]
-```
-
----
-
-# Persona: Code Reviewer
-
-```
-You are a senior software engineer conducting code reviews.
-You have 15 years of experience across multiple languages.
-
-Core behaviors:
-- Be constructive and specific in feedback
-- Prioritize issues by severity (critical → minor)
-- Explain WHY something is an issue, not just WHAT
-- Suggest concrete fixes, not vague improvements
-- Acknowledge good practices when you see them
-
-Response format:
-1. Summary (1-2 sentences)
-2. Critical Issues (must fix)
-3. Improvements (should fix)
-4. Suggestions (nice to have)
-5. Positive Notes (what's done well)
-```
-
----
-
-# Persona: Security Auditor
-
-```
-You are a security auditor specializing in application security.
-
-Focus areas:
-- OWASP Top 10 vulnerabilities
-- Input validation and sanitization
-- Authentication and authorization flaws
-- Sensitive data exposure
-
-For each vulnerability found:
-1. Severity: Critical/High/Medium/Low
-2. Location: File and line number
-3. Description: What the vulnerability is
-4. Impact: What could happen if exploited
-5. Fix: Specific remediation code
-```
-
----
-
-# Persona: Legacy Code Archaeologist
-
-```
-You are a software archaeologist specializing in understanding
-and documenting legacy code. You approach old code with
-curiosity, not judgment.
-
-Your approach:
-1. Understand before criticizing
-2. Document the "why" behind unusual patterns
-3. Identify the core business logic
-4. Map dependencies and data flows
-5. Note technical debt without dramatizing
-
-Output format:
-## Purpose - What this code does in business terms
-## Architecture - How it's structured and why (probably)
-## Key Components - Important pieces and their roles
-## Historical Patterns - Outdated patterns and likely reasons
-## Modernization Opportunities - What to improve
-## Risks - What could break if changed
-```
-
----
-
-# Context Injection Strategies
-
-**Strategy 1: Documentation Injection**
-```
-You are a developer working with the FastAPI framework.
-
-Here is the relevant documentation for this task:
----
-FastAPI Query Parameters:
-Query parameters are declared as function parameters...
-[relevant docs]
----
-
-Using this documentation, [task]...
-```
-
----
-
-# Context Injection: Codebase Patterns
-
-**Strategy 2: Codebase Patterns**
-```
-You are working on a codebase with these established patterns:
-
-Error Handling:
-class AppError(Exception):
-    def __init__(self, message: str, code: str, status: int = 400):
-        ...
-
-Logging:
-from app.logging import get_logger
-logger = get_logger(__name__)
-
-Database Access:
-async with get_session() as session:
-    result = await session.execute(query)
-
-Follow these patterns exactly in your code.
-```
-
----
-
-# Context Injection: Constraints First
-
-**Strategy 3: Constraints First**
-```
-CONSTRAINTS (must follow):
-- Python 3.10+ only
-- No external dependencies beyond stdlib
-- Must handle errors gracefully
-- All functions need type hints
-- Max function length: 30 lines
-
-PREFERENCES (follow when possible):
-- Prefer comprehensions over loops
-- Use dataclasses for data structures
-- Keep cyclomatic complexity under 10
-
-Now, implement [task]...
-```
-
----
-
-<!-- _class: lead -->
-# Code-Focused Prompting
-
----
-
-# Prompt: Understanding Unfamiliar Code
-
-```
-Analyze this code as if you're onboarding to a new project.
-
-Provide:
-1. Purpose: What problem does this solve? (2-3 sentences)
-2. Flow: Step-by-step execution walkthrough
-3. Dependencies: External libraries/services used
-4. Data: What data structures are used and why
-5. Edge Cases: What inputs might cause issues
-6. Questions: What would you ask the original author?
-
-Code:
-[paste code]
-```
-
----
-
-# Prompt: Identifying Code Smells
-
-```
-Identify code smells in this code. For each smell:
-
-1. Name the smell (e.g., "Long Method", "Feature Envy")
-2. Location (line numbers or function names)
-3. Why it's problematic
-4. Refactoring suggestion
-
-Focus on:
-- Methods doing too many things
-- Inappropriate coupling
-- Duplicated logic
-- Complex conditionals
-- Poor naming
-
-Code:
-[paste code]
-```
-
----
-
-# Prompt: Complexity Analysis
-
-```
-Analyze the complexity of this code:
-
-1. Time Complexity
-   - Best case: O(?)
-   - Average case: O(?)
-   - Worst case: O(?)
-   - What inputs cause each case?
-
-2. Space Complexity
-   - Additional space used: O(?)
-   - What contributes to space usage?
-
-3. Potential Optimizations
-   - What could improve complexity?
-   - Trade-offs of each optimization?
-
-Code:
-[paste code]
-```
-
----
-
-# Prompt: Feature Implementation
-
-```
-Implement a [feature name] for our [system type].
-
-Requirements:
-- [Requirement 1]
-- [Requirement 2]
-
-Constraints:
-- Language: [language and version]
-- Must integrate with: [existing components]
-- Performance: [any requirements]
-
-Existing interfaces to use:
-[relevant existing code/interfaces]
-
-Provide:
-1. Implementation with full type hints
-2. Docstrings explaining usage
-3. Example usage code
-4. Unit test cases
-```
-
----
-
-# Prompt: Test Generation
-
-```
-Generate comprehensive tests for this function:
-
-def calculate_shipping(
-    weight_kg: float,
-    distance_km: float,
-    express: bool = False
-) -> float:
-    """Calculate shipping cost based on weight, distance, speed."""
-    base_rate = 5.0
-    weight_rate = 2.0 * weight_kg
-    distance_rate = 0.1 * distance_km
-    total = base_rate + weight_rate + distance_rate
-    if express:
-        total *= 1.5
-    return round(total, 2)
-
-Cover:
-1. Happy path cases
-2. Edge cases (zero, very large values)
-3. Error cases (negative, invalid types)
-4. Boundary conditions
-```
-
----
-
-# Prompt: Security Review
-
-```
-Perform a security review of this code:
-
-Check for:
-1. Injection vulnerabilities (SQL, command, template)
-2. Authentication/authorization issues
-3. Sensitive data exposure
-4. Input validation gaps
-5. Error handling that leaks information
-6. Insecure dependencies or configurations
-
-For each finding:
-- Severity: Critical/High/Medium/Low
-- OWASP category (if applicable)
-- Location in code
-- Attack scenario
-- Remediation with code example
-
-Code:
-[paste code]
-```
-
----
-
-# Prompt: Debugging
-
-```
-Debug this code systematically.
-
-Observed behavior:
-[What happens]
-
-Expected behavior:
-[What should happen]
-
-Error message (if any):
-[Paste error]
-
-Code:
-[paste code]
-
-Debugging steps:
-1. Reproduce: Identify minimum reproduction case
-2. Isolate: Which part causes the issue?
-3. Hypothesize: What could cause this behavior?
-4. Verify: Test each hypothesis
-5. Fix: Implement and verify the solution
-```
-
----
-
-<!-- _class: lead -->
-# Multimodal Prompting
-## **NEW**: Working with Images, PDFs & Documents
-
----
-
-# Why Multimodal Matters
-
-Modern LLMs support visual inputs:
-- **Claude 3.5** - Images, PDFs, documents
-- **GPT-4o** - Images, screenshots, diagrams
-- **Gemini Pro** - Images, videos, PDFs
-
-**Real-world needs:**
-- Analyze error screenshots
-- Review UI mockups
-- Extract data from PDFs
-- Process architecture diagrams
-
----
-
-# Multimodal Use Cases
-
-| Use Case | Input | Output |
-|----------|-------|--------|
-| **Bug Triage** | Error screenshot | Root cause + fix |
-| **UI Review** | Mockup image | UX feedback |
-| **Doc Extraction** | PDF report | Structured JSON |
-| **Code from Image** | Screenshot | Transcribed code |
-| **Diagram Analysis** | Architecture diagram | Components list |
-
----
-
-# Prompting for Images
-
-**Bad:**
-```
-Look at this image
-```
-
-**Good:**
-```
-Analyze this error screenshot from a React app.
-
-Focus on:
-1. The error message in the console (bottom half)
-2. Stack trace details
-3. What operation was being performed
-
-Provide:
-- Error type and cause
-- Specific fix steps
-- How to prevent this
-
-[image: error_screenshot.png]
-```
-
----
-
-# Screenshot Analysis Pattern
-
-```
-You are analyzing a screenshot of [context].
-
-Please provide:
-
-1. **Identification**
-   - What's shown in the image?
-   - Key elements and their purpose
-
-2. **Analysis**
-   - What's working correctly?
-   - What issues do you see?
-
-3. **Recommendations**
-   - Specific improvements
-   - Priority: High/Medium/Low
-
-4. **Implementation**
-   - Code changes needed
-   - Resources required
-
-[image attached]
-```
-
----
-
-# PDF Document Processing
-
-```
-I've uploaded a PDF of our API documentation (25 pages).
-
-Extract:
-
-1. **All Endpoints**
-   - HTTP method and path
-   - Parameters (query, body, headers)
-   - Response format
-   - Status codes
-
-2. **Inconsistencies**
-   - Missing descriptions
-   - Undocumented endpoints
-   - Incomplete examples
-
-3. **Generate**
-   - OpenAPI 3.0 specification
-   - Include all extracted information
-
-[Attached: api_docs.pdf]
-```
-
----
-
-# Code from Screenshots
-
-Perfect for Stack Overflow, documentation:
-
-```
-Extract and improve the code from this screenshot.
-
-Steps:
-1. **Transcribe** - Exact code as shown
-2. **Identify** - Language and framework
-3. **Analyze** - What does it do?
-4. **Issues** - Any bugs or problems?
-5. **Improve** - Enhanced version with:
-   - Error handling
-   - Type hints/definitions
-   - Better naming
-   - Comments
-
-[image: code_screenshot.png]
-```
-
----
-
-# Architecture Diagram Analysis
-
-```
-Analyze this system architecture diagram.
-
-Provide:
-
-1. **Components**
-   - List all components
-   - Technology stack used
-   - Purpose of each
-
-2. **Data Flow**
-   - Trace data through system
-   - Identify bottlenecks
-
-3. **Assessment**
-   - Strengths
-   - Potential issues
-   - Scalability concerns
-
-4. **Recommendations**
-   - Specific improvements
-   - Alternative patterns
-
-[image: architecture.png]
-```
-
----
-
-# Multimodal Best Practices
-
-**1. Provide Context**
-```
-This is a screenshot of a React app's console
-during checkout submission...
-```
-
-**2. Be Specific About Focus**
-```
-Focus on the stack trace in the bottom half.
-Ignore the code editor shown above.
-```
-
-**3. Request Structured Output**
-```
-Return analysis in this format:
-## Critical Issues
-## Warnings
-## Suggestions
-```
-
----
-
-# Handling Quality Issues
-
-When image quality is poor:
-
-```
-This is a photo of a whiteboard from a design session.
-Image quality is not perfect.
-
-Please:
-1. Transcribe all readable text
-2. Describe diagrams/drawings
-3. Mark unclear sections: [UNCLEAR: approximate content]
-4. Infer overall design intent
-
-Try your best despite quality issues.
-
-[image: whiteboard_photo.jpg]
-```
-
----
-
-# Multimodal Pitfalls to Avoid
-
-| Pitfall | Problem | Solution |
-|---------|---------|----------|
-| **Low resolution** | Can't read text | Use clear images, crop to relevant area |
-| **No context** | Model guesses wrong | Always explain what image shows |
-| **Assuming perfection** | OCR may misread | Verify transcribed text |
-| **Overloading** | Multiple images, unclear task | One image per focused question |
-| **Wrong expectations** | Model can't do everything | Know limitations (no video, no audio) |
-
----
-
-# Real-World Multimodal Examples
-
-1. **Bug Triage Bot**
-   - Developers share screenshots in Slack
-   - Bot analyzes and categorizes automatically
-
-2. **UI Audit Tool**
-   - Batch analyze 50 mockups
-   - Generate accessibility reports
-
-3. **Documentation Generator**
-   - Process whiteboard photos
-   - Create structured requirements docs
-
-4. **Log Analysis**
-   - Screenshot of dashboard
-   - Identify patterns and anomalies
-
----
-
-# Multimodal Key Takeaways
-
-1. **Modern LLMs are multimodal** - Use it!
-2. **Context is critical** - Explain what the image shows
-3. **Be specific** - Direct focus to relevant parts
-4. **Structure output** - Request specific format
-5. **Verify results** - OCR isn't perfect
-6. **Know limitations** - Images only, no video/audio
-
----
-
-<!-- _class: lead -->
-# Migration & Refactoring Prompts
-
----
-
-# Migration Analysis Prompt
-
-```
-I need to migrate from {old_framework} to {new_framework}.
-
-Current codebase:
-- Size: {approximate size}
-- Age: {how old}
-- Test coverage: {percentage}
-
-Goals:
-- [Goal 1]
-- [Goal 2]
-
-Provide:
-1. Migration strategy overview
-2. Breaking changes to expect
-3. Step-by-step migration order
-4. Risk areas and mitigation
-5. Estimated effort by component
-```
-
----
-
-# Example: Django to FastAPI Migration
-
-```
-Analyze this Django view for migration to FastAPI:
-
-[Django code]
-
-Provide:
-1. Equivalent FastAPI code
-2. Changes needed for:
-   - Routing
-   - Request/response handling
-   - Validation (Pydantic instead of DRF serializers)
-   - Database access (async SQLAlchemy)
-3. What to watch out for
-4. Required dependencies
-```
-
----
-
-# Technical Debt Assessment
-
-```
-Assess technical debt in this code:
-
-Categorize debt by:
-1. Deliberate/Prudent: Known shortcuts for good reasons
-2. Deliberate/Reckless: Known shortcuts, ignoring consequences
-3. Inadvertent/Prudent: Unknown best practices at the time
-4. Inadvertent/Reckless: Poor understanding led to bad decisions
-
-For each item:
-- Type of debt
-- Location
-- Impact (maintenance cost, bug risk, performance)
-- Remediation effort: Low/Medium/High
-- Priority: Fix now / Fix soon / Fix eventually
-
-Code:
-[paste code]
-```
-
----
-
-# Code Prompting Library
-
-Build your reusable templates:
-
-```python
-ANALYZE_CODE = """
-Analyze this code and provide:
-1. **Purpose** - What problem does this solve?
-2. **Key Components** - Functions/classes and their roles
-3. **Flow** - Step-by-step execution
-4. **Dependencies** - External libraries used
-5. **Edge Cases** - Potential issues
-
-Code:
-```{language}
-{code}
-```
-"""
-
-# Usage:
-prompt = ANALYZE_CODE.format(language="python", code=my_code)
-```
-
----
-
-# Lab 02: Build Code Analyzer Agent
-
-**Project: Code Analyzer API**
-
-You'll build:
-- FastAPI/Hono endpoint for code analysis
-- System prompt engineering for analysis
-- Structured JSON output
-- Deployment to Railway
-
-```bash
-# Navigate to the lab
-cd labs/lab02-code-analyzer-agent
-
-# Read the instructions
-cat README.md
-```
-
----
-
-# Day 2 Key Takeaways
-
-1. **RCFG Framework** - Role, Context, Format, Goal
-2. **CoT for reasoning** - "Think step by step"
-3. **Few-shot for patterns** - Show examples
-4. **System prompts shape behavior** - Consistent across conversation
-5. **Different tasks need different prompts** - Build your library
-
----
-
-# Your Prompt Library Checklist
-
-By now you should have started building:
-
-- [ ] At least 5 reusable code prompts
-- [ ] 2-3 system prompt templates
-- [ ] Examples of before/after prompt optimization
-
----
-
-# What's Next: Day 3
-
-**Agent Architectures**
-
-- What makes an agent vs simple LLM call
-- Tool/Function calling
-- ReAct pattern
-- State machines for workflows
-- Multi-agent patterns
-
----
-
-<!-- _class: lead -->
-# Questions?
-
-**Lab 02 awaits!**
-
-```
-cd labs/lab02-code-analyzer-agent
+| **R**ole | Set expertise | "Security-focused reviewer" |
+| **C**ontext | Background | "Migrating Django 2.x to 4.x" |
+| **F**ormat | Output type | "JSON with issues/suggestions" |
+| **G**oal | The task | "Identify breaking changes" |
+
+**Before:** `Review this code for issues.`
+
+**After:**
+```
+Role: Senior Python dev, clean code expert
+Context: Financial lib (precision critical)
+Goal: Review naming, readability, bugs
+Format: ## Issues, ## Suggestions sections
 ```

@@ -1,1062 +1,1142 @@
 ---
-marp: true
 theme: default
-paginate: true
-header: 'Agentic AI Training'
-footer: 'Day 3 - Agent Architectures'
-style: |
-  section {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  }
-  code {
-    background-color: #1e1e1e;
-    color: #d4d4d4;
-  }
-  pre {
-    background-color: #1e1e1e;
-    border-radius: 8px;
-  }
+class: text-center
+highlighter: shiki
+drawings:
+  persist: false
 ---
 
-<!-- _class: lead -->
-# Day 3: Agent Architectures
+# Day 3: Agentic Systems
 
-## Agentic AI Training Program
+Agentic AI Intensive Training
 
-**Building intelligent systems that act autonomously**
+5-Day Program
 
 ---
 
-# Learning Objectives
+# Today's Agenda
 
-By the end of Day 3, you will be able to:
+**Morning: Agent Foundations**
+- What are agents?
+- Core architectures
+- ReAct pattern
 
-- Explain what makes an AI "agent" vs. a simple LLM call
-- Implement tool-use and function calling
-- Apply agent patterns (ReAct, Planning, Verification)
-- Design and build multi-agent systems
-- Choose the right framework for different agent needs
+**Afternoon: Tool Use & Multi-Agent**
+- Function calling
+- Tool integration
+- Agent collaboration
 
----
-
-# What Makes an "Agent"?
-
-An agent is an LLM-powered system that can:
-
-1. **Perceive** - Receive inputs from environment
-2. **Reason** - LLM processing and decision making
-3. **Act** - Execute tools/actions
-4. **Iterate** - Loop until task is complete
+**Evening: Building Agents**
+- Hands-on: Build research agent
+- Real-world applications
 
 ---
 
-# The Agent Loop
+# What is an Agent?
+
+**Definition**
+- Autonomous system that perceives and acts
+- Uses LLM for reasoning/decision-making
+- Interacts with tools/environment
+- Pursues goals over multiple steps
+
+**Key Characteristics**
+- Goal-directed
+- Adaptive
+- Multi-step reasoning
+- Tool usage
+
+---
+
+# Agent vs Standard LLM
+
+**Standard LLM**
+- Single request/response
+- No environment interaction
+- Stateless (without implementation)
+- Direct output
+
+**Agent**
+- Multi-turn reasoning loop
+- Tool/API calls
+- Maintains state
+- Iterative problem-solving
+
+---
+
+# Simple Agent Loop
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     THE AGENT LOOP                          │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│                    ┌─────────────┐                          │
-│                    │   OBSERVE   │ ◄──────────────┐         │
-│                    └──────┬──────┘                │         │
-│                           │                       │         │
-│                           ▼                       │         │
-│                    ┌─────────────┐                │         │
-│                    │    THINK    │            Results       │
-│                    │    (LLM)    │                │         │
-│                    └──────┬──────┘                │         │
-│                           │                       │         │
-│                           ▼                       │         │
-│                    ┌─────────────┐                │         │
-│          ┌─────────│   DECIDE    │─────────┐      │         │
-│          │         └─────────────┘         │      │         │
-│          ▼                                 ▼      │         │
-│   ┌─────────────┐                   ┌──────────┐  │         │
-│   │  USE TOOL   │───────────────────│   DONE   │  │         │
-│   └─────────────┘                   └──────────┘  │         │
-│          │                                        │         │
-│          └────────────────────────────────────────┘         │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────┐
+│  User Goal/Task         │
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│  Agent Reasoning        │
+│  "What should I do?"    │
+└───────────┬─────────────┘
+            │
+            ▼
+      ┌────┴────┐
+      │ Action  │
+      │ or Done?│
+      └────┬────┘
+     Action│   │Done
+           │   └─────► Result
+           ▼
+    ┌──────────┐
+    │ Execute  │
+    │ Action   │
+    └────┬─────┘
+         │
+         └──► Loop back
 ```
 
 ---
 
-# Agent vs. Simple LLM Call
+# Core Agent Architectures
 
-| Simple LLM Call | Agent |
-|-----------------|-------|
-| Single request → response | Iterative loop |
-| No external actions | Uses tools/APIs |
-| Stateless | Maintains state/memory |
-| Deterministic flow | Dynamic based on results |
-| Human controls iteration | Agent controls iteration |
+**1. ReAct** (Reason + Act)
+- Interleave reasoning and actions
+- Explicit thought traces
+
+**2. Plan-and-Execute**
+- Create plan first
+- Execute steps sequentially
+
+**3. Reflexion**
+- Self-reflection and refinement
+- Learn from mistakes
 
 ---
 
-# Core Agent Components
+# ReAct Pattern
+
+**Reason → Act → Observe → Repeat**
+
+```
+Thought: I need to find population of Tokyo
+Action: search("Tokyo population 2024")
+Observation: Tokyo has 14 million people
+
+Thought: Now I need Paris population
+Action: search("Paris population 2024")
+Observation: Paris has 2.1 million people
+
+Thought: I can now compare
+Answer: Tokyo is ~6.7x larger than Paris
+```
+
+---
+
+# Python: Simple ReAct Agent
 
 ```python
-@dataclass
-class AgentState:
-    messages: List[Dict[str, str]]
-    tool_results: List[Any]
-    iterations: int
-    is_complete: bool
-
-class Agent:
-    def __init__(self, llm, tools, system_prompt, max_iterations):
-        self.llm = llm
-        self.tools = {t.name: t for t in tools}
-        self.system_prompt = system_prompt
-        self.max_iterations = max_iterations
-
-    def run(self, user_input: str) -> str:
-        state = AgentState(...)
-        while not state.is_complete and state.iterations < self.max_iterations:
-            state = self._step(state)
-        return state.messages[-1]["content"]
+def react_agent(question, tools, max_steps=5):
+    context = f"Question: {question}\n"
+    
+    for step in range(max_steps):
+        # Reasoning
+        thought = llm(f"{context}\nThought:")
+        context += f"\nThought: {thought}"
+        
+        # Decide action or finish
+        if "Answer:" in thought:
+            return extract_answer(thought)
+        
+        # Execute action
+        action = parse_action(thought)
+        result = execute_tool(action, tools)
+        context += f"\nObservation: {result}"
+    
+    return "Max steps reached"
 ```
 
 ---
 
-# Agent Memory Types
+# TypeScript: Simple ReAct Agent
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    AGENT MEMORY TYPES                       │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  SHORT-TERM MEMORY          │  LONG-TERM MEMORY             │
-│  ─────────────────          │  ────────────────             │
-│  • Current conversation     │  • Persisted to database      │
-│  • Tool results             │  • User preferences           │
-│  • Lives in context window  │  • Past interactions          │
-│  • Lost when cleared        │  • Retrieved via RAG          │
-│                             │                               │
-│  WORKING MEMORY             │  EPISODIC MEMORY              │
-│  ──────────────             │  ───────────────              │
-│  • Scratchpad for reasoning │  • Past task summaries        │
-│  • Intermediate results     │  • "X worked/failed before"   │
-│  • Plan execution state     │  • Helps learn from exp.      │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-<!-- _class: lead -->
-# Tool-Use & Function Calling
-
----
-
-# What is Function Calling?
-
-LLMs can request execution of predefined functions with structured arguments:
-
-```
-┌────────────────────────────────────────────────────────────┐
-│                 FUNCTION CALLING FLOW                      │
-├────────────────────────────────────────────────────────────┤
-│                                                            │
-│  1. Define tools → 2. Send to LLM → 3. LLM decides →       │
-│  4. Execute → 5. Return result → 6. LLM uses result        │
-│                                                            │
-│  User: "What's the weather in Paris?"                      │
-│                                                            │
-│  LLM thinks: "I need to use the weather tool"              │
-│       ↓                                                    │
-│  Tool call: get_weather(location="Paris")                  │
-│       ↓                                                    │
-│  Result: {"temp": 22, "conditions": "sunny"}               │
-│       ↓                                                    │
-│  LLM: "It's currently 22°C and sunny in Paris!"            │
-│                                                            │
-└────────────────────────────────────────────────────────────┘
+```typescript
+async function reactAgent(
+  question: string,
+  tools: Map<string, Function>,
+  maxSteps = 5
+): Promise<string> {
+  let context = `Question: ${question}\n`;
+  
+  for (let step = 0; step < maxSteps; step++) {
+    const thought = await llm(`${context}\nThought:`);
+    context += `\nThought: ${thought}`;
+    
+    if (thought.includes("Answer:")) {
+      return extractAnswer(thought);
+    }
+    
+    const action = parseAction(thought);
+    const result = await executeTools(action, tools);
+    context += `\nObservation: ${result}`;
+  }
+  return "Max steps reached";
+}
 ```
 
 ---
 
-# Tool Definition Example
+# Tools and Functions
+
+**What are Tools?**
+- Functions agents can call
+- Access external data/systems
+- Perform actions (API calls, calculations)
+
+**Common Tool Categories**
+- Search (web, docs, databases)
+- Computation (calculator, code exec)
+- Data retrieval (APIs, databases)
+- Actions (send email, file ops)
+
+---
+
+# Tool Definition Schema
 
 ```python
-def read_file_tool():
-    return {
-        "name": "read_file",
-        "description": """Read the contents of a file at the given path.
-Use this when you need to examine file contents.
-Returns the full file content as a string.
-Returns an error message if the file doesn't exist.""",
+tools = [
+    {
+        "name": "web_search",
+        "description": "Search the web for information",
         "parameters": {
             "type": "object",
             "properties": {
-                "file_path": {
+                "query": {
                     "type": "string",
-                    "description": "Path to the file to read"
+                    "description": "Search query"
                 }
             },
-            "required": ["file_path"]
+            "required": ["query"]
         }
     }
+]
 ```
 
 ---
 
-# Tool Description Best Practices
-
-| Do | Don't |
-|----|-------|
-| Explain **when** to use the tool | Be vague about purpose |
-| Describe **return values** | Leave output unclear |
-| Mention **error conditions** | Assume always succeeds |
-| Use **clear parameter names** | Use ambiguous names |
-| Provide **sensible defaults** | Require unnecessary params |
-
----
-
-# Anthropic Tool Calling
-
-```python
-import anthropic
-
-client = anthropic.Anthropic()
-
-response = client.messages.create(
-    model="claude-3-5-sonnet-20241022",
-    max_tokens=1024,
-    tools=[{
-        "name": "get_weather",
-        "description": "Get current weather for a location",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "location": {"type": "string"}
-            },
-            "required": ["location"]
-        }
-    }],
-    messages=[{"role": "user", "content": "What's the weather in Tokyo?"}]
-)
-```
-
----
-
-# OpenAI Tool Calling
+# OpenAI Function Calling
 
 ```python
 from openai import OpenAI
 
 client = OpenAI()
 
-response = client.chat.completions.create(
-    model="gpt-4",
-    messages=[{"role": "user", "content": "What's the weather in Tokyo?"}],
-    tools=[{
-        "type": "function",
-        "function": {
-            "name": "get_weather",
-            "description": "Get current weather for a location",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "location": {"type": "string"}
-                },
-                "required": ["location"]
-            }
+tools = [{
+    "type": "function",
+    "function": {
+        "name": "get_weather",
+        "description": "Get current weather",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "location": {"type": "string"},
+                "unit": {"type": "string", "enum": ["C", "F"]}
+            },
+            "required": ["location"]
         }
-    }]
+    }
+}]
+```
+
+---
+
+# Python: Function Calling Flow
+
+```python
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "Weather in NYC?"}],
+    tools=tools
 )
+
+# Check if function called
+tool_call = response.choices[0].message.tool_calls[0]
+if tool_call:
+    function_name = tool_call.function.name
+    args = json.loads(tool_call.function.arguments)
+    
+    # Execute function
+    result = get_weather(**args)
+    
+    # Send result back
+    messages.append(response.choices[0].message)
+    messages.append({
+        "role": "tool",
+        "tool_call_id": tool_call.id,
+        "content": result
+    })
 ```
 
 ---
 
-# Processing Tool Calls
-
-```python
-# After getting response with tool calls
-if response.tool_calls:
-    for tool_call in response.tool_calls:
-        # Execute the tool
-        result = execute_tool(
-            name=tool_call.name,
-            arguments=tool_call.arguments
-        )
-
-        # Add result to conversation
-        messages.append({
-            "role": "tool",
-            "tool_call_id": tool_call.id,
-            "content": json.dumps(result)
-        })
-
-    # Continue conversation with tool results
-    final_response = client.chat(messages=messages)
-```
-
----
-
-<!-- _class: lead -->
-# Agent Patterns
-<!-- Day 3 New Slides: Context Management, Memory Systems, Structured Output -->
-
-<!-- Insert after Tool-Use section, before Agent Patterns -->
-
----
-
-<!-- _class: lead -->
-# Context Management
-## **NEW**: Managing Long Conversations
-
----
-
-# The Context Problem
-
-**Challenge:**
-- Claude: 200K tokens (~$50/million)
-- GPT-4: 128K tokens (~$30/million)
-- Conversations grow unbounded
-- Performance degrades with long contexts
-
-**Solution: Context Management Strategies**
-
----
-
-# Context Management Strategies
-
-| Strategy | When to Use | Pros | Cons |
-|----------|-------------|------|------|
-| **Sliding Window** | Uniform importance | Simple, predictable | Loses old context |
-| **Summarization** | Long conversations | Preserves key info | May miss details |
-| **Selective Retention** | Mixed importance | Keeps what matters | Needs scoring function |
-| **External Memory** | Very long-term | Unlimited history | Adds latency |
-
----
-
-# Sliding Window
-
-Keep recent N messages, drop oldest:
-
-```python
-class ContextWindow:
-    def __init__(self, max_messages=10):
-        self.messages = []
-        self.max_messages = max_messages
-
-    def add_message(self, role, content):
-        self.messages.append({"role": role, "content": content})
-
-        # Keep only recent messages
-        if len(self.messages) > self.max_messages:
-            self.messages = self.messages[-self.max_messages:]
-```
-
-**Best for:** Short tasks, uniform message importance
-
----
-
-# Rolling Summarization
-
-Periodically summarize old messages:
-
-```
-Messages 1-10 → Summarize
-Messages 11-20 → Keep
-New message → Add
-
-Context = [Summary] + [Recent 10 messages]
-```
-
-**Savings:** 500 tokens → 100 token summary (80% reduction)
-
-**Best for:** Long conversations where context matters
-
----
-
-# Selective Retention
-
-Keep important messages, drop routine ones:
-
-```python
-def importance_scorer(message):
-    content = message["content"].lower()
-    score = 0.5  # baseline
-
-    if any(word in content for word in ["error", "bug"]):
-        score += 0.3
-    if any(word in content for word in ["ok", "thanks"]):
-        score -= 0.2
-
-    return score
-```
-
-**Best for:** Mixed-importance conversations
-
----
-
-# Context Management Best Practices
-
-1. **Always preserve system prompt** - Never drop it
-2. **Monitor token usage** - Log context size and costs
-3. **Test with long conversations** - Verify behavior at limits
-4. **Combine strategies** - Use summarization + selective retention
-5. **Make it configurable** - Different tasks need different strategies
-
----
-
-<!-- _class: lead -->
-# Memory Systems
-## **NEW**: Long-Term & Episodic Memory
-
----
-
-# Memory Types for Agents
-
-```
-┌─────────────────────────────────────────┐
-│   SHORT-TERM MEMORY                     │
-│   • Current conversation                │
-│   • Lives in context window             │
-│   • Lost when context is cleared        │
-├─────────────────────────────────────────┤
-│   LONG-TERM MEMORY                      │
-│   • Persisted to Vector DB              │
-│   • User preferences, facts             │
-│   • Retrieved via semantic search       │
-├─────────────────────────────────────────┤
-│   EPISODIC MEMORY                       │
-│   • Past task completions               │
-│   • "I did X before and it worked"      │
-│   • Helps agent learn from experience   │
-└─────────────────────────────────────────┘
-```
-
----
-
-# Long-Term Memory with Vector DB
-
-```python
-class LongTermMemory:
-    def __init__(self, embedding_fn):
-        self.vector_db = ChromaDB()
-        self.embed = embedding_fn
-
-    def store(self, content, metadata=None):
-        """Store a memory."""
-        self.vector_db.add(
-            embedding=self.embed(content),
-            text=content,
-            metadata=metadata
-        )
-
-    def recall(self, query, n_results=5):
-        """Recall relevant memories."""
-        return self.vector_db.query(
-            query_embedding=self.embed(query),
-            n_results=n_results
-        )
-```
-
----
-
-# Episodic Memory - Task History
-
-Track past task completions:
-
-```python
-@dataclass
-class Episode:
-    task: str
-    outcome: str  # "success" or "failure"
-    steps_taken: List[str]
-    duration_seconds: float
-    learning: Optional[str]
-
-episodic_memory.record(Episode(
-    task="Migrate Express to FastAPI",
-    outcome="success",
-    steps_taken=["Analyzed routes", "Created FastAPI equivalents", ...],
-    duration_seconds=1847.5,
-    learning="FastAPI's Depends() is cleaner than Express middleware"
-))
-```
-
----
-
-# Using Memory in Agents
-
-```python
-async def process(user_input):
-    # 1. Recall relevant long-term memories
-    memories = long_term.recall(user_input, n_results=3)
-
-    # 2. Find similar past tasks
-    similar = episodic.find_similar_tasks(user_input)
-
-    # 3. Build enhanced prompt
-    prompt = f"""
-    Relevant memories: {memories}
-    Past similar tasks: {similar}
-    Current request: {user_input}
-    """
-
-    # 4. Process with full context
-    return await llm.complete(prompt)
-```
-
----
-
-# Memory Systems Key Takeaways
-
-1. **Short-term = Context window** - Current conversation
-2. **Long-term = Vector DB** - Persistent facts and preferences
-3. **Episodic = Task history** - Learn from past successes/failures
-4. **Combine all three** - For truly intelligent agents
-5. **Cost-benefit trade-off** - More memory = more tokens
-
----
-
-<!-- _class: lead -->
-# Structured Output & Validation
-## **NEW**: Reliable, Type-Safe Outputs
-
----
-
-# The Structured Output Problem
-
-**Without validation:**
-```json
-{
-  "name": "John",
-  "age": "thirty",  // ❌ Should be number
-  "email": "invalid" // ❌ Not an email
+# TypeScript: Function Calling
+
+```typescript
+const response = await client.chat.completions.create({
+  model: "gpt-4o",
+  messages: [{ role: "user", content: "Weather in NYC?" }],
+  tools: tools
+});
+
+const toolCall = response.choices[0].message.tool_calls?.[0];
+if (toolCall) {
+  const functionName = toolCall.function.name;
+  const args = JSON.parse(toolCall.function.arguments);
+  
+  // Execute function
+  const result = await getWeather(args);
+  
+  // Send result back
+  messages.push(response.choices[0].message);
+  messages.push({
+    role: "tool",
+    tool_call_id: toolCall.id,
+    content: result
+  });
 }
 ```
 
-**Result:** Your code crashes!
-
-**Solution:** Schema validation with Pydantic/Zod
-
 ---
 
-# Three Levels of Structure
-
-| Level | Reliability | Implementation |
-|-------|-------------|----------------|
-| **1. Prompt-based** | ⭐ Low | "Return JSON with fields..." |
-| **2. JSON Mode** | ⭐⭐ Medium | Tell LLM to return valid JSON |
-| **3. Schema Enforcement** | ⭐⭐⭐ High | Pydantic/Zod validation + retry |
-
-**Production systems need Level 3!**
-
----
-
-# Schema Enforcement with Pydantic
+# Building a Calculator Tool
 
 ```python
-from pydantic import BaseModel, EmailStr
-
-class UserInfo(BaseModel):
-    name: str
-    age: int  # Must be integer
-    email: EmailStr  # Must be valid email
-
-# Get LLM response
-response = llm.complete(prompt)
-
-# Validate
-try:
-    user = UserInfo.model_validate(response)
-    # ✅ Type-safe, validated!
-except ValidationError as e:
-    # ❌ Retry with error feedback
-    retry_with_feedback(e)
-```
-
----
-
-# Smart Retry with Validation Feedback
-
-```python
-def get_validated_output(prompt, schema, max_retries=3):
-    for attempt in range(max_retries):
-        response = llm.complete(prompt)
-
-        try:
-            return schema.model_validate(response)
-        except ValidationError as e:
-            # Tell LLM what was wrong
-            prompt += f"\n\nError: {e}\nPlease fix and try again."
-
-    raise ValueError("Failed after retries")
-```
-
-**Result:** 95%+ success rate on first try, 99%+ after retries
-
----
-
-# Structured Output Best Practices
-
-1. **Always use schemas in production**
-2. **Implement retries** - LLMs occasionally fail
-3. **Provide specific error feedback** - Tell LLM what was wrong
-4. **Use type-safe schemas** - Pydantic (Python) or Zod (TypeScript)
-5. **Test edge cases** - Empty arrays, null values, boundaries
-6. **Log failures** - Track and improve over time
-
----
-
-# Structured Output Key Takeaways
-
-1. **Never trust raw LLM output** - Always validate
-2. **Use schema libraries** - Pydantic/Zod, not manual checks
-3. **Retry with feedback** - Tell LLM what was wrong
-4. **Type safety** - IDE autocomplete, compile-time checks
-5. **Production reliability** - From 60% to 99%+ accuracy
-
----
-
----
-
-# ReAct Pattern
-
-**Reasoning + Acting** - Think before each action
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│                      ReAct Pattern                           │
-├──────────────────────────────────────────────────────────────┤
-│                                                              │
-│  Task: "Find the CEO of the company that made the iPhone"    │
-│                                                              │
-│  Thought 1: I need to find which company makes the iPhone    │
-│  Action 1: search("iPhone manufacturer")                     │
-│  Observation 1: Apple Inc. manufactures the iPhone           │
-│                                                              │
-│  Thought 2: Now I need to find Apple's CEO                   │
-│  Action 2: search("Apple Inc CEO 2024")                      │
-│  Observation 2: Tim Cook is the CEO of Apple Inc.            │
-│                                                              │
-│  Thought 3: I now have the answer                            │
-│  Action 3: finish("Tim Cook")                                │
-│                                                              │
-└──────────────────────────────────────────────────────────────┘
-```
-
----
-
-# ReAct System Prompt
-
-```
-You are an assistant that uses tools to answer questions.
-
-For each step, provide:
-1. Thought: Explain your reasoning
-2. Action: Choose a tool to use
-3. Wait for Observation
-
-Continue until you have enough information to answer.
-
-Available tools:
-- search(query): Search the web
-- calculate(expression): Evaluate math
-- finish(answer): Provide final answer
-
-Always explain your thinking before acting.
-```
-
----
-
-# Planning Pattern
-
-**Plan first, then execute** steps systematically
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│                    Planning Pattern                          │
-├──────────────────────────────────────────────────────────────┤
-│                                                              │
-│  Task: "Migrate this Express app to FastAPI"                 │
-│                                                              │
-│  PLAN:                                                       │
-│  1. Analyze current Express routes                           │
-│  2. Map Express patterns to FastAPI equivalents              │
-│  3. Convert middleware to FastAPI dependencies               │
-│  4. Migrate route handlers one by one                        │
-│  5. Update database connections                              │
-│  6. Write tests for migrated routes                          │
-│  7. Verify all endpoints work                                │
-│                                                              │
-│  EXECUTE: [Step 1 of 7] Analyzing Express routes...          │
-│                                                              │
-└──────────────────────────────────────────────────────────────┘
-```
-
----
-
-# Planning Implementation
-
-```python
-class PlanningAgent:
-    def run(self, task: str) -> str:
-        # Phase 1: Create plan
-        plan = self.create_plan(task)
-
-        # Phase 2: Execute each step
-        results = []
-        for i, step in enumerate(plan.steps):
-            self.update_status(f"Executing step {i+1}/{len(plan.steps)}")
-            result = self.execute_step(step, results)
-            results.append(result)
-
-            # Re-evaluate plan if needed
-            if result.requires_replan:
-                plan = self.replan(task, results)
-
-        # Phase 3: Synthesize results
-        return self.synthesize(task, results)
-```
-
----
-
-# Verification Pattern
-
-**Verify outputs** before returning
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│                   Verification Pattern                       │
-├──────────────────────────────────────────────────────────────┤
-│                                                              │
-│  Generate → Verify → Fix (if needed) → Return                │
-│                                                              │
-│  Example: Generate SQL query                                 │
-│                                                              │
-│  1. Generate: SELECT * FROM users WHERE id = 1               │
-│                                                              │
-│  2. Verify:                                                  │
-│     - Syntax valid? ✓                                        │
-│     - Tables exist? ✓                                        │
-│     - No SQL injection? ✓                                    │
-│     - Returns expected schema? ✓                             │
-│                                                              │
-│  3. Return verified query                                    │
-│                                                              │
-└──────────────────────────────────────────────────────────────┘
-```
-
----
-
-# State Machine for Workflows
-
-Define **explicit states** for complex processes:
-
-```python
-class MigrationState(Enum):
-    ANALYZING = "analyzing"
-    PLANNING = "planning"
-    EXECUTING = "executing"
-    VERIFYING = "verifying"
-    COMPLETE = "complete"
-    FAILED = "failed"
-
-def get_next_state(current: MigrationState, result: StepResult) -> MigrationState:
-    transitions = {
-        MigrationState.ANALYZING: MigrationState.PLANNING,
-        MigrationState.PLANNING: MigrationState.EXECUTING,
-        MigrationState.EXECUTING: MigrationState.VERIFYING,
-        MigrationState.VERIFYING: MigrationState.COMPLETE,
+def calculator_tool(operation: str, x: float, y: float) -> float:
+    """Perform mathematical operations"""
+    ops = {
+        "add": lambda a, b: a + b,
+        "subtract": lambda a, b: a - b,
+        "multiply": lambda a, b: a * b,
+        "divide": lambda a, b: a / b if b != 0 else None
     }
-    if result.has_error:
-        return MigrationState.FAILED
-    return transitions.get(current, MigrationState.FAILED)
+    return ops.get(operation, lambda a, b: None)(x, y)
+
+# Tool schema
+calculator_schema = {
+    "name": "calculator",
+    "description": "Perform math operations",
+    "parameters": { ... }
+}
 ```
 
 ---
 
-# Workflow State Diagram
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│               Migration Workflow States                      │
-├──────────────────────────────────────────────────────────────┤
-│                                                              │
-│                      ┌───────────┐                           │
-│         ┌───────────▶│ ANALYZING │                           │
-│         │            └─────┬─────┘                           │
-│         │                  │                                 │
-│         │                  ▼                                 │
-│         │            ┌───────────┐                           │
-│         │            │ PLANNING  │                           │
-│    RETRY │            └─────┬─────┘                          │
-│         │                  │                                 │
-│         │                  ▼                                 │
-│         │            ┌───────────┐                           │
-│         └────────────│ EXECUTING │                           │
-│                      └─────┬─────┘                           │
-│                            │                                 │
-│                            ▼                                 │
-│                      ┌───────────┐      ┌────────┐           │
-│                      │ VERIFYING │─────▶│COMPLETE│           │
-│                      └─────┬─────┘      └────────┘           │
-│                            │                                 │
-│                            ▼                                 │
-│                      ┌────────┐                              │
-│                      │ FAILED │                              │
-│                      └────────┘                              │
-│                                                              │
-└──────────────────────────────────────────────────────────────┘
-```
-
----
-
-# Error Handling Strategies
+# Building a Search Tool
 
 ```python
-class AgentErrorHandler:
-    def __init__(self, max_retries: int = 3):
-        self.max_retries = max_retries
+import requests
 
-    def handle_tool_error(self, error: Exception, context: dict) -> Action:
-        """Decide what to do when a tool fails."""
-
-        if isinstance(error, RateLimitError):
-            return Action.WAIT_AND_RETRY
-
-        if isinstance(error, AuthenticationError):
-            return Action.FAIL_IMMEDIATELY
-
-        if isinstance(error, ToolNotFoundError):
-            return Action.USE_ALTERNATIVE_TOOL
-
-        if context['retry_count'] < self.max_retries:
-            return Action.RETRY_WITH_BACKOFF
-
-        return Action.ASK_FOR_HELP
+def web_search(query: str, num_results: int = 3) -> str:
+    """Search web and return results"""
+    # Using a search API (e.g., Serper, Tavily)
+    response = requests.post(
+        "https://api.search.com/search",
+        json={"q": query, "num": num_results},
+        headers={"Authorization": f"Bearer {API_KEY}"}
+    )
+    
+    results = response.json()["results"]
+    return "\n\n".join([
+        f"{r['title']}\n{r['snippet']}"
+        for r in results
+    ])
 ```
 
 ---
 
-<!-- _class: lead -->
+# Plan-and-Execute Pattern
+
+```
+1. Planning Phase
+   ┌─────────────────┐
+   │ Create detailed │
+   │ step-by-step    │
+   │ plan            │
+   └────────┬────────┘
+            │
+2. Execution Phase
+   ┌────────▼────────┐
+   │ Execute step 1  │
+   ├─────────────────┤
+   │ Execute step 2  │
+   ├─────────────────┤
+   │ Execute step 3  │
+   └────────┬────────┘
+            │
+3. Synthesis
+   ┌────────▼────────┐
+   │ Combine results │
+   └─────────────────┘
+```
+
+---
+
+# Python: Plan-and-Execute
+
+```python
+def plan_and_execute(task: str, tools: dict):
+    # Step 1: Create plan
+    plan_prompt = f"Create step-by-step plan for: {task}"
+    plan = llm(plan_prompt)
+    steps = parse_steps(plan)
+    
+    # Step 2: Execute each step
+    results = []
+    for step in steps:
+        result = execute_step(step, tools)
+        results.append(result)
+    
+    # Step 3: Synthesize
+    synthesis = llm(f"""
+    Task: {task}
+    Results: {results}
+    Provide final answer.
+    """)
+    return synthesis
+```
+
+---
+
+# Memory in Agents
+
+**Types of Memory**
+
+**1. Short-term** (Working memory)
+- Current conversation context
+- Recent observations
+
+**2. Long-term** (Persistent)
+- Past conversations
+- Learned facts/patterns
+- User preferences
+
+**3. Procedural**
+- How to use tools
+- Successful strategies
+
+---
+
+# Python: Agent Memory
+
+```python
+class AgentMemory:
+    def __init__(self):
+        self.short_term = []  # Recent messages
+        self.long_term = {}   # Vector DB
+        self.facts = []       # Extracted facts
+    
+    def add_to_short_term(self, item, max_size=10):
+        self.short_term.append(item)
+        if len(self.short_term) > max_size:
+            # Archive to long-term
+            self.archive(self.short_term.pop(0))
+    
+    def archive(self, item):
+        # Store in vector DB
+        embedding = get_embedding(item)
+        self.long_term[hash(item)] = embedding
+    
+    def retrieve(self, query, k=3):
+        # Semantic search
+        return search_similar(query, self.long_term, k)
+```
+
+---
+
+# Reflexion Pattern
+
+**Self-reflection for improvement**
+
+```
+Attempt 1
+├─ Execute task
+├─ Evaluate result
+└─ Identify failures
+
+Reflect
+├─ Analyze what went wrong
+├─ Generate improvement plan
+└─ Update strategy
+
+Attempt 2
+├─ Apply lessons learned
+├─ Execute with improvements
+└─ Better result
+```
+
+---
+
+# Python: Reflexion Agent
+
+```python
+def reflexion_agent(task, max_attempts=3):
+    reflections = []
+    
+    for attempt in range(max_attempts):
+        # Execute task
+        result = execute_task(task, reflections)
+        
+        # Evaluate
+        success = evaluate_result(result, task)
+        if success:
+            return result
+        
+        # Reflect on failure
+        reflection = llm(f"""
+        Task: {task}
+        Attempt: {result}
+        What went wrong? How to improve?
+        """)
+        reflections.append(reflection)
+    
+    return "Failed after max attempts"
+```
+
+---
+
 # Multi-Agent Systems
 
----
+**Why Multiple Agents?**
+- Specialization (each agent = expert)
+- Parallelization (concurrent tasks)
+- Modularity (easier to debug/improve)
+- Collaboration (agents work together)
 
-# Why Multi-Agent?
-
-Single agents have limitations:
-
-- Context window limits
-- Single point of failure
-- Complex tasks need specialization
-- Parallel processing needs
-
-**Multi-agent solutions:**
-- **Divide and conquer** complex tasks
-- **Specialist agents** for different domains
-- **Redundancy** and error recovery
-- **Parallel execution** for speed
+**Patterns**
+- Hierarchical (manager + workers)
+- Peer-to-peer (collaborate as equals)
+- Sequential (pipeline/workflow)
 
 ---
 
-# Multi-Agent Patterns
+# Hierarchical Multi-Agent
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│               MULTI-AGENT ARCHITECTURES                     │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  SUPERVISOR                        PEER-TO-PEER             │
-│  ──────────                        ────────────             │
-│       ┌───┐                        ┌───┐ ←→ ┌───┐           │
-│       │ S │                        │ A │    │ B │           │
-│       └─┬─┘                        └───┘ ←→ └───┘           │
-│    ┌────┼────┐                       ↕       ↕              │
-│    ▼    ▼    ▼                     ┌───┐ ←→ ┌───┐           │
-│  ┌───┐┌───┐┌───┐                   │ C │    │ D │           │
-│  │ A ││ B ││ C │                   └───┘    └───┘           │
-│  └───┘└───┘└───┘                                            │
-│                                                             │
-│  HIERARCHICAL                      PIPELINE                 │
-│  ────────────                      ────────                 │
-│       ┌───┐                        ┌───┐→┌───┐→┌───┐        │
-│       │ M │                        │ A │ │ B │ │ C │        │
-│       └─┬─┘                        └───┘ └───┘ └───┘        │
-│    ┌────┼────┐                                              │
-│    ▼    ▼    ▼                                              │
-│  ┌─┴─┐┌─┴─┐┌─┴─┐                                            │
-│  │S1 ││S2 ││S3 │                                            │
-│  └─┬─┘└─┬─┘└─┬─┘                                            │
-│    │    │    │                                              │
-│   ▼▼   ▼▼   ▼▼                                              │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+      ┌──────────────┐
+      │   Manager    │
+      │   Agent      │
+      └───────┬──────┘
+              │
+    ┌─────────┼─────────┐
+    │         │         │
+┌───▼───┐ ┌──▼───┐ ┌───▼───┐
+│Worker │ │Worker│ │Worker │
+│  #1   │ │  #2  │ │  #3   │
+└───────┘ └──────┘ └───────┘
+Research  Writing  Review
 ```
+
+**Manager**: Delegates tasks
+**Workers**: Specialized execution
 
 ---
 
-# Supervisor Pattern
+# Python: Multi-Agent System
 
 ```python
-class SupervisorAgent:
-    """Coordinates multiple worker agents."""
+class Agent:
+    def __init__(self, name, role, tools):
+        self.name = name
+        self.role = role
+        self.tools = tools
+    
+    def execute(self, task):
+        prompt = f"You are {self.role}. Task: {task}"
+        return llm_with_tools(prompt, self.tools)
 
-    def __init__(self, workers: List[Agent]):
-        self.workers = {w.name: w for w in workers}
-
-    def run(self, task: str) -> str:
-        # Plan which workers to use
-        plan = self.plan_task(task)
-
-        results = {}
-        for step in plan:
-            worker = self.workers[step.worker_name]
-            result = worker.run(step.subtask)
-            results[step.id] = result
-
-            # Supervisor checks result
-            if not self.is_satisfactory(result):
-                result = self.handle_unsatisfactory(step, result)
-
-        # Synthesize final answer
+class ManagerAgent:
+    def __init__(self, workers):
+        self.workers = workers
+    
+    def delegate(self, task):
+        # Decompose task
+        subtasks = self.plan(task)
+        
+        # Assign to workers
+        results = []
+        for subtask in subtasks:
+            worker = self.select_worker(subtask)
+            result = worker.execute(subtask)
+            results.append(result)
+        
         return self.synthesize(results)
-```
-
----
-
-# Worker Agent Types
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│                   SPECIALIZED WORKERS                        │
-├──────────────────────────────────────────────────────────────┤
-│                                                              │
-│  RESEARCHER                    CODER                         │
-│  ──────────                    ─────                         │
-│  • Searches web/docs           • Writes code                 │
-│  • Summarizes findings         • Runs tests                  │
-│  • Cites sources               • Debugs issues               │
-│                                                              │
-│  REVIEWER                      WRITER                        │
-│  ────────                      ──────                        │
-│  • Checks quality              • Creates documentation       │
-│  • Identifies issues           • Formats output              │
-│  • Suggests improvements       • Generates reports           │
-│                                                              │
-│  VALIDATOR                     PLANNER                       │
-│  ─────────                     ───────                       │
-│  • Verifies outputs            • Creates plans               │
-│  • Runs sanity checks          • Breaks down tasks           │
-│  • Confirms correctness        • Prioritizes steps           │
-│                                                              │
-└──────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 # Agent Communication
 
+**Message Passing**
 ```python
-@dataclass
-class AgentMessage:
-    from_agent: str
-    to_agent: str
-    content: str
-    message_type: str  # "request", "response", "broadcast"
-    metadata: Dict[str, Any]
+class Message:
+    def __init__(self, sender, receiver, content):
+        self.sender = sender
+        self.receiver = receiver
+        self.content = content
+        self.timestamp = time.time()
 
 class MessageBus:
-    """Central communication hub for agents."""
-
     def __init__(self):
-        self.subscribers: Dict[str, List[Callable]] = {}
-
-    def subscribe(self, agent_id: str, callback: Callable):
-        self.subscribers.setdefault(agent_id, []).append(callback)
-
-    def publish(self, message: AgentMessage):
-        for callback in self.subscribers.get(message.to_agent, []):
-            callback(message)
+        self.messages = []
+    
+    def send(self, msg):
+        self.messages.append(msg)
+        self.deliver(msg)
+    
+    def deliver(self, msg):
+        msg.receiver.receive(msg)
 ```
 
 ---
 
-<!-- _class: lead -->
-# Framework Comparison
+# Agent Collaboration Example
 
----
+**Research Paper Writer**
 
-# When to Use What
-
-| Use Case | Recommended Approach |
-|----------|---------------------|
-| Simple tool use | Native SDK (Anthropic/OpenAI) |
-| Basic agent loop | Custom implementation |
-| Complex workflows | LangGraph |
-| Multi-agent teams | CrewAI or custom |
-| Rapid prototyping | LangChain |
-| Enterprise integration | Semantic Kernel |
-
----
-
-# Framework Quick Comparison
-
-| Framework | Strengths | Best For |
-|-----------|-----------|----------|
-| **Native SDKs** | Full control, minimal deps | Simple agents |
-| **LangChain** | Rich ecosystem, quick start | Prototyping |
-| **LangGraph** | State machines, complex flows | Workflows |
-| **CrewAI** | Multi-agent, role-based | Team simulation |
-| **AutoGen** | Conversational agents | Chat-based |
-
----
-
-# Lab 03: Migration Workflow Agent
-
-**Project: Framework Migration Agent**
-
-You'll build:
-- Multi-phase workflow (Analyze → Plan → Execute → Verify)
-- State machine for process control
-- Tool-using agent with file operations
-- Progress tracking and reporting
-
-```bash
-# Navigate to the lab
-cd labs/lab03-migration-workflow
-
-# Read the instructions
-cat README.md
+```
+┌──────────────┐
+│ Researcher   │  Finds papers, data
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│ Analyzer     │  Extracts insights
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│ Writer       │  Drafts sections
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│ Reviewer     │  Checks quality
+└──────────────┘
 ```
 
 ---
 
-# Day 3 Key Takeaways
+# Tool Safety & Validation
 
-1. **Agents = LLM + Tools + Loop** - Not just a single call
-2. **Tools need good descriptions** - Help the LLM use them correctly
-3. **ReAct = Think before act** - Explicit reasoning improves results
-4. **State machines control flow** - Define explicit transitions
-5. **Multi-agent for complexity** - Divide and conquer
+**Security Concerns**
+- Malicious tool calls
+- Data leakage
+- Unintended actions
+- Cost overruns
+
+**Mitigation**
+```python
+def safe_tool_execution(tool_name, args):
+    # Validate tool exists
+    if tool_name not in ALLOWED_TOOLS:
+        return "Tool not allowed"
+    
+    # Validate arguments
+    if not validate_args(args):
+        return "Invalid arguments"
+    
+    # Rate limiting
+    if exceeds_rate_limit(tool_name):
+        return "Rate limit exceeded"
+    
+    # Execute with timeout
+    return execute_with_timeout(tool_name, args, timeout=30)
+```
 
 ---
 
-# What's Next: Day 4
+# Error Handling in Agents
 
-**RAG & Evaluation**
-
-- Retrieval-Augmented Generation fundamentals
-- Chunking strategies for different content types
-- Embedding models and vector databases
-- Evaluation metrics and debugging
+```python
+def robust_agent_step(agent, task):
+    max_retries = 3
+    
+    for attempt in range(max_retries):
+        try:
+            result = agent.execute(task)
+            if validate_result(result):
+                return result
+            else:
+                # Invalid result, retry with feedback
+                task = f"{task}\nPrevious attempt invalid: {result}"
+        
+        except ToolError as e:
+            logger.error(f"Tool error: {e}")
+            # Try alternative tool
+            
+        except TimeoutError:
+            logger.error("Timeout")
+            # Simplify task
+    
+    return "Failed after retries"
+```
 
 ---
 
-<!-- _class: lead -->
-# Questions?
+# Agent Evaluation Metrics
 
-**Lab 03 awaits!**
+**Performance**
+- Task success rate
+- Steps to completion
+- Token usage
+- Latency
+
+**Quality**
+- Answer accuracy
+- Tool usage appropriateness
+- Reasoning coherence
+
+**Cost**
+- API calls
+- Token consumption
+- Tool execution cost
+
+---
+
+# Python: Agent Metrics
+
+```python
+class AgentMetrics:
+    def __init__(self):
+        self.steps = 0
+        self.tool_calls = 0
+        self.tokens = 0
+        self.start_time = time.time()
+    
+    def record_step(self):
+        self.steps += 1
+    
+    def record_tool_call(self, tool_name):
+        self.tool_calls += 1
+    
+    def record_tokens(self, count):
+        self.tokens += count
+    
+    def get_summary(self):
+        return {
+            "steps": self.steps,
+            "tool_calls": self.tool_calls,
+            "tokens": self.tokens,
+            "duration": time.time() - self.start_time
+        }
+```
+
+---
+
+# LangChain Agents
+
+```python
+from langchain.agents import AgentExecutor, create_openai_functions_agent
+from langchain_openai import ChatOpenAI
+from langchain.tools import Tool
+
+# Define tools
+tools = [
+    Tool(
+        name="Calculator",
+        func=calculator,
+        description="Useful for math"
+    ),
+    Tool(
+        name="Search",
+        func=web_search,
+        description="Search the web"
+    )
+]
+
+# Create agent
+llm = ChatOpenAI(model="gpt-4o")
+agent = create_openai_functions_agent(llm, tools, prompt)
+agent_executor = AgentExecutor(agent=agent, tools=tools)
+```
+
+---
+
+# LangGraph for Complex Agents
+
+```python
+from langgraph.graph import Graph
+
+# Define agent workflow
+workflow = Graph()
+
+# Add nodes (agent steps)
+workflow.add_node("research", research_node)
+workflow.add_node("analyze", analyze_node)
+workflow.add_node("write", write_node)
+
+# Add edges (flow)
+workflow.add_edge("research", "analyze")
+workflow.add_edge("analyze", "write")
+
+# Set entry point
+workflow.set_entry_point("research")
+
+# Compile
+app = workflow.compile()
+result = app.invoke({"task": "Write report on AI"})
+```
+
+---
+
+# Crew AI Framework
+
+```python
+from crewai import Agent, Task, Crew
+
+# Define agents
+researcher = Agent(
+    role="Researcher",
+    goal="Find relevant information",
+    tools=[search_tool],
+    verbose=True
+)
+
+writer = Agent(
+    role="Writer",
+    goal="Create engaging content",
+    tools=[],
+    verbose=True
+)
+
+# Define tasks
+task1 = Task(description="Research AI trends", agent=researcher)
+task2 = Task(description="Write blog post", agent=writer)
+
+# Create crew
+crew = Crew(agents=[researcher, writer], tasks=[task1, task2])
+result = crew.kickoff()
+```
+
+---
+
+# AutoGPT-style Agent
+
+**Continuous autonomous operation**
+
+```python
+class AutoAgent:
+    def __init__(self, goal):
+        self.goal = goal
+        self.memory = []
+        self.tools = load_tools()
+    
+    def run(self):
+        while not self.is_goal_achieved():
+            # Think
+            thoughts = self.think()
+            
+            # Plan
+            plan = self.plan(thoughts)
+            
+            # Act
+            action = self.select_action(plan)
+            result = self.execute(action)
+            
+            # Remember
+            self.memory.append((action, result))
+            
+            # Reflect
+            self.evaluate_progress()
+```
+
+---
+
+# Agent Limitations
+
+**Current Challenges**
+- Unreliable long-term reasoning
+- Expensive (many LLM calls)
+- Hard to debug
+- Can go off-track
+- Safety concerns
+
+**Mitigation Strategies**
+- Max steps limit
+- Regular checkpoints
+- Human-in-the-loop
+- Sandboxed execution
+- Extensive testing
+
+---
+
+# Human-in-the-Loop
+
+```python
+class HumanApprovalAgent:
+    def __init__(self):
+        self.actions_requiring_approval = [
+            "send_email",
+            "delete_file",
+            "make_payment"
+        ]
+    
+    def execute_action(self, action, args):
+        if action in self.actions_requiring_approval:
+            print(f"Agent wants to: {action}({args})")
+            approval = input("Approve? (y/n): ")
+            if approval.lower() != 'y':
+                return "Action rejected by user"
+        
+        return self.run_action(action, args)
+```
+
+---
+
+# Workshop: Research Agent
+
+**Goal**: Build agent that researches topics
+
+**Requirements**
+1. Search web for information
+2. Extract key facts
+3. Synthesize findings
+4. Cite sources
+
+**Tools Needed**
+- Web search
+- Content extraction
+- Note-taking
+
+---
+
+# Research Agent Architecture
 
 ```
-cd labs/lab03-migration-workflow
+User Query
+    │
+    ▼
+┌────────────────┐
+│  Query         │
+│  Understanding │
+└───────┬────────┘
+        │
+        ▼
+┌────────────────┐
+│  Search & Gather│
+│  (multiple      │
+│   sources)      │
+└───────┬────────┘
+        │
+        ▼
+┌────────────────┐
+│  Extract & Store│
+│  (key facts)    │
+└───────┬────────┘
+        │
+        ▼
+┌────────────────┐
+│  Synthesize    │
+│  Report        │
+└────────────────┘
 ```
+
+---
+
+# Research Agent Starter
+
+```python
+class ResearchAgent:
+    def __init__(self):
+        self.tools = {
+            "search": web_search_tool,
+            "extract": extract_content_tool
+        }
+        self.findings = []
+    
+    def research(self, topic: str):
+        # 1. Generate search queries
+        queries = self.generate_queries(topic)
+        
+        # 2. Search and collect
+        for query in queries:
+            results = self.tools["search"](query)
+            self.findings.extend(results)
+        
+        # 3. Synthesize
+        return self.synthesize_report(topic, self.findings)
+```
+
+---
+
+# Exercise 1: Basic Agent
+
+**Build**: Simple ReAct agent with calculator
+
+```python
+def exercise1():
+    tools = {"calculator": calculator_tool}
+    
+    question = """
+    If I buy 3 items at $12.50 each and 2 items 
+    at $8.75 each, what's my total?
+    """
+    
+    agent = ReactAgent(tools)
+    answer = agent.solve(question)
+    print(answer)
+```
+
+**Expected**: Agent reasons through steps, uses calculator
+
+---
+
+# Exercise 2: Multi-Tool Agent
+
+**Build**: Agent with search + calculator
+
+```python
+def exercise2():
+    tools = {
+        "search": web_search_tool,
+        "calculator": calculator_tool
+    }
+    
+    question = """
+    What's the GDP of the US and China combined?
+    """
+    
+    agent = ReactAgent(tools)
+    answer = agent.solve(question)
+    print(answer)
+```
+
+**Expected**: Search GDPs, then calculate sum
+
+---
+
+# Exercise 3: Research Agent
+
+**Build**: Full research agent
+
+```python
+def exercise3():
+    agent = ResearchAgent(
+        tools=["search", "extract", "summarize"]
+    )
+    
+    report = agent.research(
+        "What are the main applications of "
+        "transformers in NLP?"
+    )
+    
+    print(report)
+```
+
+**Expected**: Multi-source synthesis with citations
+
+---
+
+# Best Practices
+
+**Agent Design**
+- Start simple, add complexity gradually
+- Clear stopping conditions
+- Limit max steps
+- Comprehensive logging
+- Error recovery
+
+**Tool Design**
+- Clear descriptions
+- Input validation
+- Timeout handling
+- Idempotency when possible
+- Good error messages
+
+---
+
+# Debugging Agents
+
+**Common Issues**
+1. Infinite loops → Add max steps
+2. Wrong tool selection → Improve descriptions
+3. Poor reasoning → Better prompts
+4. Hallucinated actions → Validate tool calls
+5. Context loss → Better memory
+
+**Debug Tools**
+- Verbose logging
+- Step-by-step inspection
+- Replay functionality
+- Metrics dashboard
+
+---
+
+# Production Considerations
+
+**Before Deployment**
+- Extensive testing
+- Rate limiting
+- Cost monitoring
+- Safety guardrails
+- Rollback plan
+
+**Monitoring**
+- Success/failure rates
+- Average steps
+- Token usage
+- Latency
+- Error patterns
+
+---
+
+# Advanced Agent Patterns
+
+**Upcoming Topics**
+- RAG-enhanced agents
+- Agents with persistent memory
+- Multi-modal agents
+- Agent-based evaluations
+- Production deployment
+
+**Day 4**: RAG + Evaluation
+**Day 5**: Production systems
+
+---
+
+# Resources
+
+**Frameworks**
+- LangChain/LangGraph
+- LlamaIndex
+- AutoGPT
+- CrewAI
+- AgentGPT
+
+**Papers**
+- ReAct (Yao et al., 2022)
+- Reflexion (Shinn et al., 2023)
+- Toolformer (Schick et al., 2023)
+
+---
+
+# Q&A
+
+Questions?
+
+**Tomorrow**: Day 4 - RAG & Evaluation
+- Retrieval-Augmented Generation
+- Vector databases
+- Evaluation frameworks
+- Testing strategies
+
+---
+
+# Thank You
+
+Excellent progress!
+
+**Homework**
+- Complete all 3 exercises
+- Experiment with different tools
+- Read ReAct paper
+- Design your own agent use case
+
+See you tomorrow!

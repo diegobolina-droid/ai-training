@@ -5,16 +5,140 @@ paginate: true
 header: 'Agentic AI Training'
 footer: 'Day 1 - GenAI Foundations'
 style: |
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code&display=swap');
+
   section {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+    color: #1a202c;
+    padding: 45px 60px;
+    line-height: 1.5;
   }
+
+  h1 {
+    color: #1a365d;
+    font-size: 1.9em;
+    font-weight: 700;
+    border-bottom: 3px solid #3182ce;
+    padding-bottom: 0.2em;
+    margin-bottom: 0.5em;
+    margin-top: 0;
+  }
+
+  h2 {
+    color: #2c5282;
+    font-size: 1.3em;
+    font-weight: 600;
+    margin: 0.6em 0 0.4em 0;
+  }
+
+  h3 {
+    color: #2d3748;
+    font-size: 1.1em;
+    font-weight: 600;
+    margin: 0.5em 0 0.3em 0;
+  }
+
   code {
-    background-color: #1e1e1e;
-    color: #d4d4d4;
+    background-color: #edf2f7;
+    color: #2d3748;
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+    font-family: 'Fira Code', Monaco, monospace;
+    font-size: 0.85em;
   }
+
   pre {
-    background-color: #1e1e1e;
-    border-radius: 8px;
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%) !important;
+    padding: 0.9em !important;
+    border-radius: 8px !important;
+    border: 2px solid #4a5568 !important;
+    overflow-x: auto !important;
+    max-height: 320px !important;
+    font-size: 0.62em !important;
+    line-height: 1.4 !important;
+    margin: 0.6em 0 !important;
+  }
+
+  pre code {
+    background: transparent !important;
+    color: #e2e8f0 !important;
+    border: none !important;
+    padding: 0 !important;
+    font-size: 1em !important;
+  }
+
+  ul, ol {
+    line-height: 1.6;
+    margin: 0.5em 0;
+  }
+
+  li {
+    margin-bottom: 0.3em;
+  }
+
+  p {
+    margin: 0.5em 0;
+  }
+
+  strong {
+    color: #2c5282;
+    font-weight: 700;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.75em;
+    margin: 0.5em 0;
+  }
+
+  th {
+    background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+    color: white;
+    padding: 0.5em;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 0.4em;
+    border-bottom: 1px solid #e2e8f0;
+    background-color: white;
+  }
+
+  tr:nth-child(even) td {
+    background-color: #f7fafc;
+  }
+
+  section.lead {
+    text-align: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+
+  section.lead h1 {
+    color: white;
+    border-bottom: none;
+    font-size: 2.5em;
+    margin-bottom: 0.3em;
+  }
+
+  section.lead h2 {
+    color: #e6fffa;
+    font-weight: 500;
+    font-size: 1.4em;
+  }
+
+  blockquote {
+    border-left: 3px solid #3182ce;
+    padding: 0.6em 1em;
+    background-color: #ebf8ff;
+    margin: 0.5em 0;
+    border-radius: 5px;
+    font-style: italic;
+    color: #2c5282;
+    font-size: 0.9em;
   }
 ---
 
@@ -23,249 +147,177 @@ style: |
 
 ## Agentic AI Training Program
 
-**From Zero GenAI Experience to Production-Ready**
-
 ---
 
 # Learning Objectives
 
-By the end of Day 1, you will be able to:
-
-- Explain how LLMs work at a conceptual level
-- Understand tokens, context windows, and limitations
-- Use AI coding assistants effectively
-- Apply "vibe coding" techniques for rapid development
-- Build and deploy your first AI-assisted application
+- ✅ Explain how LLMs work at conceptual level
+- ✅ Understand tokens, context windows, limitations
+- ✅ Use AI coding assistants effectively
+- ✅ Apply "vibe coding" for rapid development
+- ✅ Build and deploy first AI-assisted application
 
 ---
 
 # What is Generative AI?
 
-**AI that creates new content** rather than just analyzing existing data
+**AI that creates new content** vs analyzing data
 
-```
-Traditional ML          vs          Generative AI
-─────────────                       ──────────────
-Input → Classification              Input → New Content
-"Is this spam?" → Yes/No            "Write an email" → Full email
-```
+**Traditional ML** → "Is spam?" → Yes/No
+**Generative AI** → "Write email" → Full email
 
-**Types of Generative AI:**
-- Text (LLMs): GPT-4, Claude, Gemini
-- Images: DALL-E, Midjourney, Stable Diffusion
-- Audio: Whisper, ElevenLabs
-- Video: Sora, Runway
-- Code: Copilot, Claude Code
+**Types:**
+- **Text**: GPT-4, Claude, Gemini
+- **Images**: DALL-E, Midjourney
+- **Audio**: Whisper, ElevenLabs
+- **Code**: Copilot, Claude Code
 
 ---
 
 # Large Language Models (LLMs)
 
-Neural networks trained on massive text datasets to **predict the next token**
+Neural networks trained to **predict next token**
 
 ```
-Training: "The cat sat on the ___"
-                                ↓
-          [mat: 0.3, floor: 0.2, chair: 0.15, dog: 0.01, ...]
+"The cat sat on the ___"
+         ↓
+[mat: 0.3, floor: 0.2, chair: 0.15...]
 ```
 
-**Key insight**: Next-token prediction at massive scale produces emergent capabilities:
-- Following instructions
-- Reasoning
-- Code generation
-- Translation
+**Emergent capabilities:**
+✅ Following instructions
+✅ Reasoning
+✅ Code generation
+✅ Translation
 
 ---
 
-# The Transformer Architecture (Simplified)
+# Transformer Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    TRANSFORMER                              │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│   Input Text                                                │
-│       ↓                                                     │
-│   ┌──────────────┐                                          │
-│   │ Tokenization │  "Hello world" → [15496, 995]            │
-│   └──────────────┘                                          │
-│       ↓                                                     │
-│   ┌──────────────┐                                          │
-│   │  Embeddings  │  Tokens → Dense vectors                  │
-│   └──────────────┘                                          │
-│       ↓                                                     │
-│   ┌──────────────┐                                          │
-│   │  Attention   │  "Which tokens relate to each other?"    │
-│   └──────────────┘                                          │
-│       ↓                                                     │
-│   ┌──────────────┐                                          │
-│   │   Output     │  Probability distribution over tokens    │
-│   └──────────────┘                                          │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────┐
+│       TRANSFORMER            │
+├──────────────────────────────┤
+│ Input → Tokenization         │
+│      → Embeddings            │
+│      → Attention             │
+│      → Output Probabilities  │
+└──────────────────────────────┘
 ```
 
----
-
-# Self-Attention: The Key Innovation
-
-Attention allows the model to **focus on relevant parts** of the input
+**Self-Attention** = Focus on relevant parts
 
 ```
-"The cat sat on the mat because it was tired"
-                                 ↑
-                          What does "it" refer to?
+"The cat sat because it was tired"
+                     ↑
+            refers to "cat"
 ```
-
-Attention scores show **"it" → "cat"** has high attention
-
-This enables:
-- Long-range dependencies
-- Context understanding
-- Nuanced interpretation
 
 ---
 
 # Understanding Tokens
 
-Tokens are the **basic units** LLMs work with (not characters, not words)
+**Not characters, not words - tokens!**
 
 ```python
-# Common tokenization examples
-"Hello"     → ["Hello"]           # 1 token
-"hello"     → ["hello"]           # 1 token
-"Hello!"    → ["Hello", "!"]      # 2 tokens
-"don't"     → ["don", "'t"]       # 2 tokens
-"ChatGPT"   → ["Chat", "GPT"]     # 2 tokens
-"🎉"        → ["🎉"]               # 1 token (usually)
+"Hello"   → ["Hello"]      # 1 token
+"Hello!"  → ["Hello","!"]  # 2 tokens
+"don't"   → ["don","'t"]   # 2 tokens
 ```
 
-**Rule of thumb**: 1 token ≈ 4 characters in English
+**Rule:** 1 token ≈ 4 characters
 
-**Why it matters**:
-- API pricing is per token
-- Context limits are in tokens
-- Long code = many tokens
+**Matters for:**
+💰 Pricing  📏 Context limits  📝 API usage
 
 ---
 
 # Context Windows
 
-The **maximum tokens** an LLM can process at once
+| Model | Context | ~Pages |
+|-------|---------|--------|
+| GPT-3.5 | 4K | 6 |
+| GPT-4 | 8-128K | 12-200 |
+| Claude 3.5 | 200K | 300 |
+| Gemini 1.5 | 1M | 1,500 |
 
-| Model | Context Window | ~Pages of Text |
-|-------|----------------|----------------|
-| GPT-3.5 | 4,096 tokens | ~6 pages |
-| GPT-4 | 8,192 - 128K | 12 - 200 pages |
-| Claude 3.5 | 200K tokens | ~300 pages |
-| Claude 3 Opus | 200K tokens | ~300 pages |
-| Gemini 1.5 Pro | 1M tokens | ~1,500 pages |
-
-**Context = Input + Output**
-- Your prompt uses tokens
-- The response uses tokens
-- Both count toward the limit!
+> Context = Input + Output (both count!)
 
 ---
 
 # LLM Limitations
 
-**Know the boundaries:**
-
-| Limitation | Description |
-|------------|-------------|
-| **Knowledge Cutoff** | No info after training date |
-| **Hallucinations** | Confidently wrong answers |
-| **No Execution** | Can't run code or access internet |
-| **Context Limits** | Can't process unlimited text |
-| **Consistency** | May give different answers to same question |
-| **Math** | Unreliable for complex calculations |
+| Issue | Description |
+|-------|-------------|
+| 📅 **Cutoff** | No info after training |
+| 🎭 **Hallucinations** | Confidently wrong |
+| 🚫 **No execution** | Can't run code |
+| 📏 **Context limits** | Not unlimited |
+| 🎲 **Non-deterministic** | Varies |
+| 🧮 **Math** | Unreliable |
 
 ---
 
-# Hallucinations: The Critical Challenge
-
-LLMs can generate **plausible but false** information
+# Hallucinations
 
 ```
-User: "What is the airspeed velocity of an unladen swallow?"
+User: "Airspeed of unladen swallow?"
 
-LLM: "The airspeed velocity of an unladen European swallow
-      is approximately 11 meters per second or 24 mph."
+LLM:  "11 m/s or 24 mph."
 
-      ❌ Sounds authoritative but this specific number is made up!
+      ❌ Sounds right but made up!
 ```
 
-**Mitigation strategies:**
+**Mitigate:**
 - Ask for sources
-- Verify critical facts
-- Use RAG for grounding
-- Chain-of-thought prompting
+- Verify facts
+- Use RAG
+- Chain-of-thought
 
 ---
 
-# The Temperature Parameter
+# Temperature Parameter
 
-Controls **randomness** in outputs
-
-```
-Temperature 0.0          Temperature 0.7          Temperature 1.0
-─────────────           ─────────────           ─────────────
-Deterministic           Balanced                Creative
-Repetitive              Natural                 Unpredictable
-Best for:               Best for:               Best for:
-- Code                  - Chat                  - Brainstorming
-- Facts                 - Writing               - Creative writing
-- Analysis              - General use           - Exploration
-```
-
-**Default**: Most APIs use 0.7-1.0
+| 0.0 | 0.7 | 1.0 |
+|-----|-----|-----|
+| Deterministic | Balanced | Creative |
+| **For:** Code, Facts | **For:** Chat, Writing | **For:** Brainstorm |
 
 ---
 
-# API Basics: Making LLM Calls
+# API Basics: Python
 
 ```python
-# Python with OpenAI
 from openai import OpenAI
 client = OpenAI()
 
 response = client.chat.completions.create(
     model="gpt-4",
     messages=[
-        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "system", "content": "Helper"},
         {"role": "user", "content": "What is Python?"}
-    ],
-    temperature=0.7
+    ]
 )
-
 print(response.choices[0].message.content)
 ```
 
-**Three message types:**
-- `system`: Sets behavior/persona
-- `user`: Human input
-- `assistant`: LLM responses
+**Types:** `system`, `user`, `assistant`
 
 ---
 
-# API Basics: TypeScript Version
+# API Basics: TypeScript
 
 ```typescript
-// TypeScript with Anthropic
 import Anthropic from "@anthropic-ai/sdk";
-
 const client = new Anthropic();
 
 const response = await client.messages.create({
   model: "claude-3-5-sonnet-20241022",
   max_tokens: 1024,
-  system: "You are a helpful assistant.",
   messages: [
     { role: "user", content: "What is TypeScript?" }
   ]
 });
-
 console.log(response.content[0].text);
 ```
 
@@ -273,206 +325,157 @@ console.log(response.content[0].text);
 
 # AI Coding Assistants
 
-Tools that integrate LLMs into your development workflow
-
 | Tool | Type | Best For |
 |------|------|----------|
-| **Claude Code** | CLI | Terminal-based development |
-| **Cursor** | IDE | Full IDE experience |
-| **GitHub Copilot** | Extension | Inline completions |
-| **Aider** | CLI | Git-integrated coding |
-| **Continue** | Extension | Open-source alternative |
+| Claude Code | CLI | Terminal |
+| Cursor | IDE | Full IDE |
+| Copilot | Extension | Inline |
+| Aider | CLI | Git-integrated |
 
 ---
 
 # What is Vibe Coding?
 
-**Collaborative coding with AI** where you guide the direction and the AI handles implementation details
+**Collaborative coding with AI**
 
-```
-Traditional Coding:
-1. Think of solution
-2. Type every character
-3. Debug syntax errors
-4. Look up documentation
+**Traditional:**
+1. Think solution
+2. Type everything
+3. Debug syntax
+4. Look up docs
 
-Vibe Coding:
-1. Describe what you want
-2. Review AI suggestion
-3. Refine with feedback
-4. Integrate and test
-```
-
-**You're the architect, AI is the builder**
+**Vibe Coding:**
+1. Describe want
+2. Review AI code
+3. Refine feedback
+4. Integrate & test
 
 ---
 
-# Vibe Coding Workflow
+# Vibe Coding Loop
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                   VIBE CODING LOOP                          │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│   1. DESCRIBE          "Create a REST API endpoint that..." │
-│        ↓                                                    │
-│   2. REVIEW            Read generated code carefully        │
-│        ↓                                                    │
-│   3. REFINE            "Add error handling for..."          │
-│        ↓                                                    │
-│   4. TEST              Run it, see what breaks              │
-│        ↓                                                    │
-│   5. ITERATE           "Now also handle the case where..."  │
-│        ↓                                                    │
-│   [Back to step 2]                                          │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────┐
+│   1. DESCRIBE           │
+│   2. REVIEW             │
+│   3. REFINE             │
+│   4. TEST               │
+│   5. ITERATE            │
+│   [Back to 2]           │
+└─────────────────────────┘
 ```
+
+> You architect, AI builds
 
 ---
 
-# Effective AI Prompting for Code
-
-**Be specific about what you want:**
+# Effective Prompting
 
 ```
-❌ Bad: "Make this better"
+❌ "Make better"
 
-✅ Good: "Refactor this function to:
-         1. Use type hints
-         2. Handle the case where input is empty
-         3. Add a docstring with examples
-         4. Reduce time complexity to O(n)"
+✅ "Refactor to:
+   1. Add type hints
+   2. Handle empty input
+   3. Add docstring
+   4. Reduce to O(n)"
 ```
 
-**Include context:**
-- Language and version
-- Framework being used
-- Existing patterns in codebase
-- Constraints (performance, security)
+**Include:** Language, framework, patterns, constraints
 
 ---
 
-# When to Use AI Assistance
+# When to Use AI
 
-**Great for:**
-- Boilerplate code generation
-- Converting between formats
-- Writing tests
-- Documentation
-- Exploring unfamiliar APIs
-- Debugging error messages
-- Refactoring suggestions
+### ✅ Great:
+- Boilerplate
+- Format conversion
+- Tests & docs
+- Debugging
 
-**Be careful with:**
-- Security-critical code
+### ⚠️ Careful:
+- Security code
 - Novel algorithms
-- Highly optimized code
-- Domain-specific business logic
+- Optimized code
 
 ---
 
 # Trust but Verify
 
-**AI makes mistakes.** Always:
-
-1. **Read the code** - Don't blindly copy-paste
-2. **Understand the logic** - Can you explain it?
-3. **Test thoroughly** - Edge cases especially
-4. **Check security** - SQL injection, XSS, etc.
-5. **Verify facts** - Documentation claims, version numbers
+**Always:**
+1. Read code
+2. Understand logic
+3. Test thoroughly
+4. Check security
+5. Verify facts
 
 ```python
-# AI might generate this:
-import os
-os.system(f"rm -rf {user_input}")  # 🚨 DANGEROUS!
-
-# Always review for security issues!
+# Dangerous!
+os.system(f"rm -rf {user_input}")
 ```
 
 ---
 
-# Free Tier LLM Options
+# Free Tier Options
 
-You can complete this training at **zero cost**:
+| Provider | Free | Best For |
+|----------|------|----------|
+| Google AI | Generous | General |
+| Groq | Fast | Speed |
+| Ollama | Local | Privacy |
 
-| Provider | Free Tier | Best For |
-|----------|-----------|----------|
-| **Google AI Studio** | Very generous | General use |
-| **Groq** | Fast inference | Speed |
-| **Ollama** | 100% free, local | Privacy |
-| **Anthropic** | $5 free credit | Claude models |
-| **OpenAI** | $5 free credit | GPT models |
-
-See `FREE-TIER-STRATEGY.md` for details
+> See `FREE-TIER-STRATEGY.md`
 
 ---
 
-# Model Selection Guide
+# Model Selection
 
-```
-┌────────────────────────────────────────────────────────────┐
-│                    CHOOSING A MODEL                        │
-├────────────────────────────────────────────────────────────┤
-│                                                            │
-│   TASK COMPLEXITY                                          │
-│   ────────────────                                         │
-│   Simple → Use smaller/faster models (GPT-3.5, Haiku)      │
-│   Complex → Use larger models (GPT-4, Claude Sonnet/Opus)  │
-│                                                            │
-│   REQUIREMENTS                                             │
-│   ────────────                                             │
-│   Speed critical → Groq, Haiku                             │
-│   Quality critical → Claude Opus, GPT-4                    │
-│   Cost sensitive → Open source, smaller models             │
-│   Privacy needed → Local models (Ollama)                   │
-│                                                            │
-└────────────────────────────────────────────────────────────┘
-```
+**Simple** → Smaller models (GPT-3.5, Haiku)
+**Complex** → Larger models (GPT-4, Opus)
+
+**By need:**
+- Speed → Groq, Haiku
+- Quality → Opus, GPT-4
+- Cost → Open source
+- Privacy → Local (Ollama)
 
 ---
 
-# Lab 01: Build Your First AI App
+# Lab 01: First AI App
 
-**Project: URL Shortener**
+**Project:** URL Shortener + AI categorization
 
-You'll build:
-- REST API with FastAPI (Python) or Hono (TypeScript)
-- LLM-powered URL categorization
-- Deploy to cloud platform
+**Build:**
+- REST API (FastAPI/Hono)
+- LLM categorization
+- Cloud deploy
 
 ```bash
-# Navigate to the lab
 cd labs/lab01-vibe-coding-intro
-
-# Read the instructions
-cat README.md
-
-# Choose your language
-cd python/    # or typescript/
+cd python/  # or typescript/
 ```
 
 ---
 
-# Day 1 Key Takeaways
+# Key Takeaways
 
-1. **LLMs predict tokens** - Understanding this helps predict behavior
-2. **Context has limits** - Plan for what fits in the window
-3. **Hallucinations happen** - Always verify important facts
-4. **Vibe coding is collaborative** - You direct, AI assists
-5. **Trust but verify** - Review all generated code
+1. **LLMs predict tokens** - Understand behavior
+2. **Context has limits** - Plan accordingly
+3. **Hallucinations happen** - Verify facts
+4. **Vibe = collaborative** - You direct
+5. **Trust but verify** - Review code
 
 ---
 
 # What's Next: Day 2
 
-**Advanced Prompting for Engineering**
+**Advanced Prompting**
 
 - RCFG Framework
-- Chain-of-Thought prompting
+- Chain-of-Thought
 - Few-shot learning
-- System prompts & personas
-- Code-focused prompting patterns
+- System prompts
+- Code patterns
 
 ---
 
@@ -481,6 +484,6 @@ cd python/    # or typescript/
 
 **Lab 01 awaits!**
 
-```
+```bash
 cd labs/lab01-vibe-coding-intro
 ```

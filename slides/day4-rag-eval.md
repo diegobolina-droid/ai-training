@@ -1,41 +1,34 @@
 ---
-marp: true
 theme: default
-paginate: true
-header: 'Agentic AI Training'
-footer: 'Day 4 - RAG & Evaluation'
-style: |
-  section {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  }
-  code {
-    background-color: #1e1e1e;
-    color: #d4d4d4;
-  }
-  pre {
-    background-color: #1e1e1e;
-    border-radius: 8px;
-  }
+class: text-center
+highlighter: shiki
+drawings:
+  persist: false
 ---
 
-<!-- _class: lead -->
 # Day 4: RAG & Evaluation
 
-## Agentic AI Training Program
+Agentic AI Intensive Training
 
-**Grounding AI in your data and measuring what matters**
+5-Day Program
 
 ---
 
-# Learning Objectives
+# Today's Agenda
 
-By the end of Day 4, you will be able to:
+**Morning: Retrieval-Augmented Generation**
+- RAG fundamentals
+- Vector databases
+- Embeddings
 
-- Explain how RAG systems work and when to use them
-- Implement effective chunking and embedding strategies
-- Identify and avoid common RAG pitfalls
-- Build evaluation frameworks for AI systems
-- Debug and observe AI system behavior
+**Afternoon: Evaluation Frameworks**
+- Testing strategies
+- Metrics & benchmarks
+- Quality assurance
+
+**Evening: Hands-On**
+- Build RAG system
+- Implement evaluations
 
 ---
 
@@ -43,952 +36,1226 @@ By the end of Day 4, you will be able to:
 
 **Retrieval-Augmented Generation**
 
-Combines information retrieval with LLM generation to ground responses in specific data.
+Problem: LLMs have limited/outdated knowledge
 
-**The problem RAG solves:**
-- LLMs have knowledge cutoff dates
-- Can't access private/proprietary data
-- Hallucinate when uncertain
-- Can't cite sources
+Solution: Retrieve relevant info, then generate
+
+```
+User Query
+    │
+    ▼
+┌────────────┐
+│  Retrieve  │  ← Knowledge Base
+│  Context   │
+└─────┬──────┘
+      │
+      ▼
+┌────────────┐
+│  Generate  │  LLM + Retrieved Docs
+│  Answer    │
+└────────────┘
+```
+
+---
+
+# Why RAG?
+
+**Benefits**
+- Access to up-to-date info
+- Private/proprietary data
+- Factual grounding
+- Attribution/citations
+- Cost-effective vs fine-tuning
+
+**Use Cases**
+- Documentation Q&A
+- Customer support
+- Research assistance
+- Legal/medical queries
+
+---
+
+# RAG vs Fine-Tuning
+
+| Aspect | RAG | Fine-Tuning |
+|--------|-----|-------------|
+| Data updates | Easy | Requires retraining |
+| Setup cost | Low | High |
+| Accuracy | Good with context | Better patterns |
+| Citations | Easy | Hard |
+
+**Best**: Combine both approaches
 
 ---
 
 # RAG Pipeline Overview
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                      RAG PIPELINE                           │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  INDEXING PHASE (Offline)                                   │
-│  ─────────────────────────                                  │
-│  ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌─────────┐   │
-│  │Documents │──▶│  Chunk   │──▶│  Embed   │──▶│  Store  │   │
-│  │          │   │          │   │          │   │(Vector) │   │
-│  └──────────┘   └──────────┘   └──────────┘   └─────────┘   │
-│                                                             │
-│  QUERY PHASE (Online)                                       │
-│  ────────────────────                                       │
-│  ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌────────┐    │
-│  │  Query   │──▶│  Embed   │──▶│ Retrieve │──▶│  LLM   │    │
-│  │          │   │  Query   │   │ Similar  │   │Generate│    │
-│  └──────────┘   └──────────┘   └──────────┘   └────────┘    │
-│                                     │                       │
-│                                     ▼                       │
-│                              Top-K Documents                │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+1. Indexing (One-time)
+   Documents → Chunks → Embeddings → Vector DB
+
+2. Retrieval (Per Query)
+   Query → Embedding → Search → Top K docs
+
+3. Generation
+   Query + Docs → LLM → Answer
 ```
 
 ---
 
-# Why RAG vs Fine-tuning?
+# Document Chunking
 
-| Consideration | RAG | Fine-tuning |
-|---------------|-----|-------------|
-| **Update frequency** | Easy - update index | Hard - retrain model |
-| **Cost** | Low - embed once | High - full retraining |
-| **Traceability** | Can cite sources | No source attribution |
-| **Domain knowledge** | Add via documents | Baked into weights |
-| **Control** | Easy to update/remove | Hard to "unlearn" |
+**Why Chunk?**
+- Token limits
+- Focused context
+- Better retrieval precision
 
-**Use RAG when** data changes frequently or you need citations.
-**Use fine-tuning when** you need behavior/style changes.
-
----
-
-# When to Use RAG
-
-**Use RAG when:**
-✅ Need access to private/proprietary data
-✅ Data changes frequently
-✅ Need to cite sources
-✅ Domain-specific knowledge required
-✅ Want to reduce hallucinations with factual grounding
-
-**Don't use RAG when:**
-❌ General knowledge questions (use base LLM)
-❌ Data fits entirely in context window
-❌ Real-time data needed (use function calling)
-❌ Simple classification tasks
+**Strategies**
+1. Fixed size (e.g., 500 tokens)
+2. Sentence boundaries
+3. Paragraph-based
+4. Semantic (topic changes)
 
 ---
 
-# Understanding Embeddings
-
-Embeddings convert text to **dense vectors** that capture semantic meaning.
+# Python: Chunking Implementation
 
 ```python
-# Similar sentences have similar embeddings
-sentences = [
-    "How do I reset my password?",
-    "I forgot my password and need to change it",
-    "What are your business hours?",
-]
+def chunk_text(text, chunk_size=500, overlap=50):
+    """Split text into overlapping chunks"""
+    words = text.split()
+    chunks = []
+    
+    for i in range(0, len(words), chunk_size - overlap):
+        chunk = " ".join(words[i:i + chunk_size])
+        chunks.append(chunk)
+    
+    return chunks
 
-# After embedding, cosine similarities:
-# "reset password" ↔ "forgot password": ~0.92 (very similar)
-# "reset password" ↔ "business hours":  ~0.23 (not similar)
+# Usage
+doc = "Long document text..."
+chunks = chunk_text(doc)
+print(f"Created {len(chunks)} chunks")
 ```
-
-**Key insight**: Semantic similarity, not just keyword matching!
 
 ---
 
-# Embedding Models Comparison
+# TypeScript: Chunking
 
-| Model | Dimensions | Speed | Quality | Cost |
-|-------|------------|-------|---------|------|
-| text-embedding-3-small | 1536 | Fast | Good | $0.02/1M |
-| text-embedding-3-large | 3072 | Medium | Excellent | $0.13/1M |
-| Voyage-3 | 1024 | Fast | Excellent | $0.06/1M |
-| Cohere embed-v3 | 1024 | Fast | Excellent | $0.10/1M |
-| BGE-large (local) | 1024 | Varies | Good | Free |
+```typescript
+function chunkText(
+  text: string,
+  chunkSize = 500,
+  overlap = 50
+): string[] {
+  const words = text.split(/\s+/);
+  const chunks: string[] = [];
+  
+  for (let i = 0; i < words.length; i += chunkSize - overlap) {
+    const chunk = words.slice(i, i + chunkSize).join(' ');
+    chunks.push(chunk);
+  }
+  
+  return chunks;
+}
+
+// Usage
+const doc = "Long document text...";
+const chunks = chunkText(doc);
+console.log(`Created ${chunks.length} chunks`);
+```
+
+---
+
+# Embeddings
+
+**What are Embeddings?**
+- Vector representation of text
+- Semantic meaning encoded
+- Similar text → similar vectors
+
+**Common Models**
+- OpenAI: text-embedding-3-small/large
+- Open source: sentence-transformers
+- Specialized: domain-specific models
+
+**Dimensions**: 384 to 3072+
+
+---
+
+# Python: Generate Embeddings
+
+```python
+from openai import OpenAI
+
+client = OpenAI()
+
+def get_embedding(text, model="text-embedding-3-small"):
+    response = client.embeddings.create(
+        input=text,
+        model=model
+    )
+    return response.data[0].embedding
+
+# Usage
+text = "Machine learning is fascinating"
+embedding = get_embedding(text)
+print(f"Embedding size: {len(embedding)}")
+# Output: 1536 dimensions
+```
+
+---
+
+# TypeScript: Generate Embeddings
+
+```typescript
+import OpenAI from "openai";
+
+const openai = new OpenAI();
+
+async function getEmbedding(
+  text: string,
+  model = "text-embedding-3-small"
+): Promise<number[]> {
+  const response = await openai.embeddings.create({
+    input: text,
+    model: model
+  });
+  return response.data[0].embedding;
+}
+
+// Usage
+const text = "Machine learning is fascinating";
+const embedding = await getEmbedding(text);
+console.log(`Embedding size: ${embedding.length}`);
+```
+
+---
+
+# Vector Similarity
+
+**Cosine Similarity**
+```python
+import numpy as np
+
+def cosine_similarity(vec1, vec2):
+    dot_product = np.dot(vec1, vec2)
+    norm1 = np.linalg.norm(vec1)
+    norm2 = np.linalg.norm(vec2)
+    return dot_product / (norm1 * norm2)
+
+# Compare embeddings
+sim = cosine_similarity(embedding1, embedding2)
+print(f"Similarity: {sim:.3f}")  # 0.0 to 1.0
+```
+
+**High similarity** = semantically similar
 
 ---
 
 # Vector Databases
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│                 VECTOR DATABASE OPTIONS                      │
-├──────────────────────────────────────────────────────────────┤
-│                                                              │
-│  LIGHTWEIGHT (Getting Started)                               │
-│  • ChromaDB - Simple, local, great for prototyping           │
-│  • LanceDB - Local, integrated with pandas/arrow             │
-│  • SQLite + pgvector - Minimal infrastructure                │
-│                                                              │
-│  PRODUCTION SCALE                                            │
-│  • Pinecone - Managed, fast, scales well                     │
-│  • Weaviate - Open source, feature-rich                      │
-│  • Qdrant - Open source, fast, Rust-based                    │
-│  • Milvus - Open source, very scalable                       │
-│                                                              │
-│  EXISTING INFRASTRUCTURE                                     │
-│  • PostgreSQL + pgvector - If you use Postgres               │
-│  • Elasticsearch - If you use ES                             │
-│  • Redis - If you use Redis                                  │
-│                                                              │
-└──────────────────────────────────────────────────────────────┘
-```
+**Purpose**: Efficient similarity search
+
+**Popular Options**
+
+| Database | Type | Best For |
+|----------|------|----------|
+| Pinecone | Cloud | Scale |
+| Weaviate | Open/Cloud | Features |
+| Chroma | Embedded | Dev/Test |
+| FAISS | Library | Speed |
+| Qdrant | Open/Cloud | Balance |
 
 ---
 
-<!-- _class: lead -->
-# Chunking Strategies
-
----
-
-# Why Chunking Matters
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     CHUNKING IMPACT                         │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  TOO SMALL              JUST RIGHT              TOO LARGE   │
-│  ──────────             ──────────              ─────────   │
-│  ┌─────┐                ┌──────────┐            [Entire     │
-│  │ The │                │ Product  │             document   │
-│  └─────┘                │ supports │             with       │
-│  ┌────────┐             │ Slack,   │             everything]│
-│  │product │             │ GitHub,  │                        │
-│  └────────┘             │ Jira     │            Problems:   │
-│  ...                    └──────────┘            • Diluted   │
-│                                                 • Expensive │
-│  Problems:                                      • Too much  │
-│  • Loses context                                            │
-│  • Fragments meaning                                        │
-│  • Many irrelevant matches                                  │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-# Chunking Strategy 1: Fixed Size
-
-**Simple but effective**
+# Chroma DB Setup
 
 ```python
-def fixed_size_chunks(
-    text: str,
-    chunk_size: int = 500,
-    overlap: int = 50
-) -> List[str]:
-    chunks = []
-    start = 0
+import chromadb
 
-    while start < len(text):
-        end = start + chunk_size
+# Create client
+client = chromadb.Client()
 
-        # Find sentence boundary
-        if end < len(text):
-            for sep in ['. ', '.\n', '\n\n']:
-                last_sep = text[start:end].rfind(sep)
-                if last_sep > chunk_size * 0.5:
-                    end = start + last_sep + len(sep)
-                    break
+# Create collection
+collection = client.create_collection(
+    name="my_docs",
+    metadata={"description": "Document collection"}
+)
 
-        chunks.append(text[start:end].strip())
-        start = end - overlap
+# Add documents
+collection.add(
+    documents=["Text 1", "Text 2", "Text 3"],
+    metadatas=[{"source": "doc1"}, ...],
+    ids=["id1", "id2", "id3"]
+)
 
-    return chunks
+# Query
+results = collection.query(
+    query_texts=["search query"],
+    n_results=5
+)
 ```
 
 ---
 
-# Chunking Strategy 2: Semantic
-
-**Group semantically similar sentences**
+# Pinecone Setup
 
 ```python
-def semantic_chunks(
-    text: str,
-    embedding_func,
-    similarity_threshold: float = 0.8
-) -> List[str]:
-    sentences = split_into_sentences(text)
-    embeddings = [embedding_func(s) for s in sentences]
+from pinecone import Pinecone
 
-    chunks = []
-    current_chunk = [sentences[0]]
+# Initialize
+pc = Pinecone(api_key="...")
+index = pc.Index("my-index")
 
-    for i in range(1, len(sentences)):
-        similarity = cosine_similarity(
-            embeddings[i-1],
-            embeddings[i]
+# Upsert vectors
+index.upsert(vectors=[
+    ("id1", embedding1, {"text": "...", "source": "..."}),
+    ("id2", embedding2, {"text": "...", "source": "..."})
+])
+
+# Query
+results = index.query(
+    vector=query_embedding,
+    top_k=5,
+    include_metadata=True
+)
+
+for match in results['matches']:
+    print(f"Score: {match['score']}")
+    print(f"Text: {match['metadata']['text']}")
+```
+
+---
+
+# Building RAG System
+
+**Step 1: Index Documents**
+```python
+def index_documents(docs, collection):
+    for i, doc in enumerate(docs):
+        # Chunk
+        chunks = chunk_text(doc)
+        
+        # Embed
+        embeddings = [get_embedding(c) for c in chunks]
+        
+        # Store
+        collection.add(
+            documents=chunks,
+            embeddings=embeddings,
+            ids=[f"doc{i}_chunk{j}" for j in range(len(chunks))]
         )
-
-        if similarity > similarity_threshold:
-            current_chunk.append(sentences[i])
-        else:
-            chunks.append(' '.join(current_chunk))
-            current_chunk = [sentences[i]]
-
-    return chunks
 ```
 
 ---
 
-# Chunking Strategy 3: Structure-Aware (Code)
-
-**Respect code structure**
+# RAG: Retrieval Step
 
 ```python
-def chunk_python_code(code: str) -> List[Dict]:
-    chunks = []
-    tree = ast.parse(code)
-
-    for node in ast.walk(tree):
-        if isinstance(node, ast.FunctionDef):
-            chunk = {
-                'type': 'function',
-                'name': node.name,
-                'content': ast.get_source_segment(code, node),
-                'line_start': node.lineno,
-                'line_end': node.end_lineno
-            }
-            chunks.append(chunk)
-
-        elif isinstance(node, ast.ClassDef):
-            chunk = {
-                'type': 'class',
-                'name': node.name,
-                'content': ast.get_source_segment(code, node),
-                # ...
-            }
-            chunks.append(chunk)
-
-    return chunks
+def retrieve_context(query, collection, k=3):
+    # Get query embedding
+    query_embedding = get_embedding(query)
+    
+    # Search
+    results = collection.query(
+        query_embeddings=[query_embedding],
+        n_results=k
+    )
+    
+    # Extract documents
+    docs = results['documents'][0]
+    return docs
 ```
 
 ---
 
-# Chunking Best Practices
-
-**General Guidelines:**
-- Chunk size: 200-1000 tokens (depends on embedding model)
-- Overlap: 10-20% to maintain context
-- Preserve sentence/paragraph boundaries
-- Include relevant metadata with each chunk
-
-**For Code:**
-- Chunk by logical units (functions, classes)
-- Include function signatures in metadata
-- Preserve import statements context
-
-**For Documentation:**
-- Respect heading hierarchy
-- Keep related sections together
-- Include heading context in each chunk
-
----
-
-# Metadata Enrichment
+# RAG: Generation Step
 
 ```python
-@dataclass
-class ChunkMetadata:
-    source: str              # File path or document ID
-    chunk_index: int         # Position in original
-    total_chunks: int        # Total from this source
-    doc_type: str           # 'code', 'docs', 'conversation'
-
-    # For code
-    language: Optional[str]
-    function_name: Optional[str]
-    class_name: Optional[str]
-
-    # For documents
-    heading: Optional[str]
-    section: Optional[str]
-
-def enrich_chunks(chunks: List[str], source: str) -> List[Tuple]:
-    enriched = []
-    for i, chunk in enumerate(chunks):
-        metadata = ChunkMetadata(
-            source=source,
-            chunk_index=i,
-            total_chunks=len(chunks),
-            doc_type="code"
-        )
-        enriched.append((chunk, metadata.to_dict()))
-    return enriched
-```
-
----
-
-<!-- _class: lead -->
-# RAG Pitfalls & Solutions
-
----
-
-# Common RAG Failures
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│                   COMMON RAG FAILURES                        │
-├──────────────────────────────────────────────────────────────┤
-│                                                              │
-│  1. RETRIEVAL FAILURES                                       │
-│     ├── Wrong documents retrieved                            │
-│     ├── Relevant documents missed                            │
-│     ├── Too many irrelevant results                          │
-│     └── Semantic gap between query and documents             │
-│                                                              │
-│  2. GENERATION FAILURES                                      │
-│     ├── LLM ignores retrieved context                        │
-│     ├── LLM contradicts retrieved context                    │
-│     ├── LLM extrapolates beyond context                      │
-│     └── Answer format doesn't match query intent             │
-│                                                              │
-│  3. SYSTEM FAILURES                                          │
-│     ├── Stale/outdated index                                 │
-│     ├── Chunking destroys important context                  │
-│     ├── Embedding quality issues                             │
-│     └── Latency too high for use case                        │
-│                                                              │
-└──────────────────────────────────────────────────────────────┘
-```
-
----
-
-# RAG Debugging Checklist
-
-**If Answers Are Wrong:**
-1. Check retrieved documents - are they relevant?
-2. Check if answer is in retrieved docs at all
-3. Try different number of retrieved docs (k)
-4. Examine embedding similarity scores
-5. Test query reformulation
-
-**If Retrieval Is Poor:**
-1. Check chunk sizes - too small/large?
-2. Verify embeddings are working correctly
-3. Test with exact phrase from document
-4. Consider hybrid search (vector + keyword)
-
----
-
-# Advanced: Hybrid Search
-
-Combine **vector search** + **keyword search** (BM25)
-
-```python
-class HybridSearch:
-    def search(
-        self,
-        query: str,
-        k: int = 10,
-        vector_weight: float = 0.7,
-        bm25_weight: float = 0.3
-    ) -> List[Dict]:
-        # Vector search
-        vector_results = self.vector_store.query(query, k*2)
-
-        # BM25 search
-        bm25_scores = self.bm25.get_scores(query)
-
-        # Combine scores
-        combined_scores = (
-            vector_weight * normalize(vector_results) +
-            bm25_weight * normalize(bm25_scores)
-        )
-
-        return top_k(combined_scores, k)
-```
-
----
-
-# Improving Retrieval Quality
-
-**Query Rewriting:**
-```
-Original query: "How to fix error?"
-
-Rewritten: "What are the steps to troubleshoot and resolve
-            the following error: [error details]"
-```
-
-**Hypothetical Document Embeddings (HyDE):**
-```
-Query: "How does authentication work?"
-
-Generate hypothetical answer → Embed that → Search
-(Matches better with actual documents)
-```
-
-**Query Expansion:**
-```
-Query: "Python async"
-
-Expanded: "Python async await asyncio coroutines"
-```
-
----
-
-<!-- _class: lead -->
-# Evaluation Fundamentals
-
----
-
-# Why Evaluate?
-
-**You can't improve what you don't measure**
-
-```
-Without Evaluation:
-"The RAG system seems to work... I think?"
-
-With Evaluation:
-"Retrieval precision: 0.85
- Answer relevance: 0.78
- Faithfulness: 0.92
- → Focus improvement on answer relevance"
-```
-
-**Benefits:**
-- Quantify improvements
-- Compare approaches objectively
-- Catch regressions
-- Build confidence for production
-
----
-
-# Key RAG Metrics
-
-| Metric | What It Measures | Good Score |
-|--------|------------------|------------|
-| **Retrieval Precision** | % of retrieved docs that are relevant | > 0.8 |
-| **Retrieval Recall** | % of relevant docs that are retrieved | > 0.7 |
-| **Answer Relevance** | Does answer address the question? | > 0.8 |
-| **Faithfulness** | Is answer grounded in context? | > 0.9 |
-| **Context Relevance** | Are retrieved docs relevant? | > 0.7 |
-
----
-
-# Faithfulness Metric
-
-**Does the answer stay true to the retrieved context?**
-
-```python
-def evaluate_faithfulness(
-    answer: str,
-    context: str,
-    llm_client
-) -> float:
-    """Check if answer is supported by context."""
-
+def generate_answer(query, context_docs):
+    # Build prompt with context
+    context = "\n\n".join(context_docs)
+    
     prompt = f"""
-Given this context:
+Answer based on the following context.
+
+Context:
 {context}
 
-And this answer:
-{answer}
+Question: {query}
 
-For each statement in the answer, determine if it is
-supported by the context. Return a score from 0-1.
-
-Score:"""
-
-    score = llm_client.chat(prompt)
-    return float(score)
-```
-
-**Key insight**: Use LLM-as-judge for qualitative metrics!
-
----
-
-# Answer Relevance Metric
-
-**Does the answer actually address the question?**
-
-```python
-def evaluate_relevance(
-    question: str,
-    answer: str,
-    llm_client
-) -> float:
-    """Check if answer is relevant to question."""
-
-    prompt = f"""
-Question: {question}
-Answer: {answer}
-
-Does the answer directly address the question?
-Rate from 0 (not relevant) to 1 (perfectly relevant).
-
-Consider:
-- Does it answer what was asked?
-- Is it complete?
-- Is it focused?
-
-Score:"""
-
-    score = llm_client.chat(prompt)
-    return float(score)
+Answer:"""
+    
+    # Generate
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}]
+    )
+    
+    return response.choices[0].message.content
 ```
 
 ---
 
-# Building an Eval Dataset
-
-**Golden dataset structure:**
+# Complete RAG Pipeline
 
 ```python
-@dataclass
-class EvalExample:
-    question: str
-    ground_truth_answer: str
-    relevant_doc_ids: List[str]  # Which docs should be retrieved
-    metadata: Dict
-
-# Example
-examples = [
-    EvalExample(
-        question="How do I reset my password?",
-        ground_truth_answer="Click 'Forgot Password' on login page...",
-        relevant_doc_ids=["doc_123", "doc_456"],
-        metadata={"category": "authentication"}
-    ),
-    # ... more examples
-]
-```
-
-**Tips:**
-- Start with 20-50 examples
-- Cover common query types
-- Include edge cases
-- Update as system evolves
-
----
-
-# Running Evaluations
-
-```python
-class RAGEvaluator:
-    def evaluate(
-        self,
-        rag_system: RAGSystem,
-        eval_dataset: List[EvalExample]
-    ) -> Dict[str, float]:
-        results = {
-            "retrieval_precision": [],
-            "answer_relevance": [],
-            "faithfulness": []
-        }
-
-        for example in eval_dataset:
-            # Run RAG system
-            retrieved = rag_system.retrieve(example.question)
-            answer = rag_system.generate(example.question, retrieved)
-
-            # Evaluate
-            results["retrieval_precision"].append(
-                self.calc_precision(retrieved, example.relevant_doc_ids)
-            )
-            results["answer_relevance"].append(
-                self.eval_relevance(example.question, answer)
-            )
-            results["faithfulness"].append(
-                self.eval_faithfulness(answer, retrieved)
-            )
-
-        # Aggregate
-        return {k: sum(v)/len(v) for k, v in results.items()}
-```
-
----
-
-# Debugging with Observability
-
-**What to log:**
-
-```python
-@dataclass
-class RAGTrace:
-    query: str
-    query_embedding: List[float]
-    retrieved_docs: List[Dict]
-    retrieval_scores: List[float]
-    context_sent_to_llm: str
-    llm_response: str
-    latency_ms: float
-    timestamp: datetime
+def rag_pipeline(query, collection):
+    # 1. Retrieve relevant docs
+    context_docs = retrieve_context(query, collection, k=3)
+    
+    # 2. Generate answer
+    answer = generate_answer(query, context_docs)
+    
+    return {
+        "answer": answer,
+        "sources": context_docs
+    }
 
 # Usage
-trace = rag_system.run_with_tracing(query)
-
-# Analyze
-if trace.retrieval_scores[0] < 0.6:
-    print("Low retrieval confidence!")
-
-if trace.latency_ms > 2000:
-    print("Slow response!")
+result = rag_pipeline(
+    "What is machine learning?",
+    collection
+)
+print(result["answer"])
+print("\nSources:", result["sources"])
 ```
 
 ---
 
-# Observability Tools
+# Advanced RAG: Hybrid Search
 
-| Tool | Purpose |
-|------|---------|
-| **LangSmith** | LangChain-native tracing |
-| **Weights & Biases** | Experiment tracking |
-| **Arize Phoenix** | Open-source observability |
-| **Helicone** | LLM request monitoring |
-| **Custom logging** | Full control |
-
----
-
-# Common Evaluation Pitfalls
-
-**Pitfall 1: Overfitting to eval set**
-- Use separate train/eval/test splits
-- Rotate eval examples regularly
-
-**Pitfall 2: Not testing edge cases**
-- Include queries with no answer
-- Test with misleading context
-- Test with conflicting information
-
-**Pitfall 3: Ignoring latency**
-- 99% accuracy but 10s latency = unusable
-- Balance quality vs speed
-
----
-
-# Lab 04: RAG System with Evaluation
-
-**Project: Code Q&A System**
-
-You'll build:
-- Document chunking for code files
-- Vector store integration (ChromaDB)
-- RAG pipeline for Q&A
-- Evaluation metrics and dataset
-- Performance monitoring
-
-```bash
-# Navigate to the lab
-cd labs/lab04-rag-system
-
-# Read the instructions
-cat README.md
-```
-
----
-
-# Day 4 Key Takeaways
-
-1. **RAG = Retrieval + Generation** - Ground LLMs in your data
-2. **Chunking is critical** - Bad chunks = bad retrieval
-3. **Evaluate everything** - Measure to improve
-4. **Faithfulness matters** - Prevent hallucinations
-5. **Observability is key** - Log, trace, debug
-
----
-
-# Evaluation Checklist
-
-By now you should have:
-
-- [ ] Golden eval dataset (20+ examples)
-- [ ] Retrieval metrics (precision, recall)
-- [ ] Generation metrics (relevance, faithfulness)
-- [ ] Observability/tracing setup
-- [ ] Performance benchmarks
-
----
-
-# What's Next: Day 5
-
-**Production & Capstone**
-
-- Rate limiting and caching
-- Security (prompt injection defense)
-- Cost management
-- Deployment strategies
-- Final capstone project
-
----
-
-<!-- Day 4 New Slides: Testing Strategies -->
-
-<!-- Insert after Evaluation section, before Observability -->
-
----
-
-<!-- _class: lead -->
-# Testing Strategies for AI
-## **NEW**: CI/CD for LLM Applications
-
----
-
-# The AI Testing Challenge
-
-**Traditional testing assumptions:**
-- Deterministic outputs
-- Clear pass/fail criteria
-- Fast, repeatable tests
-
-**AI testing reality:**
-- Non-deterministic outputs
-- Fuzzy success criteria
-- Slow, expensive tests
-
-**Solution:** AI Testing Pyramid
-
----
-
-# AI Testing Pyramid
-
-```
-        ┌─────────────┐
-        │   E2E Tests │  ← Few, expensive, manual
-        │   (Manual)  │
-        └─────────────┘
-      ┌───────────────────┐
-      │ Integration Tests │  ← Some, moderate cost
-      │  (Real LLM Calls) │
-      └───────────────────┘
-    ┌─────────────────────────┐
-    │   Component Tests       │  ← Many, fast, cheap
-    │   (Mocked LLM)          │
-    └─────────────────────────┘
-  ┌───────────────────────────────┐
-  │      Unit Tests               │  ← Most tests here
-  │  (No AI, pure logic)          │
-  └───────────────────────────────┘
-```
-
----
-
-# Level 1: Unit Tests
-
-Test everything **except** the LLM:
+**Combine multiple retrieval methods**
 
 ```python
-def test_extract_code_blocks():
-    """Test code extraction logic."""
-    text = "Here's code:\n```python\nprint('hi')\n```"
-    blocks = extract_code_blocks(text)
-
-    assert len(blocks) == 1
-    assert blocks[0] == "print('hi')"
-
-def test_chunk_text_respects_max_size():
-    """Test chunking stays under limits."""
-    text = "word " * 1000
-    chunks = chunk_text(text, max_tokens=100)
-
-    for chunk in chunks:
-        assert len(chunk.split()) <= 130  # ~1.3 tokens/word
+def hybrid_search(query, collection):
+    # 1. Semantic search (embeddings)
+    semantic_results = collection.query(
+        query_embeddings=[get_embedding(query)],
+        n_results=10
+    )
+    
+    # 2. Keyword search (BM25)
+    keyword_results = bm25_search(query, collection)
+    
+    # 3. Combine scores (weighted)
+    combined = merge_results(
+        semantic_results, 
+        keyword_results,
+        weights=[0.7, 0.3]
+    )
+    
+    return combined[:5]
 ```
-
-**Fast, cheap, reliable!**
 
 ---
 
-# Level 2: Component Tests with Mocks
+# Advanced RAG: Re-ranking
 
-Mock LLM responses for consistency:
+**Improve retrieval quality**
 
 ```python
-def test_agent_extracts_issues(mock_llm):
-    """Agent should parse issues from LLM response."""
-    # Setup: Define what LLM returns
-    mock_llm.complete.return_value = """
+from sentence_transformers import CrossEncoder
+
+reranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
+
+def rerank_results(query, docs):
+    # Score each doc
+    pairs = [[query, doc] for doc in docs]
+    scores = reranker.predict(pairs)
+    
+    # Sort by score
+    ranked = sorted(
+        zip(docs, scores),
+        key=lambda x: x[1],
+        reverse=True
+    )
+    
+    return [doc for doc, score in ranked]
+```
+
+---
+
+# Advanced RAG: Query Expansion
+
+**Generate alternative queries**
+
+```python
+def expand_query(query):
+    prompt = f"""
+Generate 3 alternative phrasings of this query:
+"{query}"
+
+Format: one per line
+"""
+    response = llm(prompt)
+    expanded = response.split('\n')
+    return [query] + expanded
+
+# Retrieve with all variants
+def multi_query_retrieve(query, collection):
+    queries = expand_query(query)
+    all_docs = []
+    for q in queries:
+        docs = retrieve_context(q, collection, k=2)
+        all_docs.extend(docs)
+    return deduplicate(all_docs)
+```
+
+---
+
+# Advanced RAG: Parent-Child
+
+**Store chunks, retrieve parents**
+
+```python
+# Index with hierarchy
+collection.add(
+    documents=chunks,
+    embeddings=chunk_embeddings,
+    metadatas=[{
+        "parent_id": parent_doc_id,
+        "chunk_index": i
+    } for i in range(len(chunks))]
+)
+
+# Retrieve chunks, return full docs
+def parent_document_retrieve(query, collection):
+    # Find matching chunks
+    results = collection.query(query_embeddings=[...], n_results=5)
+    
+    # Get parent IDs
+    parent_ids = {m['parent_id'] for m in results['metadatas'][0]}
+    
+    # Return full parent documents
+    return [get_full_doc(pid) for pid in parent_ids]
+```
+
+---
+
+# LangChain RAG
+
+```python
+from langchain.vectorstores import Chroma
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.chains import RetrievalQA
+from langchain_openai import ChatOpenAI
+
+# Create vector store
+embeddings = OpenAIEmbeddings()
+vectorstore = Chroma.from_documents(
+    documents=docs,
+    embedding=embeddings
+)
+
+# Create retrieval chain
+qa_chain = RetrievalQA.from_chain_type(
+    llm=ChatOpenAI(model="gpt-4o"),
+    chain_type="stuff",
+    retriever=vectorstore.as_retriever(search_kwargs={"k": 3})
+)
+
+# Query
+answer = qa_chain.run("What is machine learning?")
+```
+
+---
+
+# LlamaIndex RAG
+
+```python
+from llama_index import VectorStoreIndex, SimpleDirectoryReader
+from llama_index.llms import OpenAI
+
+# Load documents
+documents = SimpleDirectoryReader('docs/').load_data()
+
+# Create index
+index = VectorStoreIndex.from_documents(documents)
+
+# Query
+query_engine = index.as_query_engine(
+    llm=OpenAI(model="gpt-4o"),
+    similarity_top_k=3
+)
+
+response = query_engine.query("What is machine learning?")
+print(response)
+```
+
+---
+
+# Evaluation: Why It Matters
+
+**Challenges**
+- Subjective quality
+- Many "correct" answers
+- Context-dependent
+- Hard to automate
+
+**Need For**
+- Confidence in production
+- Iteration guidance
+- Regression detection
+- Performance tracking
+
+---
+
+# Evaluation Categories
+
+**1. Component-Level**
+- Retrieval quality
+- Generation quality
+- End-to-end
+
+**2. Metrics**
+- Accuracy
+- Relevance
+- Faithfulness
+- Completeness
+
+**3. Methods**
+- Unit tests
+- LLM-as-judge
+- Human evaluation
+
+---
+
+# Retrieval Evaluation
+
+**Metrics**
+
+| Metric | Definition | Good Value |
+|--------|------------|------------|
+| Precision@K | Relevant in top K | >0.8 |
+| Recall@K | Found relevant | >0.7 |
+| MRR | Mean reciprocal rank | >0.8 |
+| NDCG | Ranking quality | >0.7 |
+
+---
+
+# Python: Retrieval Metrics
+
+```python
+def precision_at_k(retrieved, relevant, k):
+    """Precision in top K results"""
+    top_k = retrieved[:k]
+    relevant_in_k = len(set(top_k) & set(relevant))
+    return relevant_in_k / k
+
+def recall_at_k(retrieved, relevant, k):
+    """Recall in top K results"""
+    top_k = retrieved[:k]
+    relevant_in_k = len(set(top_k) & set(relevant))
+    return relevant_in_k / len(relevant)
+
+# Example
+retrieved = ["doc1", "doc5", "doc2", "doc8"]
+relevant = ["doc1", "doc2", "doc3"]
+
+print(f"P@3: {precision_at_k(retrieved, relevant, 3):.2f}")
+print(f"R@3: {recall_at_k(retrieved, relevant, 3):.2f}")
+```
+
+---
+
+# Generation Evaluation
+
+**Metrics**
+- **Faithfulness**: Answer grounded in context?
+- **Relevance**: Addresses the question?
+- **Completeness**: Covers all aspects?
+- **Conciseness**: No unnecessary info?
+
+**Methods**
+- Exact match (limited use)
+- Semantic similarity
+- LLM-as-judge
+- Human annotation
+
+---
+
+# LLM-as-Judge
+
+**Use LLM to evaluate outputs**
+
+```python
+def llm_judge(question, context, answer):
+    prompt = f"""
+Evaluate this answer on a scale of 1-5:
+
+Question: {question}
+Context: {context}
+Answer: {answer}
+
+Criteria:
+1. Faithfulness (grounded in context)
+2. Relevance (addresses question)
+3. Completeness
+
+Provide scores as JSON: {{"faithful": X, "relevant": X, ...}}
+"""
+    
+    response = llm(prompt)
+    return json.loads(response)
+```
+
+---
+
+# Python: Semantic Similarity
+
+```python
+from sklearn.metrics.pairwise import cosine_similarity
+
+def semantic_similarity_score(predicted, reference):
+    # Get embeddings
+    pred_emb = get_embedding(predicted)
+    ref_emb = get_embedding(reference)
+    
+    # Compute similarity
+    similarity = cosine_similarity(
+        [pred_emb], 
+        [ref_emb]
+    )[0][0]
+    
+    return similarity
+
+# Example
+pred = "Paris is the capital of France"
+ref = "The capital of France is Paris"
+score = semantic_similarity_score(pred, ref)
+print(f"Similarity: {score:.3f}")
+```
+
+---
+
+# RAGAS Framework
+
+**RAG Assessment Framework**
+
+```python
+from ragas import evaluate
+from ragas.metrics import (
+    faithfulness,
+    answer_relevancy,
+    context_precision,
+    context_recall
+)
+
+# Prepare dataset
+dataset = {
+    "question": [...],
+    "answer": [...],
+    "contexts": [...],
+    "ground_truth": [...]
+}
+
+# Evaluate
+results = evaluate(
+    dataset,
+    metrics=[
+        faithfulness,
+        answer_relevancy,
+        context_precision,
+        context_recall
+    ]
+)
+
+print(results)
+```
+
+---
+
+# Test Dataset Creation
+
+```python
+test_cases = [
     {
-        "issues": ["SQL injection", "Missing validation"],
-        "severity": "high"
+        "question": "What is machine learning?",
+        "contexts": ["ML is a subset of AI...", ...],
+        "ground_truth": "Machine learning is...",
+        "metadata": {"difficulty": "easy", "topic": "basics"}
+    },
+    {
+        "question": "Explain backpropagation",
+        "contexts": ["Backprop is an algorithm...", ...],
+        "ground_truth": "Backpropagation is...",
+        "metadata": {"difficulty": "hard", "topic": "technical"}
     }
-    """
+]
 
-    agent = CodeAnalyzerAgent(llm=mock_llm)
-    result = agent.analyze("def query(id): ...")
-
-    assert len(result.issues) == 2
-    assert "SQL injection" in result.issues[0]
-    assert result.severity == "high"
+# Diverse coverage
+# - Easy, medium, hard
+# - Different topics
+# - Edge cases
+# - Common failures
 ```
-
-**Still fast, tests your code!**
 
 ---
 
-# Level 3: Integration Tests
-
-**Small set** with real LLM calls:
+# Unit Testing RAG Components
 
 ```python
-@pytest.mark.skipif(not os.getenv("API_KEY"), reason="No API key")
-def test_detects_sql_injection(real_agent):
-    """Should detect SQL injection with real LLM."""
-    code = """
-    def get_user(user_id):
-        query = f"SELECT * FROM users WHERE id = {user_id}"
-        return db.execute(query)
-    """
+import pytest
 
-    result = real_agent.analyze(code)
+def test_chunking():
+    text = "A" * 1000
+    chunks = chunk_text(text, chunk_size=100)
+    assert len(chunks) > 0
+    assert all(len(c) <= 100 for c in chunks)
 
-    # Check detection
-    issues_text = " ".join(result.issues).lower()
-    assert "sql" in issues_text or "injection" in issues_text
-    assert result.severity in ["high", "critical"]
+def test_embedding_generation():
+    text = "Test text"
+    emb = get_embedding(text)
+    assert len(emb) == 1536  # Expected dimension
+    assert all(isinstance(x, float) for x in emb)
+
+def test_retrieval():
+    query = "machine learning"
+    docs = retrieve_context(query, collection, k=3)
+    assert len(docs) == 3
+    assert all(isinstance(d, str) for d in docs)
 ```
-
-**Slow, expensive - use sparingly!**
 
 ---
 
-# Level 4: Regression Tests
-
-Prevent **prompt drift** - when changes break existing functionality:
+# Integration Testing
 
 ```python
-def test_security_analysis_regression(real_agent, baselines):
-    """Security analysis consistent with baseline."""
-    code = "def login(u, p): query = f'...{u}...{p}...'"
-    result = real_agent.analyze(code)
+def test_rag_pipeline():
+    # Setup
+    docs = ["ML is...", "AI is...", "DL is..."]
+    collection = setup_collection(docs)
+    
+    # Test query
+    result = rag_pipeline("What is ML?", collection)
+    
+    # Assertions
+    assert "answer" in result
+    assert "sources" in result
+    assert len(result["sources"]) > 0
+    assert "machine learning" in result["answer"].lower()
 
-    current = {
-        "found_sql_injection": "sql" in str(result.issues).lower(),
-        "severity": result.severity
+def test_rag_with_no_results():
+    result = rag_pipeline("asdfasdfasdf", collection)
+    assert "cannot answer" in result["answer"].lower()
+```
+
+---
+
+# Performance Testing
+
+```python
+import time
+
+def test_latency():
+    queries = ["query1", "query2", "query3"]
+    
+    latencies = []
+    for query in queries:
+        start = time.time()
+        rag_pipeline(query, collection)
+        latency = time.time() - start
+        latencies.append(latency)
+    
+    avg_latency = sum(latencies) / len(latencies)
+    assert avg_latency < 2.0  # 2 second SLA
+
+def test_token_usage():
+    result = rag_pipeline_with_tracking("query", collection)
+    assert result["tokens"] < 2000  # Budget limit
+```
+
+---
+
+# Regression Testing
+
+```python
+# Store baseline results
+baseline_results = {
+    "query1": {"score": 0.85, "answer": "..."},
+    "query2": {"score": 0.90, "answer": "..."}
+}
+
+def test_no_regression():
+    for query, expected in baseline_results.items():
+        result = evaluate_rag(query, collection)
+        
+        # Check score hasn't dropped
+        assert result["score"] >= expected["score"] - 0.05
+        
+        # Check semantic similarity
+        similarity = semantic_similarity_score(
+            result["answer"],
+            expected["answer"]
+        )
+        assert similarity > 0.85
+```
+
+---
+
+# A/B Testing Framework
+
+```python
+class ABTest:
+    def __init__(self, variant_a, variant_b):
+        self.variant_a = variant_a
+        self.variant_b = variant_b
+        self.results_a = []
+        self.results_b = []
+    
+    def run(self, query):
+        # Random assignment
+        if random.random() < 0.5:
+            result = self.variant_a.process(query)
+            self.results_a.append(result)
+        else:
+            result = self.variant_b.process(query)
+            self.results_b.append(result)
+        return result
+    
+    def analyze(self):
+        avg_a = np.mean([r["score"] for r in self.results_a])
+        avg_b = np.mean([r["score"] for r in self.results_b])
+        return {"variant_a": avg_a, "variant_b": avg_b}
+```
+
+---
+
+# Human Evaluation
+
+**When to Use**
+- Final quality check
+- Subjective aspects (tone, style)
+- Edge cases
+- Gold standard creation
+
+**Process**
+1. Sample outputs
+2. Create rubric
+3. Multiple annotators
+4. Measure agreement
+5. Aggregate scores
+
+---
+
+# Annotation Interface Example
+
+```python
+def annotation_interface():
+    sample = get_random_sample()
+    
+    print(f"Question: {sample['question']}")
+    print(f"Context: {sample['context']}")
+    print(f"Answer: {sample['answer']}")
+    print("\nRate 1-5:")
+    
+    faithful = int(input("Faithfulness: "))
+    relevant = int(input("Relevance: "))
+    complete = int(input("Completeness: "))
+    
+    return {
+        "sample_id": sample["id"],
+        "faithful": faithful,
+        "relevant": relevant,
+        "complete": complete,
+        "annotator": "user123"
     }
-
-    if test_id not in baselines:
-        baselines[test_id] = current  # First run: save
-        save_baselines(baselines)
-    else:
-        baseline = baselines[test_id]
-        assert current["found_sql_injection"] == baseline["found_sql_injection"]
 ```
 
 ---
 
-# CI/CD Integration
+# Continuous Evaluation
 
-```yaml
-# .github/workflows/test.yml
-jobs:
-  unit-tests:
-    # Run on every commit - fast, free
-    steps:
-      - run: pytest tests/unit/
-
-  integration-tests:
-    # Run on main branch only - expensive
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - run: pytest tests/integration/
-
-  regression-tests:
-    # Nightly only - full baseline check
-    if: github.event_name == 'schedule'
-    steps:
-      - run: pytest tests/regression/
+```python
+class ContinuousEvaluator:
+    def __init__(self, test_suite):
+        self.test_suite = test_suite
+        self.history = []
+    
+    def evaluate_version(self, version, system):
+        results = []
+        for test in self.test_suite:
+            result = system.process(test["query"])
+            score = evaluate(result, test["expected"])
+            results.append(score)
+        
+        avg_score = np.mean(results)
+        self.history.append({
+            "version": version,
+            "score": avg_score,
+            "timestamp": time.time()
+        })
+        return avg_score
 ```
 
 ---
 
-# Testing Strategy by Environment
+# Monitoring in Production
 
-| Environment | Test Type | Coverage |
-|-------------|-----------|----------|
-| **Local Dev** | Unit + Mocked Component | 100% of non-AI logic |
-| **PR Validation** | Unit + 5-10 Integration | Critical paths only |
-| **Main Branch** | Unit + Full Integration | 30-50 real LLM tests |
-| **Nightly** | All + Regression | Full baseline suite |
-| **Pre-Release** | All + Manual E2E | Human verification |
+**Key Metrics**
+- Response latency
+- Token usage
+- Error rates
+- User feedback
+- Retrieval quality
 
----
+```python
+from prometheus_client import Counter, Histogram
 
-# Cost-Effective Testing
+query_counter = Counter('rag_queries_total', 'Total queries')
+latency_histogram = Histogram('rag_latency_seconds', 'Latency')
 
-**Monthly testing costs:**
-
-| Approach | Tests | Cost/Month |
-|----------|-------|------------|
-| **Naive** (all real LLM) | 500 tests × $0.10 | $50,000/month |
-| **Pyramid** (95% mocked) | 25 real × $0.10 | $2,500/month |
-| **+ CI optimization** | 10 per PR | $1,000/month |
-
-**Savings: 98% cost reduction!**
-
----
-
-# Testing Best Practices
-
-1. **Test deterministic parts** - Mock the LLM
-2. **Sample real calls** - 5-10 integration tests per feature
-3. **Use regression baselines** - Track prompt changes
-4. **Version your prompts** - Git commit prompts with code
-5. **Log all LLM calls in tests** - Debug failures faster
-6. **CI for different environments** - Unit always, integration selectively
-7. **Budget for testing** - Set limits on test costs
-
----
-
-# Testing Key Takeaways
-
-1. **AI Testing Pyramid** - Most tests without LLM calls
-2. **Unit test everything** - Parsing, validation, logic
-3. **Mock for component tests** - Fast, repeatable, cheap
-4. **Sparse integration tests** - 10-20 critical paths
-5. **Regression for prompt drift** - Save baselines
-6. **CI/CD optimization** - Different tests for different branches
-7. **98% cost savings** - Smart testing strategy pays off
-
----
-<!-- _class: lead -->
-# Questions?
-
-**Lab 04 awaits!**
-
+@latency_histogram.time()
+def rag_query(query):
+    query_counter.inc()
+    return rag_pipeline(query, collection)
 ```
-cd labs/lab04-rag-system
+
+---
+
+# Error Analysis
+
+```python
+def analyze_failures(results):
+    failures = [r for r in results if r["score"] < 0.5]
+    
+    # Categorize
+    categories = {
+        "retrieval_failure": [],
+        "generation_failure": [],
+        "ambiguous_query": []
+    }
+    
+    for failure in failures:
+        category = classify_failure(failure)
+        categories[category].append(failure)
+    
+    # Report
+    for cat, cases in categories.items():
+        print(f"{cat}: {len(cases)} cases")
+        print(f"Example: {cases[0] if cases else 'None'}")
 ```
+
+---
+
+# Optimization Strategies
+
+**Based on Evaluation Results**
+
+1. **Low Retrieval Recall**
+   - Improve chunking strategy
+   - Try hybrid search
+   - Expand query
+
+2. **Low Faithfulness**
+   - Better prompting
+   - Stronger grounding
+   - Add citations
+
+3. **High Latency**
+   - Smaller embedding model
+   - Reduce top_k
+   - Cache results
+
+---
+
+# Workshop: Build RAG System
+
+**Goal**: Document Q&A system
+
+**Steps**
+1. Collect documents (markdown files)
+2. Chunk and embed
+3. Store in vector DB
+4. Implement retrieval
+5. Generate answers
+6. Evaluate quality
+
+---
+
+# Workshop: Evaluation Suite
+
+**Goal**: Test RAG system quality
+
+**Tasks**
+1. Create test dataset (10+ questions)
+2. Define gold standard answers
+3. Implement metrics
+4. Run evaluation
+5. Analyze results
+6. Iterate improvements
+
+---
+
+# Exercise 1: Basic RAG
+
+```python
+def exercise1():
+    # Load documents
+    docs = load_docs("./data/")
+    
+    # Create collection
+    collection = create_collection(docs)
+    
+    # Test query
+    result = rag_pipeline(
+        "What are transformers?",
+        collection
+    )
+    
+    print(result["answer"])
+    print("Sources:", len(result["sources"]))
+```
+
+---
+
+# Exercise 2: Evaluation
+
+```python
+def exercise2():
+    test_cases = [
+        {"q": "What is AI?", "expected": "..."},
+        {"q": "Explain neural networks", "expected": "..."},
+        # Add more...
+    ]
+    
+    scores = []
+    for test in test_cases:
+        result = rag_pipeline(test["q"], collection)
+        score = evaluate_answer(
+            result["answer"],
+            test["expected"]
+        )
+        scores.append(score)
+    
+    print(f"Average score: {np.mean(scores):.2f}")
+```
+
+---
+
+# Exercise 3: Optimization
+
+**Compare retrieval strategies**
+
+```python
+def exercise3():
+    query = "What are the applications of AI?"
+    
+    # Strategy 1: Simple semantic search
+    result1 = rag_with_semantic_search(query)
+    
+    # Strategy 2: Hybrid search
+    result2 = rag_with_hybrid_search(query)
+    
+    # Strategy 3: Query expansion
+    result3 = rag_with_query_expansion(query)
+    
+    # Evaluate and compare
+    scores = [evaluate(r) for r in [result1, result2, result3]]
+    print("Best strategy:", ["semantic", "hybrid", "expansion"][np.argmax(scores)])
+```
+
+---
+
+# Best Practices Summary
+
+**RAG Design**
+- Appropriate chunk size (test different sizes)
+- Overlap between chunks
+- Good metadata tracking
+- Efficient vector DB
+- Monitor retrieval quality
+
+**Evaluation**
+- Diverse test cases
+- Multiple metrics
+- Automated + human eval
+- Continuous monitoring
+- Regular updates
+
+---
+
+# Common Pitfalls
+
+**RAG Issues**
+- Chunks too large/small
+- Poor retrieval precision
+- Context window overflow
+- Outdated embeddings
+- No source attribution
+
+**Evaluation Issues**
+- Insufficient test coverage
+- Biased test data
+- Ignoring edge cases
+- No baseline comparison
+
+---
+
+# Production Checklist
+
+**Before Launch**
+- [ ] Comprehensive test suite
+- [ ] Retrieval evaluation >80%
+- [ ] Latency under SLA
+- [ ] Error handling
+- [ ] Monitoring setup
+- [ ] Fallback mechanisms
+- [ ] Cost projections
+- [ ] Security review
+
+---
+
+# Advanced Topics
+
+**Beyond Basics**
+- Multi-modal RAG (images, tables)
+- Agents with RAG
+- Streaming RAG responses
+- Federated search
+- Privacy-preserving RAG
+- Graph-based RAG
+
+**Day 5**: Production deployment
+
+---
+
+# Resources
+
+**Tools**
+- Vector DBs: Pinecone, Weaviate, Chroma
+- Frameworks: LangChain, LlamaIndex
+- Evaluation: RAGAS, DeepEval
+
+**Papers**
+- "Retrieval-Augmented Generation for NLP"
+- "Lost in the Middle" (context ordering)
+- "Precise Zero-Shot Dense Retrieval"
+
+---
+
+# Q&A
+
+Questions?
+
+**Tomorrow**: Day 5 - Production Systems
+- Deployment strategies
+- Scaling considerations
+- Security & compliance
+- Monitoring & ops
+
+---
+
+# Thank You
+
+Almost there!
+
+**Homework**
+- Complete RAG system
+- Run evaluation suite
+- Analyze failure cases
+- Prepare for production discussion
+
+Final day tomorrow!
