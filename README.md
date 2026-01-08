@@ -374,6 +374,65 @@ vercel --prod
 
 ---
 
+## 📚 Additional Resources
+
+Expand your learning beyond this 5-day intensive program with our curated collection of resources:
+
+### 🗺️ [Learning Paths](LEARNING-PATHS.md)
+Structured roadmaps for continuing your AI engineering journey. Choose from:
+- **AI Product Engineer** (3-4 months) - Build and ship AI products
+- **AI Infrastructure Engineer** (4-6 months) - Scale AI systems
+- **Research Engineer** (6+ months) - Push the boundaries
+- **AI Consultant/Architect** (3-4 months) - Design AI solutions
+- **Specialized Paths** - Healthcare, Enterprise, Security, and more
+
+### 📖 [Resources & References](RESOURCES.md)
+Comprehensive collection of high-quality resources organized by topic:
+- Official documentation for all major LLM providers
+- Day-by-day resource guides aligned with training content
+- Interactive playgrounds and tutorials
+- Video courses and YouTube channels
+- Essential blogs and newsletters
+- Research papers and datasets
+
+### 🛠️ [Tools & Ecosystem](TOOLS-ECOSYSTEM.md)
+Complete toolkit for building AI applications:
+- LLM providers comparison (Anthropic, OpenAI, Google, open source)
+- Agent frameworks (LangChain, LlamaIndex, AutoGen, CrewAI)
+- Vector databases (Pinecone, Weaviate, Qdrant, ChromaDB)
+- Embedding models (OpenAI, Cohere, open source)
+- Observability and monitoring tools
+- Deployment platforms and infrastructure
+
+### 📄 [Recommended Reading](RECOMMENDED-READING.md)
+Essential papers and articles for AI engineers:
+- **The Foundational 10** - Must-read papers every AI engineer should know
+- Papers organized by topic (Transformers, Prompting, Agents, RAG, Evaluation)
+- Difficulty levels (🟢 Beginner, 🟡 Intermediate, 🔴 Advanced)
+- Technical blog posts from industry leaders
+- 30-day and 90-day reading plans
+
+### 🤝 [Community & Networking](COMMUNITY.md)
+Connect with fellow AI engineers and continue learning:
+- Discord communities (AI Engineer, LangChain, OpenAI, Anthropic)
+- Forums and discussion platforms (Reddit, Hugging Face)
+- Twitter/X accounts to follow
+- Podcasts and YouTube channels
+- Conferences and events (AI Engineer Summit, NeurIPS, ICML)
+- Hackathons and competitions
+- Job boards and hiring platforms
+- Open source contribution opportunities
+
+### 🎯 Next Steps After Training
+
+1. **Choose Your Path**: Review [LEARNING-PATHS.md](LEARNING-PATHS.md) and select a roadmap
+2. **Join Communities**: Connect with others in [COMMUNITY.md](COMMUNITY.md)
+3. **Bookmark Resources**: Save [RESOURCES.md](RESOURCES.md) for quick reference
+4. **Start Reading**: Begin with the Foundational 10 papers in [RECOMMENDED-READING.md](RECOMMENDED-READING.md)
+5. **Explore Tools**: Experiment with new frameworks from [TOOLS-ECOSYSTEM.md](TOOLS-ECOSYSTEM.md)
+
+---
+
 ## License and Usage
 
 This training material is designed for educational purposes. You may:
