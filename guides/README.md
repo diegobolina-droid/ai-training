@@ -6,7 +6,7 @@ Essential resources and guides to help you succeed in the GenAI Engineering Boot
 
 ## 📖 Available Guides
 
-### 🚀 **[Getting Started](./getting-started.md)** *(Coming Soon)*
+### 🚀 **[Getting Started](./getting-started.md)**
 Everything you need to set up your development environment and prepare for the bootcamp.
 - Prerequisites and system requirements
 - Installing required tools
