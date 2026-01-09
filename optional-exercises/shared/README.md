@@ -1,18 +1,18 @@
 # Shared Resources
 
-Este directorio contiene recursos compartidos que pueden ser utilizados por múltiples ejercicios.
+This directory contains shared resources that can be used by multiple exercises.
 
 ---
 
-## Estructura
+## Structure
 
 ```
 shared/
-├── templates/         # Project templates y boilerplates
-├── utils/            # Funciones helper reutilizables
-├── datasets/         # Datos de prueba y ejemplos
-├── docker/           # Configuraciones Docker
-└── scripts/          # Scripts de setup y deployment
+├── templates/         # Project templates and boilerplates
+├── utils/            # Reusable helper functions
+├── datasets/         # Test data and examples
+├── docker/           # Docker configurations
+└── scripts/          # Setup and deployment scripts
 ```
 
 ---
@@ -22,7 +22,7 @@ shared/
 ### Python Utilities
 
 #### `llm_client.py`
-Cliente unificado para múltiples LLM providers:
+Unified client for multiple LLM providers:
 
 ```python
 from shared.utils.llm_client import UnifiedLLMClient
@@ -34,7 +34,7 @@ response = await client.complete("Hello, world!")
 ```
 
 #### `token_counter.py`
-Contador de tokens multi-provider:
+Multi-provider token counter:
 
 ```python
 from shared.utils.token_counter import count_tokens
@@ -44,7 +44,7 @@ cost = calculate_cost(tokens, model="gpt-4")
 ```
 
 #### `embeddings.py`
-Generación de embeddings:
+Embedding generation:
 
 ```python
 from shared.utils.embeddings import get_embeddings
