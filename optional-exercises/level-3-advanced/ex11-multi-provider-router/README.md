@@ -1,11 +1,11 @@
 # Exercise 11: Multi-Provider Router with Optimization
 
-## Descripción
-Router inteligente que selecciona el mejor LLM provider basado en costo, calidad, latencia y disponibilidad.
+## Description
+Intelligent router that selects the best LLM provider based on cost, quality, latency, and availability.
 
-## Objetivos
-- Dynamic routing basado en múltiples criterios
-- Performance tracking por provider
+## Objectives
+- Dynamic routing based on multiple criteria
+- Performance tracking per provider
 - Automatic failover
 - Cost optimization
 - Quality scoring
@@ -287,15 +287,15 @@ async def test_circuit_breaker():
     assert breaker.is_available("failing-provider")
 ```
 
-## Desafíos Extra
+## Extra Challenges
 
 1. **ML-Based Routing**: Train model to predict best provider
 2. **A/B Testing**: Randomly test providers to gather data
 3. **Multi-Region**: Route based on geographic location
 4. **Budget Caps**: Enforce spending limits per provider
 
-## Recursos
+## Resources
 - [Load Balancing Algorithms](https://www.nginx.com/blog/choosing-nginx-plus-load-balancing-techniques/)
 - [Circuit Breaker Pattern](https://martinfowler.com/bliki/CircuitBreaker.html)
 
-**Tiempo**: 6-8h
+**Time**: 6-8h

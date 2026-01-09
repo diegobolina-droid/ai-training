@@ -1,26 +1,26 @@
 # Challenge 01: Build a Cursor Clone
 
-## Descripción
+## Description
 
-Construye tu propia versión simplificada del editor Cursor - un IDE con AI assistance integrado. Este es un proyecto completo que integra múltiples conceptos avanzados.
+Build your own simplified version of Cursor editor - an IDE with integrated AI assistance. This is a complete project that integrates multiple advanced concepts.
 
-**Dificultad**: Expert
-**Tiempo estimado**: 30-40 horas
+**Difficulty**: Expert
+**Estimated time**: 30-40 hours
 **Stack**: Electron + React + Monaco Editor + LLM APIs
 
 ---
 
-## Objetivos del Challenge
+## Challenge Objectives
 
-Al completar este challenge, habrás construido:
+Upon completing this challenge, you will have built:
 
-- ✅ Code editor funcional (basado en Monaco)
+- ✅ Functional code editor (based on Monaco)
 - ✅ AI chat sidebar
 - ✅ Context-aware code completion
 - ✅ Inline AI suggestions
-- ✅ File tree navigation con semantic search
+- ✅ File tree navigation with semantic search
 - ✅ Multi-file context management
-- ✅ Diff viewer para AI changes
+- ✅ Diff viewer for AI changes
 
 ---
 

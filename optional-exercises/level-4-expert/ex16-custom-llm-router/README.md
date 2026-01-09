@@ -1,10 +1,10 @@
 # Exercise 16: Custom LLM Router with ML
 
-## Descripción
-Router avanzado con ML que aprende qué provider usar basado en performance histórica.
+## Description
+Advanced router with ML that learns which provider to use based on historical performance.
 
-## Objetivos
-- Train ML model para routing decisions
+## Objectives
+- Train ML model for routing decisions
 - Collect performance data
 - Optimize cost vs quality tradeoff
 - A/B testing framework
@@ -143,5 +143,5 @@ def find_pareto_optimal(providers, request):
     return pareto
 ```
 
-**Tiempo**: 10-15h
-**Recursos**: [Multi-Armed Bandits](https://lilianweng.github.io/posts/2018-01-23-multi-armed-bandit/)
+**Time**: 10-15h
+**Resources**: [Multi-Armed Bandits](https://lilianweng.github.io/posts/2018-01-23-multi-armed-bandit/)

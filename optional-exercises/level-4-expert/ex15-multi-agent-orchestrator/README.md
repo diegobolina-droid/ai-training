@@ -1,13 +1,13 @@
 # Exercise 15: Multi-Agent Orchestrator System
 
-## Descripción
-Sistema de orquestación para múltiples agentes especializados que colaboran para resolver tareas complejas.
+## Description
+Orchestration system for multiple specialized agents that collaborate to solve complex tasks.
 
-## Objetivos
-- Orchestrate múltiples agentes especializados
-- Implementar communication protocols
-- Manage shared state y memory
-- Prevent infinite loops y deadlocks
+## Objectives
+- Orchestrate multiple specialized agents
+- Implement communication protocols
+- Manage shared state and memory
+- Prevent infinite loops and deadlocks
 - Scale horizontally
 
 ## Architecture
@@ -432,16 +432,16 @@ async def test_loop_prevention():
             break
 ```
 
-## Desafíos
+## Challenges
 
 1. **Distributed Orchestration**: Multi-machine deployment
 2. **Human-in-the-Loop**: Allow human intervention
 3. **Learning System**: Agents improve from past tasks
 4. **Cost Optimization**: Minimize LLM calls
 
-## Recursos
+## Resources
 - [LangGraph Multi-Agent](https://langchain-ai.github.io/langgraph/tutorials/multi-agent/)
 - [AutoGen Framework](https://microsoft.github.io/autogen/)
 - [CrewAI](https://github.com/joaomdmoura/crewAI)
 
-**Tiempo**: 10-12h
+**Time**: 10-12h

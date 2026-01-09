@@ -1,13 +1,13 @@
 # Exercise 18: AI-Powered CI/CD Pipeline
 
-## Descripción
-Pipeline CI/CD inteligente que usa AI para optimizar builds, tests y deployments.
+## Description
+Intelligent CI/CD pipeline that uses AI to optimize builds, tests, and deployments.
 
-## Objetivos
+## Objectives
 - AI-powered test selection
 - Intelligent failure analysis
 - Auto-fix failing tests
-- Code quality gates con LLM
+- Code quality gates with LLM
 - Deployment risk assessment
 
 ## Features
@@ -246,8 +246,8 @@ Expected improvements:
 - Code quality: Catch issues before merge
 - Deployment safety: Risk assessment prevents incidents
 
-**Tiempo**: 15-20h
-**Recursos**: [GitHub Actions](https://docs.github.com/actions), [pytest](https://pytest.org/)
+**Time**: 15-20h
+**Resources**: [GitHub Actions](https://docs.github.com/actions), [pytest](https://pytest.org/)
 
 ---
 

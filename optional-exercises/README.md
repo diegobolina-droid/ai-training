@@ -1,175 +1,175 @@
 # Optional Exercises & Practice Labs
 
-Este directorio contiene ejercicios prácticos opcionales diseñados para profundizar y expandir tus habilidades más allá del programa principal de entrenamiento. Cada ejercicio está diseñado para ser completado de forma independiente y progresiva.
+This directory contains optional practical exercises designed to deepen and expand your skills beyond the main training program. Each exercise is designed to be completed independently and progressively.
 
-## Filosofía de los Ejercicios
+## Exercise Philosophy
 
-Estos laboratorios opcionales están diseñados para:
+These optional labs are designed to:
 
-- **Reforzar conceptos**: Practicar lo aprendido en el programa principal
-- **Explorar casos avanzados**: Ir más allá del material básico
-- **Construir portfolio**: Crear proyectos demostrables para tu carrera
-- **Aprendizaje autodirigido**: Fomentar la investigación independiente
-- **Preparación real**: Simular desafíos de producción reales
+- **Reinforce concepts**: Practice what you learned in the main program
+- **Explore advanced cases**: Go beyond the basic material
+- **Build portfolio**: Create demonstrable projects for your career
+- **Self-directed learning**: Encourage independent research
+- **Real-world preparation**: Simulate real production challenges
 
-## Cómo Usar Este Recurso
+## How to Use This Resource
 
-1. **No son obligatorios**: Completa los que te interesen o necesites
-2. **Sin orden estricto**: Aunque hay niveles, puedes saltar según tu experiencia
-3. **Aprende haciendo**: Intenta resolver antes de ver las soluciones
-4. **Comparte tu trabajo**: Usa estos proyectos en tu portfolio
-5. **Contribuye**: Si mejoras un ejercicio, considera contribuir de vuelta
-
----
-
-## Niveles de Dificultad
-
-### 🟢 Level 1: Foundational (4 ejercicios)
-**Pre-requisito**: Completar Day 1-2 del programa principal
-
-Ejercicios fundamentales para consolidar conceptos básicos de LLMs y prompting.
-
-| Ejercicio | Descripción | Tiempo estimado | Skills |
-|-----------|-------------|-----------------|--------|
-| [Token Counter & Analyzer](./level-1-foundational/ex01-token-counter/) | Construye una herramienta para analizar tokens y costos | 2-3h | Tokenization, API usage |
-| [Hallucination Detector](./level-1-foundational/ex02-hallucination-detector/) | Sistema para detectar y medir alucinaciones | 3-4h | Prompt engineering, Validation |
-| [Prompt Testing Framework](./level-1-foundational/ex03-prompt-tester/) | Framework para A/B testing de prompts | 3-4h | Testing, Metrics |
-| [Cost Calculator Dashboard](./level-1-foundational/ex04-cost-calculator/) | Dashboard interactivo de costos LLM | 2-3h | APIs, Frontend |
-
-**Objetivo**: Dominar los fundamentos técnicos de trabajar con LLMs
+1. **Not mandatory**: Complete the ones that interest you or that you need
+2. **No strict order**: Although there are levels, you can skip around based on your experience
+3. **Learn by doing**: Try to solve before looking at solutions
+4. **Share your work**: Use these projects in your portfolio
+5. **Contribute**: If you improve an exercise, consider contributing back
 
 ---
 
-### 🟡 Level 2: Intermediate (5 ejercicios)
-**Pre-requisito**: Completar Day 2-3 del programa principal
+## Difficulty Levels
 
-Ejercicios intermedios enfocados en aplicaciones prácticas de ingeniería.
+### 🟢 Level 1: Foundational (4 exercises)
+**Prerequisite**: Complete Day 1-2 of the main program
 
-| Ejercicio | Descripción | Tiempo estimado | Skills |
-|-----------|-------------|-----------------|--------|
-| [Semantic Search Engine](./level-2-intermediate/ex05-semantic-search/) | Búsqueda semántica sobre documentación | 4-5h | Embeddings, Vector search |
-| [Auto Code Documenter](./level-2-intermediate/ex06-code-documenter/) | Generador automático de documentación | 4-5h | Code parsing, Prompting |
-| [Intelligent Test Generator](./level-2-intermediate/ex07-test-generator/) | Genera tests unitarios automáticamente | 5-6h | Code analysis, Test patterns |
-| [Git Changelog Generator](./level-2-intermediate/ex08-changelog-generator/) | Genera changelogs inteligentes desde commits | 3-4h | Git integration, Summarization |
-| [Multi-Provider API Wrapper](./level-2-intermediate/ex09-api-wrapper/) | Abstracción unificada de múltiples LLM APIs | 5-6h | API design, Abstraction |
+Fundamental exercises to consolidate basic LLM and prompting concepts.
 
-**Objetivo**: Construir herramientas útiles de productividad para developers
+| Exercise | Description | Estimated time | Skills |
+|----------|-------------|----------------|--------|
+| [Token Counter & Analyzer](./level-1-foundational/ex01-token-counter/) | Build a tool to analyze tokens and costs | 2-3h | Tokenization, API usage |
+| [Hallucination Detector](./level-1-foundational/ex02-hallucination-detector/) | System to detect and measure hallucinations | 3-4h | Prompt engineering, Validation |
+| [Prompt Testing Framework](./level-1-foundational/ex03-prompt-tester/) | Framework for A/B testing prompts | 3-4h | Testing, Metrics |
+| [Cost Calculator Dashboard](./level-1-foundational/ex04-cost-calculator/) | Interactive LLM cost dashboard | 2-3h | APIs, Frontend |
 
----
-
-### 🟠 Level 3: Advanced (5 ejercicios)
-**Pre-requisito**: Completar Day 3-4 del programa principal
-
-Ejercicios avanzados sobre sistemas agentic y RAG optimizado.
-
-| Ejercicio | Descripción | Tiempo estimado | Skills |
-|-----------|-------------|-----------------|--------|
-| [Intelligent Caching System](./level-3-advanced/ex10-intelligent-caching/) | Sistema de caché semántico para LLM calls | 6-7h | Caching, Embeddings |
-| [Multi-Provider Router](./level-3-advanced/ex11-multi-provider-router/) | Router inteligente basado en costo/calidad | 6-8h | Routing logic, Optimization |
-| [Autonomous Debugger Agent](./level-3-advanced/ex12-autonomous-debugger/) | Agente que debuggea código automáticamente | 8-10h | Agents, Tool use |
-| [Code Migration Planner](./level-3-advanced/ex13-code-migration-planner/) | Planifica migraciones de frameworks | 7-9h | Code analysis, Planning |
-| [Custom RAG Evaluator](./level-3-advanced/ex14-custom-rag-evaluator/) | Suite completa de evaluación para RAG | 6-8h | Evaluation, Metrics |
-
-**Objetivo**: Construir sistemas complejos y optimizados para producción
+**Goal**: Master the technical fundamentals of working with LLMs
 
 ---
 
-### 🔴 Level 4: Expert (4 ejercicios)
-**Pre-requisito**: Completar Day 4-5 del programa principal
+### 🟡 Level 2: Intermediate (5 exercises)
+**Prerequisite**: Complete Day 2-3 of the main program
 
-Ejercicios nivel experto sobre arquitecturas complejas y producción.
+Intermediate exercises focused on practical engineering applications.
 
-| Ejercicio | Descripción | Tiempo estimado | Skills |
-|-----------|-------------|-----------------|--------|
-| [Multi-Agent Orchestrator](./level-4-expert/ex15-multi-agent-orchestrator/) | Sistema de orquestación de múltiples agentes | 10-12h | Multi-agent, Orchestration |
-| [Custom LLM Router](./level-4-expert/ex16-custom-llm-router/) | Router con aprendizaje automático | 10-15h | ML, Routing, Analytics |
-| [Production Monitoring System](./level-4-expert/ex17-production-monitoring/) | Sistema completo de observabilidad | 12-15h | Monitoring, Tracing, Alerts |
-| [AI-Powered CI/CD Pipeline](./level-4-expert/ex18-ai-powered-cicd/) | Pipeline CI/CD con análisis AI | 15-20h | DevOps, Automation |
+| Exercise | Description | Estimated time | Skills |
+|----------|-------------|----------------|--------|
+| [Semantic Search Engine](./level-2-intermediate/ex05-semantic-search/) | Semantic search over documentation | 4-5h | Embeddings, Vector search |
+| [Auto Code Documenter](./level-2-intermediate/ex06-code-documenter/) | Automatic documentation generator | 4-5h | Code parsing, Prompting |
+| [Intelligent Test Generator](./level-2-intermediate/ex07-test-generator/) | Automatically generate unit tests | 5-6h | Code analysis, Test patterns |
+| [Git Changelog Generator](./level-2-intermediate/ex08-changelog-generator/) | Generate intelligent changelogs from commits | 3-4h | Git integration, Summarization |
+| [Multi-Provider API Wrapper](./level-2-intermediate/ex09-api-wrapper/) | Unified abstraction for multiple LLM APIs | 5-6h | API design, Abstraction |
 
-**Objetivo**: Dominar arquitecturas enterprise y sistemas de producción
+**Goal**: Build useful productivity tools for developers
 
 ---
 
-## Challenges (Proyectos Mayores)
+### 🟠 Level 3: Advanced (5 exercises)
+**Prerequisite**: Complete Day 3-4 of the main program
 
-Proyectos desafiantes tipo capstone que integran múltiples conceptos.
+Advanced exercises on agentic systems and optimized RAG.
+
+| Exercise | Description | Estimated time | Skills |
+|----------|-------------|----------------|--------|
+| [Intelligent Caching System](./level-3-advanced/ex10-intelligent-caching/) | Semantic cache system for LLM calls | 6-7h | Caching, Embeddings |
+| [Multi-Provider Router](./level-3-advanced/ex11-multi-provider-router/) | Intelligent router based on cost/quality | 6-8h | Routing logic, Optimization |
+| [Autonomous Debugger Agent](./level-3-advanced/ex12-autonomous-debugger/) | Agent that automatically debugs code | 8-10h | Agents, Tool use |
+| [Code Migration Planner](./level-3-advanced/ex13-code-migration-planner/) | Plan framework migrations | 7-9h | Code analysis, Planning |
+| [Custom RAG Evaluator](./level-3-advanced/ex14-custom-rag-evaluator/) | Complete RAG evaluation suite | 6-8h | Evaluation, Metrics |
+
+**Goal**: Build complex systems optimized for production
+
+---
+
+### 🔴 Level 4: Expert (4 exercises)
+**Prerequisite**: Complete Day 4-5 of the main program
+
+Expert-level exercises on complex architectures and production systems.
+
+| Exercise | Description | Estimated time | Skills |
+|----------|-------------|----------------|--------|
+| [Multi-Agent Orchestrator](./level-4-expert/ex15-multi-agent-orchestrator/) | Multi-agent orchestration system | 10-12h | Multi-agent, Orchestration |
+| [Custom LLM Router](./level-4-expert/ex16-custom-llm-router/) | Router with machine learning | 10-15h | ML, Routing, Analytics |
+| [Production Monitoring System](./level-4-expert/ex17-production-monitoring/) | Complete observability system | 12-15h | Monitoring, Tracing, Alerts |
+| [AI-Powered CI/CD Pipeline](./level-4-expert/ex18-ai-powered-cicd/) | CI/CD pipeline with AI analysis | 15-20h | DevOps, Automation |
+
+**Goal**: Master enterprise architectures and production systems
+
+---
+
+## Challenges (Major Projects)
+
+Challenging capstone-type projects that integrate multiple concepts.
 
 ### Challenge 1: Build a Cursor Clone
-**Tiempo**: 30-40 horas | **Dificultad**: Expert
+**Time**: 30-40 hours | **Difficulty**: Expert
 
-Construye tu propia versión simplificada de Cursor IDE:
-- Editor de código con AI assistance
+Build your own simplified version of Cursor IDE:
+- Code editor with AI assistance
 - Context-aware code completion
-- Chat interface para pair programming
-- File tree navigation con semantic search
+- Chat interface for pair programming
+- File tree navigation with semantic search
 
-[Ver detalles →](./challenges/challenge01-build-cursor-clone/)
+[View details →](./challenges/challenge01-build-cursor-clone/)
 
 ---
 
 ### Challenge 2: AI Code Reviewer
-**Tiempo**: 25-35 horas | **Dificultad**: Advanced-Expert
+**Time**: 25-35 hours | **Difficulty**: Advanced-Expert
 
-Sistema completo de code review automatizado:
+Complete automated code review system:
 - GitHub integration (PRs, comments)
-- Análisis multi-dimensional (bugs, security, performance)
-- Sugerencias de mejora con diffs
-- Learning system que mejora con feedback
+- Multi-dimensional analysis (bugs, security, performance)
+- Improvement suggestions with diffs
+- Learning system that improves with feedback
 
-[Ver detalles →](./challenges/challenge02-ai-code-reviewer/)
+[View details →](./challenges/challenge02-ai-code-reviewer/)
 
 ---
 
 ### Challenge 3: Intelligent Search Engine
-**Tiempo**: 35-45 horas | **Dificultad**: Expert
+**Time**: 35-45 hours | **Difficulty**: Expert
 
-Motor de búsqueda inteligente para codebase:
+Intelligent search engine for codebases:
 - Hybrid search (vector + keyword + graph)
 - Natural language queries
 - Code context understanding
 - Real-time indexing
-- Query expansion automático
+- Automatic query expansion
 
-[Ver detalles →](./challenges/challenge03-intelligent-search-engine/)
+[View details →](./challenges/challenge03-intelligent-search-engine/)
 
 ---
 
-## Guía de Selección de Ejercicios
+## Exercise Selection Guide
 
-### Por Objetivo de Aprendizaje
+### By Learning Objective
 
-**Quiero dominar prompting avanzado**:
+**I want to master advanced prompting**:
 - ex02-hallucination-detector
 - ex03-prompt-tester
 - ex06-code-documenter
 - ex13-code-migration-planner
 
-**Quiero trabajar con embeddings y RAG**:
+**I want to work with embeddings and RAG**:
 - ex05-semantic-search
 - ex10-intelligent-caching
 - ex14-custom-rag-evaluator
 - challenge03-intelligent-search-engine
 
-**Quiero construir agentes autónomos**:
+**I want to build autonomous agents**:
 - ex12-autonomous-debugger
 - ex13-code-migration-planner
 - ex15-multi-agent-orchestrator
 - challenge02-ai-code-reviewer
 
-**Quiero optimizar costos y performance**:
+**I want to optimize costs and performance**:
 - ex01-token-counter
 - ex04-cost-calculator
 - ex10-intelligent-caching
 - ex11-multi-provider-router
 - ex16-custom-llm-router
 
-**Quiero construir herramientas de productividad**:
+**I want to build productivity tools**:
 - ex06-code-documenter
 - ex07-test-generator
 - ex08-changelog-generator
 - ex18-ai-powered-cicd
 
-**Quiero preparar sistemas para producción**:
+**I want to prepare systems for production**:
 - ex09-api-wrapper
 - ex11-multi-provider-router
 - ex17-production-monitoring
@@ -177,7 +177,7 @@ Motor de búsqueda inteligente para codebase:
 
 ---
 
-### Por Stack Tecnológico Preferido
+### By Preferred Tech Stack
 
 **Python Enthusiasts**:
 - ex05-semantic-search (FastAPI + Qdrant)
@@ -203,74 +203,74 @@ Motor de búsqueda inteligente para codebase:
 
 ---
 
-## Recursos Compartidos
+## Shared Resources
 
-Todos los ejercicios usan recursos compartidos ubicados en `./shared/`:
+All exercises use shared resources located in `./shared/`:
 
-- **Templates**: Plantillas de código base
-- **Utils**: Funciones helper reutilizables
-- **Datasets**: Datos de prueba y ejemplos
-- **Docker**: Configuraciones Docker compartidas
-- **Scripts**: Scripts de setup y deployment
-
----
-
-## Sistema de Badges
-
-Al completar ejercicios, ganas badges que demuestran tu expertise:
-
-- 🟢 **Foundational Master**: Completa todos los ejercicios Level 1
-- 🟡 **Intermediate Builder**: Completa 4 de 5 ejercicios Level 2
-- 🟠 **Advanced Engineer**: Completa 4 de 5 ejercicios Level 3
-- 🔴 **Expert Architect**: Completa 3 de 4 ejercicios Level 4
-- 🏆 **Challenge Champion**: Completa cualquier Challenge
-- 💎 **Grand Master**: Completa todos los niveles + 2 challenges
-
-Comparte tus badges en LinkedIn o tu portfolio profesional.
+- **Templates**: Base code templates
+- **Utils**: Reusable helper functions
+- **Datasets**: Test data and examples
+- **Docker**: Shared Docker configurations
+- **Scripts**: Setup and deployment scripts
 
 ---
 
-## Contribuir
+## Badge System
 
-¿Mejoraste un ejercicio o creaste uno nuevo? ¡Contribuye!
+By completing exercises, you earn badges that demonstrate your expertise:
 
-1. Fork el repositorio
-2. Crea tu ejercicio siguiendo la estructura existente
-3. Incluye tests y solución de referencia
-4. Submit un Pull Request
+- 🟢 **Foundational Master**: Complete all Level 1 exercises
+- 🟡 **Intermediate Builder**: Complete 4 of 5 Level 2 exercises
+- 🟠 **Advanced Engineer**: Complete 4 of 5 Level 3 exercises
+- 🔴 **Expert Architect**: Complete 3 of 4 Level 4 exercises
+- 🏆 **Challenge Champion**: Complete any Challenge
+- 💎 **Grand Master**: Complete all levels + 2 challenges
 
-**Template para nuevos ejercicios**: [./EXERCISE-TEMPLATE.md](./EXERCISE-TEMPLATE.md)
+Share your badges on LinkedIn or your professional portfolio.
 
 ---
 
-## Soporte y Comunidad
+## Contributing
 
-- **Discord**: Canal `#optional-exercises` para discusión
-- **Office Hours**: Miércoles 4-5pm para resolver dudas
-- **Showcase**: Comparte tus soluciones en `#showcase`
-- **Issues**: Reporta problemas en GitHub Issues
+Did you improve an exercise or create a new one? Contribute!
+
+1. Fork the repository
+2. Create your exercise following the existing structure
+3. Include tests and reference solution
+4. Submit a Pull Request
+
+**Template for new exercises**: [./EXERCISE-TEMPLATE.md](./EXERCISE-TEMPLATE.md)
+
+---
+
+## Support and Community
+
+- **Discord**: `#optional-exercises` channel for discussion
+- **Office Hours**: Wednesdays 4-5pm to answer questions
+- **Showcase**: Share your solutions in `#showcase`
+- **Issues**: Report problems on GitHub Issues
 
 ---
 
 ## FAQ
 
-**¿Debo completar todos los ejercicios?**
-No, son opcionales. Elige los que se alineen con tus objetivos.
+**Should I complete all exercises?**
+No, they're optional. Choose the ones that align with your goals.
 
-**¿Hay soluciones disponibles?**
-Sí, cada ejercicio incluye una solución de referencia, pero intenta resolver primero.
+**Are solutions available?**
+Yes, each exercise includes a reference solution, but try to solve it first.
 
-**¿Puedo usar estos proyectos en mi portfolio?**
-¡Absolutamente! Están diseñados para eso.
+**Can I use these projects in my portfolio?**
+Absolutely! They're designed for that.
 
-**¿Cuánto tiempo debo invertir?**
-Lo que necesites. Algunos completan 2-3 por semana, otros toman más tiempo.
+**How much time should I invest?**
+Whatever you need. Some complete 2-3 per week, others take more time.
 
-**¿Necesito completar el programa principal primero?**
-Recomendado, pero si tienes experiencia previa, puedes empezar directamente.
+**Do I need to complete the main program first?**
+Recommended, but if you have prior experience, you can start directly.
 
 ---
 
-**Navigation**: [← Volver al README principal](../README.md)
+**Navigation**: [← Back to main README](../README.md)
 
-**¡Empecemos a construir! 🚀**
+**Let's start building! 🚀**

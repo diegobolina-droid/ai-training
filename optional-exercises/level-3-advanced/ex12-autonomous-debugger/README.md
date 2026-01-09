@@ -1,14 +1,14 @@
 # Exercise 12: Autonomous Debugger Agent
 
-## Descripción
-Agent autónomo que analiza errores, investiga el código, propone fixes y valida soluciones.
+## Description
+Autonomous agent that analyzes errors, investigates code, proposes fixes, and validates solutions.
 
-## Objetivos
-- Analizar stack traces automáticamente
-- Investigar código relacionado
-- Generar fixes potenciales
-- Validar fixes con tests
-- Iterar hasta solución funcional
+## Objectives
+- Automatically analyze stack traces
+- Investigate related code
+- Generate potential fixes
+- Validate fixes with tests
+- Iterate until functional solution
 
 ## Agent Loop
 
@@ -285,19 +285,19 @@ def test_iterative_debugging():
     assert result.success
 ```
 
-## Desafíos Extra
+## Challenges Extra
 
 1. **Multi-File Bugs**: Debug errors spanning multiple files
 2. **Performance Issues**: Identify and fix performance bugs
 3. **Git Bisect Integration**: Find commit that introduced bug
 4. **Explain Fix**: Generate detailed explanation of fix
 
-## Recursos
+## Resources
 - [LangGraph Documentation](https://langchain-ai.github.io/langgraph/)
 - [ReAct Pattern](https://arxiv.org/abs/2210.03629)
 - [Autonomous Agents](https://lilianweng.github.io/posts/2023-06-23-agent/)
 
-**Tiempo**: 8-10h
+**Time**: 8-10h
 
 ---
 

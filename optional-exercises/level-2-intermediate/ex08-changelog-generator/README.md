@@ -1,13 +1,13 @@
 # Exercise 08: Git Changelog Generator
 
-## Descripción
-Genera changelogs inteligentes y profesionales desde git commits usando LLMs.
+## Description
+Generate intelligent and professional changelogs from git commits using LLMs.
 
-## Objetivos
-- Analizar commits entre versiones
-- Categorizar cambios (features, fixes, breaking)
-- Generar changelog markdown
-- Detectar breaking changes automáticamente
+## Objectives
+- Analyze commits between versions
+- Categorize changes (features, fixes, breaking)
+- Generate changelog markdown
+- Automatically detect breaking changes
 
 ## Quick Implementation
 
@@ -78,9 +78,9 @@ Format:
 - [ ] Release notes generation
 - [ ] GitHub Releases integration
 
-## Desafíos
+## Challenges
 1. Auto-version bumping (semver)
 2. PR description generation
 3. Multi-repo changelog aggregation
 
-**Tiempo**: 3-4h
+**Time**: 3-4h

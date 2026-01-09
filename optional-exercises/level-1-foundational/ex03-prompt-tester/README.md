@@ -1,18 +1,18 @@
 # Exercise 03: Prompt Testing Framework
 
-## Descripción
+## Description
 
-Construye un framework completo para A/B testing de prompts, tracking de performance y optimización sistemática. Esencial para cualquier equipo que use LLMs en producción.
+Build a complete framework for A/B testing prompts, tracking performance, and systematic optimization. Essential for any team using LLMs in production.
 
-## Objetivos de Aprendizaje
+## Learning Objectives
 
-- ✅ Diseñar experimentos de A/B testing para prompts
-- ✅ Definir y medir métricas de calidad
-- ✅ Implementar statistical significance testing
-- ✅ Crear pipelines de evaluación reproducibles
-- ✅ Optimizar prompts basado en datos
+- ✅ Design A/B testing experiments for prompts
+- ✅ Define and measure quality metrics
+- ✅ Implement statistical significance testing
+- ✅ Create reproducible evaluation pipelines
+- ✅ Optimize prompts based on data
 
-## Características Core
+## Core Features
 
 ### 1. Test Runner
 ```python
@@ -24,7 +24,7 @@ class PromptTest:
     async def run(self) -> TestResults
 ```
 
-### 2. Métricas Soportadas
+### 2. Supported Metrics
 - Response quality (LLM-as-judge)
 - Latency
 - Token usage
@@ -38,13 +38,13 @@ class PromptTest:
 - Sample size recommendations
 - Power analysis
 
-### 4. Resultado Reporting
+### 4. Result Reporting
 - Comparison tables
 - Visualization (charts)
 - Winner selection
 - Recommendations
 
-## Implementación Rápida
+## Quick Implementation
 
 ```python
 # Quick start example
@@ -71,17 +71,17 @@ results = await test.run()
 results.show_winner()  # v2 wins (p=0.023)
 ```
 
-## Stack Sugerido
+## Suggested Stack
 
 - Python + FastAPI
-- SQLite/PostgreSQL para resultados
-- Pandas para análisis
-- Plotly para visualizaciones
-- Scipy para statistical tests
+- SQLite/PostgreSQL for results
+- Pandas for analysis
+- Plotly for visualizations
+- Scipy for statistical tests
 
-## Guía de Implementación
+## Implementation Guide
 
-### Paso 1: Core Framework
+### Step 1: Core Framework
 
 ```python
 # core/test_runner.py
@@ -105,7 +105,7 @@ class TestRunner:
         )
 ```
 
-### Paso 2: Metrics System
+### Step 2: Metrics System
 
 ```python
 # metrics/base.py
@@ -130,7 +130,7 @@ class CostMetric(Metric):
         return result.cost
 ```
 
-### Paso 3: Statistical Analysis
+### Step 3: Statistical Analysis
 
 ```python
 # analysis/statistics.py
@@ -154,7 +154,7 @@ def calculate_significance(
     )
 ```
 
-### Paso 4: Results Dashboard
+### Step 4: Results Dashboard
 
 ```python
 # reporting/dashboard.py
@@ -201,26 +201,26 @@ def test_insufficient_sample():
     assert not result.is_significant  # Need more data
 ```
 
-## Desafíos Extra
+## Extra Challenges
 
-1. **Multi-Armed Bandit**: Implementar adaptive testing
+1. **Multi-Armed Bandit**: Implement adaptive testing
 2. **Bayesian A/B Testing**: Alternative to frequentist
 3. **Continuous Evaluation**: Monitor in production
 4. **Auto-optimization**: Suggest prompt improvements
 
-## Recursos
+## Resources
 
 - [Statistical Testing Guide](https://www.statsmodels.org)
 - [Evan Miller's A/B Calculator](https://www.evanmiller.org/ab-testing/)
 - [Prompt Engineering Guide](https://www.promptingguide.ai)
 
-## Entrega
+## Submission
 
-- GitHub repo con framework
-- 3+ example tests ejecutados
+- GitHub repo with framework
+- 3+ example tests executed
 - Statistical analysis report
 - Comparison visualizations
-- Documentation de uso
+- Usage documentation
 
 ---
 

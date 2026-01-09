@@ -1,16 +1,16 @@
 # Exercise 13: Code Migration Planner
 
-## Descripción
-Sistema inteligente para planificar y ejecutar migraciones de código entre frameworks/lenguajes.
+## Description
+Intelligent system to plan and execute code migrations between frameworks/languages.
 
-## Objetivos
-- Analizar codebase completo
-- Generar plan de migración detallado
-- Identificar dependencias y bloqueadores
-- Estimar esfuerzo y riesgos
-- Generar código migrado progresivamente
+## Objectives
+- Analyze complete codebase
+- Generate detailed migration plan
+- Identify dependencies and blockers
+- Estimate effort and risks
+- Generate migrated code progressively
 
-## Casos de Uso
+## Use Cases
 
 - JavaScript → TypeScript
 - React Class Components → Hooks
@@ -358,16 +358,16 @@ def test_validation():
     assert not invalid
 ```
 
-## Desafíos Extra
+## Challenges Extra
 
 1. **AI-Assisted Review**: LLM reviews migrations before applying
 2. **Rollback Mechanism**: Automatic rollback on failures
 3. **Performance Benchmarking**: Compare old vs new performance
 4. **Documentation Migration**: Update docs alongside code
 
-## Recursos
+## Resources
 - [AST (Abstract Syntax Tree)](https://docs.python.org/3/library/ast.html)
 - [NetworkX for Graphs](https://networkx.org/)
 - [Codemod Tools](https://github.com/facebook/codemod)
 
-**Tiempo**: 7-9h
+**Time**: 7-9h

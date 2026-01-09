@@ -1,24 +1,24 @@
 # Challenge 02: AI Code Reviewer
 
-## Descripción
+## Description
 
-Construye un sistema completo de code review automatizado que se integra con GitHub, analiza PRs, detecta issues, y aprende de feedback humano.
+Build a complete automated code review system that integrates with GitHub, analyzes PRs, detects issues, and learns from human feedback.
 
-**Dificultad**: Advanced-Expert
-**Tiempo estimado**: 25-35 horas
+**Difficulty**: Advanced-Expert
+**Estimated time**: 25-35 hours
 **Stack**: Python/Node + GitHub API + LLM + Vector DB
 
 ---
 
-## Objetivos
+## Objectives
 
-Sistema que automáticamente:
-- ✅ Reviews cada Pull Request
-- ✅ Detecta bugs, security issues, performance problems
-- ✅ Sugiere mejoras con diffs
-- ✅ Aprende de code reviews humanos
-- ✅ Se integra con CI/CD
-- ✅ Genera métricas de código
+System that automatically:
+- ✅ Reviews each Pull Request
+- ✅ Detects bugs, security issues, performance problems
+- ✅ Suggests improvements with diffs
+- ✅ Learns from human code reviews
+- ✅ Integrates with CI/CD
+- ✅ Generates code metrics
 
 ---
 

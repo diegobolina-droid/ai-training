@@ -1,33 +1,33 @@
 # Exercise 04: Cost Calculator Dashboard
 
-## Descripción
+## Description
 
-Construye un dashboard interactivo y en tiempo real para monitorear y optimizar costos de LLM APIs. Visualiza usage, predice costos futuros, y genera alertas automáticas.
+Build an interactive, real-time dashboard to monitor and optimize LLM API costs. Visualize usage, predict future costs, and generate automatic alerts.
 
-## Objetivos
+## Objectives
 
 - ✅ Track real-time LLM API costs
-- ✅ Visualize usage patterns y trends
+- ✅ Visualize usage patterns and trends
 - ✅ Predict future costs
 - ✅ Generate cost optimization recommendations
 - ✅ Set up budget alerts
 
-## Features Core
+## Core Features
 
 ### 1. Cost Tracking
-- Log todas las API calls
-- Calculate cost por request
-- Aggregate por proyecto/usuario
+- Log all API calls
+- Calculate cost per request
+- Aggregate by project/user
 - Historical tracking
 
 ### 2. Dashboard
 - Real-time cost display
 - Usage charts (daily/weekly/monthly)
-- Cost breakdown por model
+- Cost breakdown by model
 - Top consumers
 
 ### 3. Predictions
-- Forecast costs próximo mes
+- Forecast next month's costs
 - Identify usage spikes
 - Trend analysis
 
@@ -42,8 +42,8 @@ Construye un dashboard interactivo y en tiempo real para monitorear y optimizar 
 ```bash
 - Next.js 14 (App Router)
 - TailwindCSS + shadcn/ui
-- Recharts para visualizaciones
-- React Query para data fetching
+- Recharts for visualizations
+- React Query for data fetching
 ```
 
 ### Backend
@@ -81,7 +81,7 @@ CREATE TABLE budget_alerts (
 );
 ```
 
-### Cost Calculation Hook
+### Cost Tracking Hook
 
 ```typescript
 // lib/useCostTracking.ts
@@ -277,22 +277,22 @@ describe('Cost Tracking', () => {
 });
 ```
 
-## Desafíos Extra
+## Extra Challenges
 
 1. **Multi-tenant**: Support multiple organizations
 2. **Slack Integration**: Send alerts to Slack
-3. **Cost Attribution**: Tag costs por feature/team
+3. **Cost Attribution**: Tag costs by feature/team
 4. **Anomaly Detection**: ML-based spike detection
 
-## Recursos
+## Resources
 
 - [Recharts Documentation](https://recharts.org)
 - [shadcn/ui Components](https://ui.shadcn.com)
 - [OpenAI Usage Dashboard](https://platform.openai.com/usage)
 
-## Entrega
+## Submission
 
-- Working dashboard desplegado
+- Working dashboard deployed
 - 7-day mock data showing usage
 - Budget alert system functioning
 - Cost predictions displayed
@@ -300,4 +300,4 @@ describe('Cost Tracking', () => {
 
 ---
 
-**¡Controla tus costos! 💰**
+**Control your costs! 💰**

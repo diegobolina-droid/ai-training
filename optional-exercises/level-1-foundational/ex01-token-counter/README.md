@@ -1,60 +1,60 @@
 # Exercise 01: Token Counter & Cost Analyzer
 
-## Descripción
+## Description
 
-Construye una herramienta interactiva para analizar tokens, estimar costos y comparar diferentes modelos LLM. Esta herramienta es esencial para cualquier desarrollador trabajando con APIs de LLM, ya que permite optimizar costos y entender el uso de recursos.
+Build an interactive tool to analyze tokens, estimate costs, and compare different LLM models. This tool is essential for any developer working with LLM APIs, as it allows you to optimize costs and understand resource usage.
 
-## Objetivos de Aprendizaje
+## Learning Objectives
 
-Al completar este ejercicio, podrás:
+Upon completing this exercise, you will be able to:
 
-- ✅ Entender cómo funcionan los tokenizers de diferentes providers
-- ✅ Calcular costos precisos para llamadas a LLM APIs
-- ✅ Comparar eficiencia de diferentes modelos
-- ✅ Analizar distribución de tokens en prompts
-- ✅ Optimizar prompts para reducir costos
+- ✅ Understand how tokenizers from different providers work
+- ✅ Calculate precise costs for LLM API calls
+- ✅ Compare efficiency of different models
+- ✅ Analyze token distribution in prompts
+- ✅ Optimize prompts to reduce costs
 
-## Pre-requisitos
+## Prerequisites
 
-- Completar Day 1-2 del programa principal
-- Conocimientos básicos de React/Next.js o Streamlit
-- API keys de OpenAI, Anthropic, Google (opcional)
+- Complete Day 1-2 of the main program
+- Basic knowledge of React/Next.js or Streamlit
+- API keys from OpenAI, Anthropic, Google (optional)
 
-## Características Requeridas
+## Required Features
 
-### Funcionalidad Core
+### Core Functionality
 
 1. **Token Counter**
-   - Input: texto/prompt
-   - Output: número de tokens por provider
-   - Soporte para: GPT-4, Claude, Gemini
+   - Input: text/prompt
+   - Output: number of tokens per provider
+   - Support for: GPT-4, Claude, Gemini
 
 2. **Cost Calculator**
-   - Calcular costo por prompt
-   - Calcular costo por completion
-   - Costo total estimado
-   - Comparación entre modelos
+   - Calculate cost per prompt
+   - Calculate cost per completion
+   - Estimated total cost
+   - Comparison between models
 
 3. **Batch Analysis**
-   - Analizar múltiples prompts
-   - Estadísticas agregadas
-   - Export a CSV/JSON
+   - Analyze multiple prompts
+   - Aggregated statistics
+   - Export to CSV/JSON
 
 4. **Visual Dashboard**
-   - Gráfico de distribución de tokens
-   - Comparación de costos entre modelos
-   - Trend analysis (si se guarda historial)
+   - Token distribution chart
+   - Cost comparison between models
+   - Trend analysis (if history is saved)
 
-### Funcionalidad Avanzada (Opcional)
+### Advanced Functionality (Optional)
 
-- 🔥 Optimización de prompts sugerida
-- 🔥 Alertas de costo (si excede threshold)
-- 🔥 Historial de análisis
-- 🔥 API endpoint para integración
+- 🔥 Suggested prompt optimization
+- 🔥 Cost alerts (if threshold exceeded)
+- 🔥 Analysis history
+- 🔥 API endpoint for integration
 
-## Stack Tecnológico Sugerido
+## Suggested Tech Stack
 
-### Opción A: Next.js + TypeScript (Recomendado)
+### Option A: Next.js + TypeScript (Recommended)
 
 ```bash
 # Dependencies
@@ -62,11 +62,11 @@ Al completar este ejercicio, podrás:
 - react
 - tiktoken (OpenAI tokenizer)
 - @anthropic-ai/tokenizer
-- recharts (para gráficos)
+- recharts (for charts)
 - zustand (state management)
 ```
 
-### Opción B: Python + Streamlit
+### Option B: Python + Streamlit
 
 ```bash
 # Dependencies
@@ -77,7 +77,7 @@ Al completar este ejercicio, podrás:
 - plotly
 ```
 
-### Opción C: Python + FastAPI + React
+### Option C: Python + FastAPI + React
 
 ```bash
 # Backend
@@ -90,20 +90,20 @@ Al completar este ejercicio, podrás:
 - recharts
 ```
 
-## Guía de Implementación
+## Implementation Guide
 
-### Paso 1: Setup del Proyecto
+### Step 1: Project Setup
 
 ```bash
-# Opción Next.js
+# Next.js option
 npx create-next-app@latest token-analyzer --typescript
 cd token-analyzer
 npm install tiktoken @anthropic-ai/tokenizer recharts zustand
 ```
 
-### Paso 2: Implementar Token Counting
+### Step 2: Implement Token Counting
 
-**Archivo: `lib/tokenizers.ts`**
+**File: `lib/tokenizers.ts`**
 
 ```typescript
 import { encoding_for_model } from 'tiktoken';
@@ -119,25 +119,25 @@ export async function countTokens(
   text: string,
   model: string
 ): Promise<number> {
-  // Implementar lógica de conteo por provider
-  // OpenAI: usar tiktoken
-  // Claude: usar @anthropic-ai/tokenizer
-  // Gemini: aproximación
+  // Implement counting logic per provider
+  // OpenAI: use tiktoken
+  // Claude: use @anthropic-ai/tokenizer
+  // Gemini: approximation
 }
 ```
 
-**Tareas**:
-- [ ] Implementar conteo para GPT-4/GPT-3.5
-- [ ] Implementar conteo para Claude (Sonnet, Opus, Haiku)
-- [ ] Implementar conteo para Gemini (Pro, Flash)
-- [ ] Crear función unificada `countAllTokens(text)`
+**Tasks**:
+- [ ] Implement counting for GPT-4/GPT-3.5
+- [ ] Implement counting for Claude (Sonnet, Opus, Haiku)
+- [ ] Implement counting for Gemini (Pro, Flash)
+- [ ] Create unified function `countAllTokens(text)`
 
-### Paso 3: Implementar Cost Calculator
+### Step 3: Implement Cost Calculator
 
-**Archivo: `lib/pricing.ts`**
+**File: `lib/pricing.ts`**
 
 ```typescript
-// Precios actualizados (Jan 2025)
+// Updated prices (Jan 2025)
 export const MODEL_PRICING = {
   'gpt-4': { input: 0.03, output: 0.06 },
   'gpt-3.5-turbo': { input: 0.0005, output: 0.0015 },
@@ -152,35 +152,35 @@ export function calculateCost(
   outputTokens: number,
   model: string
 ): number {
-  // Implementar cálculo de costo
-  // Precio por 1M tokens
+  // Implement cost calculation
+  // Price per 1M tokens
 }
 ```
 
-**Tareas**:
-- [ ] Crear tabla de precios actualizada
-- [ ] Implementar cálculo de costos
-- [ ] Agregar soporte para batch discounts
-- [ ] Crear comparador de costos entre modelos
+**Tasks**:
+- [ ] Create updated pricing table
+- [ ] Implement cost calculation
+- [ ] Add support for batch discounts
+- [ ] Create cost comparator between models
 
-### Paso 4: Crear UI Interactivo
+### Step 4: Create Interactive UI
 
-**Componentes principales**:
+**Main components**:
 
-1. `TextInput.tsx` - Input para texto/prompt
-2. `TokenDisplay.tsx` - Mostrar resultados
-3. `CostComparison.tsx` - Tabla comparativa
-4. `TokenChart.tsx` - Visualización de distribución
+1. `TextInput.tsx` - Input for text/prompt
+2. `TokenDisplay.tsx` - Display results
+3. `CostComparison.tsx` - Comparison table
+4. `TokenChart.tsx` - Distribution visualization
 
-**Tareas**:
-- [ ] Crear input con syntax highlighting
-- [ ] Mostrar tokens en tiempo real
-- [ ] Tabla de comparación de modelos
-- [ ] Gráfico de costos
+**Tasks**:
+- [ ] Create input with syntax highlighting
+- [ ] Show tokens in real-time
+- [ ] Model comparison table
+- [ ] Cost chart
 
-### Paso 5: Agregar Análisis Batch
+### Step 5: Add Batch Analysis
 
-**Archivo: `components/BatchAnalyzer.tsx`**
+**File: `components/BatchAnalyzer.tsx`**
 
 ```typescript
 interface BatchAnalysis {
@@ -191,41 +191,41 @@ interface BatchAnalysis {
 }
 
 export function BatchAnalyzer() {
-  // Permitir upload de archivo CSV/JSON
-  // Analizar múltiples prompts
-  // Generar estadísticas
-  // Export resultados
+  // Allow CSV/JSON file upload
+  // Analyze multiple prompts
+  // Generate statistics
+  // Export results
 }
 ```
 
-**Tareas**:
-- [ ] Upload de archivos (CSV/JSON)
-- [ ] Procesamiento batch
-- [ ] Estadísticas agregadas
-- [ ] Export de resultados
+**Tasks**:
+- [ ] File upload (CSV/JSON)
+- [ ] Batch processing
+- [ ] Aggregated statistics
+- [ ] Results export
 
-### Paso 6: Dashboard de Visualización
+### Step 6: Visualization Dashboard
 
-**Usar Recharts para crear**:
+**Use Recharts to create**:
 
 1. **Token Distribution Chart**
-   - Pie chart de tokens por modelo
+   - Pie chart of tokens per model
 
 2. **Cost Comparison Bar Chart**
-   - Comparar costos entre modelos
+   - Compare costs between models
 
-3. **Historical Trend** (Opcional)
-   - Line chart de uso en el tiempo
+3. **Historical Trend** (Optional)
+   - Line chart of usage over time
 
-**Tareas**:
-- [ ] Implementar gráfico de distribución
-- [ ] Implementar comparación de costos
-- [ ] Agregar filtros interactivos
-- [ ] Hacer responsive
+**Tasks**:
+- [ ] Implement distribution chart
+- [ ] Implement cost comparison
+- [ ] Add interactive filters
+- [ ] Make responsive
 
 ## Testing
 
-### Tests Unitarios
+### Unit Tests
 
 ```typescript
 // __tests__/tokenizers.test.ts
@@ -245,109 +245,109 @@ describe('Token Counting', () => {
 });
 ```
 
-**Tareas**:
-- [ ] Tests para cada tokenizer
-- [ ] Tests para cálculo de costos
-- [ ] Tests de comparación
-- [ ] Tests de edge cases
+**Tasks**:
+- [ ] Tests for each tokenizer
+- [ ] Tests for cost calculation
+- [ ] Comparison tests
+- [ ] Edge case tests
 
-### Tests de Integración
+### Integration Tests
 
 ```typescript
 // __tests__/e2e.test.ts
 describe('Token Analyzer E2E', () => {
   it('should analyze text and show results', async () => {
-    // Simular input de usuario
-    // Verificar resultados
-    // Verificar UI actualizado
+    // Simulate user input
+    // Verify results
+    // Verify updated UI
   });
 });
 ```
 
-## Validación
+## Validation
 
-Tu implementación debe:
+Your implementation should:
 
-✅ Contar tokens correctamente (±5% de oficial)
-✅ Calcular costos precisos
-✅ Comparar al menos 3 providers
-✅ Tener UI responsivo y usable
-✅ Incluir al menos 5 tests unitarios
-✅ Funcionar con prompts de 1-10K tokens
-✅ Exportar resultados a CSV/JSON
+✅ Count tokens correctly (±5% of official)
+✅ Calculate costs precisely
+✅ Compare at least 3 providers
+✅ Have responsive and usable UI
+✅ Include at least 5 unit tests
+✅ Work with prompts of 1-10K tokens
+✅ Export results to CSV/JSON
 
-## Desafíos Extra
+## Extra Challenges
 
 1. **Cache & Performance**
-   - Cachear resultados de conteo
-   - Optimizar para textos largos
+   - Cache counting results
+   - Optimize for long texts
 
 2. **Real-time API Integration**
-   - Conectar a APIs reales para validar
-   - Mostrar precios actualizados
+   - Connect to real APIs for validation
+   - Show updated prices
 
 3. **Prompt Optimizer**
-   - Sugerir formas de reducir tokens
-   - Identificar redundancias
+   - Suggest ways to reduce tokens
+   - Identify redundancies
 
 4. **Browser Extension**
-   - Convertir en Chrome extension
-   - Analizar prompts in-situ
+   - Convert to Chrome extension
+   - Analyze prompts in-situ
 
-## Recursos
+## Resources
 
-### Documentación
+### Documentation
 - [Tiktoken (OpenAI)](https://github.com/openai/tiktoken)
 - [Anthropic Tokenizer](https://docs.anthropic.com/claude/docs/models-overview#token-counting)
 - [Google Gemini Tokens](https://ai.google.dev/gemini-api/docs/tokens)
 
-### Ejemplos de Código
+### Code Examples
 - [Next.js Token Counter Example](https://github.com/examples/token-counter)
 - [Streamlit Cost Calculator](https://github.com/examples/cost-calc)
 
-### Herramientas Similares (Inspiración)
+### Similar Tools (Inspiration)
 - [OpenAI Tokenizer](https://platform.openai.com/tokenizer)
 - [Anthropic Token Counter](https://docs.anthropic.com/claude/reference/token-counter)
 
-## Rúbrica de Evaluación
+## Evaluation Rubric
 
-| Criterio | Peso | Descripción |
+| Criterion | Weight | Description |
 |----------|------|-------------|
-| **Funcionalidad Core** | 40% | Token counting + cost calculation |
-| **Multi-Provider** | 20% | Soporte para 3+ providers |
-| **UI/UX** | 15% | Interfaz clara y usable |
-| **Testing** | 15% | Tests unitarios + validación |
-| **Documentación** | 10% | README + código comentado |
+| **Core Functionality** | 40% | Token counting + cost calculation |
+| **Multi-Provider** | 20% | Support for 3+ providers |
+| **UI/UX** | 15% | Clear and usable interface |
+| **Testing** | 15% | Unit tests + validation |
+| **Documentation** | 10% | README + commented code |
 
-**Puntuación mínima para aprobar**: 70%
+**Minimum passing score**: 70%
 
-## Entrega
+## Submission
 
-1. Código en GitHub (público o privado)
-2. README con:
-   - Instrucciones de instalación
-   - Screenshots/GIF de la herramienta
-   - Explicación de decisiones técnicas
-3. Demo desplegado (Vercel/Netlify) - Opcional
-4. Tests pasando (screenshot o CI badge)
+1. Code on GitHub (public or private)
+2. README with:
+   - Installation instructions
+   - Screenshots/GIF of the tool
+   - Explanation of technical decisions
+3. Deployed demo (Vercel/Netlify) - Optional
+4. Passing tests (screenshot or CI badge)
 
-## Solución de Referencia
+## Reference Solution
 
-Una vez completes el ejercicio, puedes comparar con:
-- [Ver solución →](./solution/)
+Once you complete the exercise, you can compare with:
+- [View solution →](./solution/)
 
-**⚠️ Intenta resolver primero sin ver la solución**
+**⚠️ Try to solve it first without looking at the solution**
 
 ---
 
-## Siguientes Pasos
+## Next Steps
 
-Completado este ejercicio, considera:
+After completing this exercise, consider:
 - [Ex 02: Hallucination Detector →](../ex02-hallucination-detector/)
 - [Ex 04: Cost Calculator Dashboard →](../ex04-cost-calculator/)
 
 ---
 
-**Questions?** Pregunta en Discord `#optional-exercises`
+**Questions?** Ask in Discord `#optional-exercises`
 
-**¡Buena suerte! 🚀**
+**Good luck! 🚀**

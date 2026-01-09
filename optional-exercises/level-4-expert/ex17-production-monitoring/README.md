@@ -1,10 +1,10 @@
 # Exercise 17: Production Monitoring System
 
-## Descripción
-Sistema completo de observabilidad para LLM applications en producción.
+## Description
+Complete observability system for LLM applications in production.
 
-## Objetivos
-- Distributed tracing de LLM calls
+## Objectives
+- Distributed tracing of LLM calls
 - Real-time metrics dashboard
 - Alerting system
 - Log aggregation
@@ -212,12 +212,12 @@ def profile_llm_call():
     stats.print_stats(10)
 ```
 
-## Desafíos
+## Challenges
 
 1. **Distributed Tracing**: Trace across microservices
 2. **Custom Metrics**: Business-specific KPIs
 3. **Anomaly Detection**: ML-based alerting
 4. **SLO Tracking**: Track SLIs/SLOs
 
-**Tiempo**: 12-15h
-**Recursos**: [Prometheus](https://prometheus.io/), [Grafana](https://grafana.com/)
+**Time**: 12-15h
+**Resources**: [Prometheus](https://prometheus.io/), [Grafana](https://grafana.com/)

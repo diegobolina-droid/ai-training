@@ -1,28 +1,28 @@
 # Exercise 14: Custom RAG Evaluator
 
-## Descripción
-Suite completa de evaluación para sistemas RAG con métricas custom, test cases y benchmarking.
+## Description
+Complete evaluation suite for RAG systems with custom metrics, test cases, and benchmarking.
 
-## Objetivos
-- Evaluar calidad de retrieval (precision, recall, MRR)
-- Medir generación (faithfulness, relevance)
-- Crear test datasets
-- Benchmark diferentes configuraciones
-- Identificar failure modes
+## Objectives
+- Evaluate retrieval quality (precision, recall, MRR)
+- Measure generation (faithfulness, relevance)
+- Create test datasets
+- Benchmark different configurations
+- Identify failure modes
 
-## Métricas Implementadas
+## Implemented Metrics
 
 ### Retrieval Metrics
-- **Precision@K**: ¿Documentos retrieved son relevantes?
-- **Recall@K**: ¿Encontramos todos los relevantes?
-- **MRR (Mean Reciprocal Rank)**: Posición del primer relevante
+- **Precision@K**: Are retrieved documents relevant?
+- **Recall@K**: Did we find all relevant ones?
+- **MRR (Mean Reciprocal Rank)**: Position of first relevant
 - **NDCG**: Ranking quality
 
 ### Generation Metrics
-- **Faithfulness**: ¿Respuesta fiel al contexto?
-- **Answer Relevance**: ¿Responde la pregunta?
-- **Context Relevance**: ¿Contexto útil?
-- **Hallucination Rate**: ¿Información inventada?
+- **Faithfulness**: Is response faithful to context?
+- **Answer Relevance**: Does it answer the question?
+- **Context Relevance**: Is context useful?
+- **Hallucination Rate**: Invented information?
 
 ## Implementation
 
@@ -393,16 +393,16 @@ def plot_metrics(results: Dict):
     plt.show()
 ```
 
-## Desafíos Extra
+## Challenges Extra
 
 1. **Automated Optimization**: Use eval results to auto-tune RAG
 2. **Adversarial Testing**: Generate challenging test cases
 3. **Cost-Quality Tradeoff**: Optimize for cost and quality
 4. **Real-time Monitoring**: Evaluate in production
 
-## Recursos
+## Resources
 - [RAGAS Framework](https://github.com/explodinggradients/ragas)
 - [TruLens](https://www.trulens.org/)
 - [LangSmith](https://www.langchain.com/langsmith)
 
-**Tiempo**: 6-8h
+**Time**: 6-8h

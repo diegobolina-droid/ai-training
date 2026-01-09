@@ -1,13 +1,13 @@
 # Exercise 09: Multi-Provider API Wrapper
 
-## Descripción
-Crea una abstracción unificada sobre múltiples LLM APIs (OpenAI, Anthropic, Google) con interfaz consistente.
+## Description
+Create a unified abstraction over multiple LLM APIs (OpenAI, Anthropic, Google) with a consistent interface.
 
-## Objetivos
-- API unificada para todos los providers
-- Automatic failover entre providers
+## Objectives
+- Unified API for all providers
+- Automatic failover between providers
 - Load balancing
-- Rate limiting por provider
+- Rate limiting per provider
 - Unified streaming
 
 ## Core Interface
@@ -125,10 +125,10 @@ async def test_streaming():
     assert len(chunks) > 0
 ```
 
-## Desafíos
-1. Cache layer con semantic deduplication
+## Challenges
+1. Cache layer with semantic deduplication
 2. Request batching
-3. A/B testing entre providers
+3. A/B testing between providers
 4. Cost optimization router
 
-**Tiempo**: 5-6h
+**Time**: 5-6h

@@ -1,23 +1,23 @@
 # Challenge 03: Intelligent Codebase Search Engine
 
-## Descripción
+## Description
 
-Construye un motor de búsqueda avanzado para codebases que entiende natural language queries, código, y contexto.
+Build an advanced search engine for codebases that understands natural language queries, code, and context.
 
-**Dificultad**: Expert
-**Tiempo estimado**: 35-45 horas
+**Difficulty**: Expert
+**Estimated time**: 35-45 hours
 **Stack**: Python + FastAPI + Qdrant + React
 
 ---
 
-## Objetivos
+## Objectives
 
-Motor de búsqueda que soporta:
+Search engine that supports:
 - ✅ Natural language queries ("Find authentication logic")
 - ✅ Code search (function signatures, patterns)
 - ✅ Semantic understanding (find similar code)
 - ✅ Multi-modal (code + docs + issues + PRs)
-- ✅ Query expansion automática
+- ✅ Automatic query expansion
 - ✅ Real-time indexing
 - ✅ Explain results (why this result?)
 

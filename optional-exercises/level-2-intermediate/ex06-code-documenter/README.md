@@ -1,13 +1,13 @@
 # Exercise 06: Auto Code Documenter
 
-## Descripción
-Genera documentación automática (docstrings, comments, README) analizando código con LLMs.
+## Description
+Generate automatic documentation (docstrings, comments, README) by analyzing code with LLMs.
 
-## Objetivos
-- Parse código (AST) para extraer funciones/clases
-- Generar docstrings contextualmente relevantes
-- Crear README basado en codebase
-- Mantener consistencia de estilo
+## Objectives
+- Parse code (AST) to extract functions/classes
+- Generate contextually relevant docstrings
+- Create README based on codebase
+- Maintain style consistency
 
 ## Quick Start
 
@@ -51,8 +51,8 @@ def calculate_total(items, tax_rate=0.1):
 
 ## Advanced
 - Multi-language support (Python, TS, Go)
-- Integration con pre-commit hooks
+- Integration with pre-commit hooks
 - Docstring quality scoring
 - Auto-update stale documentation
 
-**Tiempo**: 4-5h
+**Time**: 4-5h

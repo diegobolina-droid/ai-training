@@ -1,13 +1,13 @@
 # Exercise 07: Intelligent Test Generator
 
-## Descripción
-Genera tests unitarios automáticamente analizando funciones y sus edge cases.
+## Description
+Generate unit tests automatically by analyzing functions and their edge cases.
 
-## Objetivos
-- Analizar función para identificar casos de prueba
-- Generar tests comprehensivos
-- Detectar edge cases automáticamente
-- Seguir testing best practices
+## Objectives
+- Analyze function to identify test cases
+- Generate comprehensive tests
+- Automatically detect edge cases
+- Follow testing best practices
 
 ## Implementation
 
@@ -70,10 +70,10 @@ def test_divide_float_precision():
     assert abs(result - 0.333333) < 0.0001
 ```
 
-## Desafíos
+## Challenges
 1. Property-based testing generation
 2. Mutation testing
 3. Test quality scoring
 4. Auto-fix failing tests
 
-**Tiempo**: 5-6h
+**Time**: 5-6h

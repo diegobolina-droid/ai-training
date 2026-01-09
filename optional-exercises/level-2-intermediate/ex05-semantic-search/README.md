@@ -1,13 +1,13 @@
 # Exercise 05: Semantic Search Engine
 
-## Descripción
-Construye un motor de búsqueda semántica sobre documentación técnica usando embeddings y vector databases.
+## Description
+Build a semantic search engine over technical documentation using embeddings and vector databases.
 
-## Objetivos
-- Implementar indexación con embeddings
-- Vector search con Qdrant/Pinecone
+## Objectives
+- Implement indexing with embeddings
+- Vector search with Qdrant/Pinecone
 - Hybrid search (vector + keyword)
-- Reranking para mejorar relevancia
+- Reranking to improve relevance
 
 ## Stack
 ```bash
@@ -89,14 +89,14 @@ def hybrid_search(query: str):
 - [ ] Query suggestions
 - [ ] Search analytics
 
-## Desafíos
+## Challenges
 1. Implement query expansion
 2. Add multilingual support
 3. Personalized search
 4. Search result explanations
 
-## Recursos
+## Resources
 - [Qdrant Tutorial](https://qdrant.tech/documentation/)
 - [Sentence Transformers](https://www.sbert.net/)
 
-**Tiempo**: 4-5h
+**Time**: 4-5h

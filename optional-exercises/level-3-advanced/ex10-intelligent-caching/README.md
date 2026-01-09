@@ -1,12 +1,12 @@
 # Exercise 10: Intelligent Caching System
 
-## Descripción
-Sistema de caché semántico para LLM calls que puede ahorrar 60-80% de costos identificando queries similares.
+## Description
+Semantic cache system for LLM calls that can save 60-80% of costs by identifying similar queries.
 
-## Objetivos
-- Semantic cache usando embeddings
-- Cache hit detection con similarity threshold
-- TTL y invalidation strategies
+## Objectives
+- Semantic cache using embeddings
+- Cache hit detection with similarity threshold
+- TTL and invalidation strategies
 - Cost savings analytics
 
 ## Architecture
@@ -215,20 +215,20 @@ Target metrics:
 - Hit rate: > 60% after warmup
 - Cost reduction: 60-80%
 
-## Desafíos Extra
+## Extra Challenges
 
-1. **Distributed Caching**: Redis cluster con consistent hashing
-2. **Adaptive Thresholds**: ML model para optimizar similarity threshold
-3. **Context-Aware Caching**: Considerar conversation context
+1. **Distributed Caching**: Redis cluster with consistent hashing
+2. **Adaptive Thresholds**: ML model to optimize similarity threshold
+3. **Context-Aware Caching**: Consider conversation context
 4. **Compression**: Compress cached responses
 
-## Recursos
+## Resources
 - [Qdrant Semantic Search](https://qdrant.tech)
 - [Sentence Transformers](https://sbert.net)
 - [GPTCache Paper](https://arxiv.org/abs/2305.04676)
 
-**Tiempo estimado**: 6-7h
+**Estimated time**: 6-7h
 
 ---
 
-**Cache inteligente = 💰 grandes ahorros**
+**Intelligent cache = 💰 big savings**

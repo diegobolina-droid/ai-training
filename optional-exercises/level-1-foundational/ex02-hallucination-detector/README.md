@@ -1,44 +1,44 @@
 # Exercise 02: Hallucination Detector
 
-## Descripción
+## Description
 
-Construye un sistema para detectar y medir alucinaciones en outputs de LLMs. Las alucinaciones son uno de los problemas más críticos en producción, y esta herramienta te permitirá identificarlas, medirlas y mitigarlas.
+Build a system to detect and measure hallucinations in LLM outputs. Hallucinations are one of the most critical problems in production, and this tool will allow you to identify, measure, and mitigate them.
 
-## Objetivos de Aprendizaje
+## Learning Objectives
 
-Al completar este ejercicio, podrás:
+Upon completing this exercise, you will be able to:
 
-- ✅ Identificar diferentes tipos de alucinaciones
-- ✅ Implementar técnicas de detección automática
-- ✅ Usar LLMs como evaluadores (LLM-as-judge)
-- ✅ Crear métricas de confidence/fidelity
-- ✅ Diseñar prompts anti-alucinación
+- ✅ Identify different types of hallucinations
+- ✅ Implement automatic detection techniques
+- ✅ Use LLMs as evaluators (LLM-as-judge)
+- ✅ Create confidence/fidelity metrics
+- ✅ Design anti-hallucination prompts
 
-## Pre-requisitos
+## Prerequisites
 
-- Completar Day 1-2 del programa principal
-- Entender conceptos de hallucination
-- Familiaridad con prompt engineering
-- API key de al menos un LLM provider
+- Complete Day 1-2 of the main program
+- Understand hallucination concepts
+- Familiarity with prompt engineering
+- API key from at least one LLM provider
 
-## Tipos de Alucinaciones a Detectar
+## Types of Hallucinations to Detect
 
 ### 1. Factual Hallucinations
-- Información falsa presentada como verdadera
-- Fechas, números, nombres incorrectos
-- Eventos que no ocurrieron
+- False information presented as true
+- Incorrect dates, numbers, names
+- Events that did not occur
 
 ### 2. Contextual Hallucinations
-- Información no presente en el contexto
-- Inferencias incorrectas
-- Extrapolaciones sin base
+- Information not present in the context
+- Incorrect inferences
+- Baseless extrapolations
 
 ### 3. Consistency Hallucinations
-- Contradicciones internas
-- Información inconsistente
-- Cambios de hechos durante conversación
+- Internal contradictions
+- Inconsistent information
+- Fact changes during conversation
 
-## Características Requeridas
+## Required Features
 
 ### Core Features
 
@@ -71,35 +71,35 @@ Al completar este ejercicio, podrás:
 
 ### Advanced Features (Optional)
 
-- 🔥 Integration con fact-checking APIs
-- 🔥 Historical tracking de hallucination rates
-- 🔥 A/B testing de prompts anti-hallucination
-- 🔥 Real-time detection en streaming responses
+- 🔥 Integration with fact-checking APIs
+- 🔥 Historical tracking of hallucination rates
+- 🔥 A/B testing of anti-hallucination prompts
+- 🔥 Real-time detection in streaming responses
 
-## Stack Tecnológico Sugerido
+## Suggested Tech Stack
 
 ### Backend
 
 ```python
-# Python es ideal para este proyecto
+# Python is ideal for this project
 - fastapi
 - anthropic / openai
 - pydantic
-- numpy (para scoring)
-- httpx (para fact-checking APIs opcional)
+- numpy (for scoring)
+- httpx (for fact-checking APIs optional)
 ```
 
-### Frontend (Opcional)
+### Frontend (Optional)
 
 ```typescript
 - next.js / streamlit
 - react-markdown
-- recharts (para visualización)
+- recharts (for visualization)
 ```
 
-## Guía de Implementación
+## Implementation Guide
 
-### Paso 1: Setup del Proyecto
+### Step 1: Project Setup
 
 ```bash
 mkdir hallucination-detector
@@ -109,9 +109,9 @@ source venv/bin/activate
 pip install fastapi anthropic pydantic uvicorn pytest
 ```
 
-### Paso 2: Definir Modelos de Datos
+### Step 2: Define Data Models
 
-**Archivo: `models.py`**
+**File: `models.py`**
 
 ```python
 from pydantic import BaseModel, Field
@@ -138,14 +138,14 @@ class DetectionRequest(BaseModel):
     detection_method: str = "self-consistency"
 ```
 
-**Tareas**:
-- [ ] Definir todos los modelos necesarios
-- [ ] Agregar validaciones con Pydantic
-- [ ] Documentar cada campo
+**Tasks**:
+- [ ] Define all necessary models
+- [ ] Add Pydantic validations
+- [ ] Document each field
 
-### Paso 3: Implementar Self-Consistency Checking
+### Step 3: Implement Self-Consistency Checking
 
-**Archivo: `detectors/self_consistency.py`**
+**File: `detectors/self_consistency.py`**
 
 ```python
 import anthropic
@@ -153,7 +153,7 @@ from typing import List
 
 class SelfConsistencyDetector:
     """
-    Genera múltiples respuestas y compara consistencia
+    Generate multiple responses and compare consistency
     """
 
     def __init__(self, client: anthropic.Client):
@@ -164,16 +164,16 @@ class SelfConsistencyDetector:
         prompt: str,
         num_samples: int = 5
     ) -> HallucinationResult:
-        # 1. Generar N respuestas con temperatura > 0
+        # 1. Generate N responses with temperature > 0
         responses = await self._generate_multiple(prompt, num_samples)
 
-        # 2. Comparar respuestas entre sí
+        # 2. Compare responses among themselves
         consistency_score = self._calculate_consistency(responses)
 
-        # 3. Identificar inconsistencias
+        # 3. Identify inconsistencies
         inconsistencies = self._find_inconsistencies(responses)
 
-        # 4. Generar resultado
+        # 4. Generate result
         return HallucinationResult(
             is_hallucinated=consistency_score < 0.7,
             confidence=consistency_score,
@@ -188,36 +188,36 @@ class SelfConsistencyDetector:
         prompt: str,
         num_samples: int
     ) -> List[str]:
-        # Generar múltiples respuestas con temperatura
-        # Implementar aquí
+        # Generate multiple responses with temperature
+        # Implement here
         pass
 
     def _calculate_consistency(self, responses: List[str]) -> float:
-        # Calcular similitud semántica entre respuestas
-        # Usar embeddings o comparación textual
-        # Retornar score 0-1
+        # Calculate semantic similarity between responses
+        # Use embeddings or text comparison
+        # Return score 0-1
         pass
 
     def _find_inconsistencies(self, responses: List[str]) -> List[str]:
-        # Identificar partes que difieren entre respuestas
-        # Estas son potenciales alucinaciones
+        # Identify parts that differ between responses
+        # These are potential hallucinations
         pass
 ```
 
-**Tareas**:
-- [ ] Implementar generación de múltiples respuestas
-- [ ] Calcular similitud semántica (cosine similarity)
-- [ ] Identificar inconsistencias específicas
-- [ ] Generar sugerencias de mejora
+**Tasks**:
+- [ ] Implement multiple response generation
+- [ ] Calculate semantic similarity (cosine similarity)
+- [ ] Identify specific inconsistencies
+- [ ] Generate improvement suggestions
 
-### Paso 4: Implementar LLM-as-Judge
+### Step 4: Implement LLM-as-Judge
 
-**Archivo: `detectors/llm_judge.py`**
+**File: `detectors/llm_judge.py`**
 
 ```python
 class LLMJudgeDetector:
     """
-    Usa un LLM para evaluar si otro LLM está alucinando
+    Use an LLM to evaluate if another LLM is hallucinating
     """
 
     JUDGE_PROMPT = """
@@ -250,35 +250,35 @@ Respond in JSON format:
         response: str,
         context: str | None = None
     ) -> HallucinationResult:
-        # 1. Construir prompt de evaluación
+        # 1. Build evaluation prompt
         prompt = self.JUDGE_PROMPT.format(
             context=context or "No context provided",
             response=response
         )
 
-        # 2. Llamar a LLM judge
+        # 2. Call LLM judge
         judgment = await self._get_judgment(prompt)
 
-        # 3. Parsear respuesta JSON
+        # 3. Parse JSON response
         result = self._parse_judgment(judgment)
 
         return result
 ```
 
-**Tareas**:
-- [ ] Diseñar prompt de judge efectivo
-- [ ] Implementar parsing de JSON response
-- [ ] Manejar errores de parsing
-- [ ] Validar resultados
+**Tasks**:
+- [ ] Design effective judge prompt
+- [ ] Implement JSON response parsing
+- [ ] Handle parsing errors
+- [ ] Validate results
 
-### Paso 5: Implementar Citation Checking
+### Step 5: Implement Citation Checking
 
-**Archivo: `detectors/citation_checker.py`**
+**File: `detectors/citation_checker.py`**
 
 ```python
 class CitationChecker:
     """
-    Verifica que las claims estén soportadas por citas/context
+    Verify that claims are supported by citations/context
     """
 
     async def detect(
@@ -286,17 +286,17 @@ class CitationChecker:
         response: str,
         context: str
     ) -> HallucinationResult:
-        # 1. Extraer claims del response
+        # 1. Extract claims from response
         claims = await self._extract_claims(response)
 
-        # 2. Para cada claim, verificar si está en context
+        # 2. For each claim, verify if it's in context
         unsupported = []
         for claim in claims:
             is_supported = await self._verify_claim(claim, context)
             if not is_supported:
                 unsupported.append(claim)
 
-        # 3. Calcular score basado en % de claims no soportadas
+        # 3. Calculate score based on % of unsupported claims
         hallucination_rate = len(unsupported) / len(claims)
 
         return HallucinationResult(
@@ -309,24 +309,24 @@ class CitationChecker:
         )
 
     async def _extract_claims(self, text: str) -> List[str]:
-        # Usar LLM para extraer claims individuales
+        # Use LLM to extract individual claims
         pass
 
     async def _verify_claim(self, claim: str, context: str) -> bool:
-        # Verificar si claim está soportado por context
-        # Usar embeddings similarity o LLM
+        # Verify if claim is supported by context
+        # Use embeddings similarity or LLM
         pass
 ```
 
-**Tareas**:
-- [ ] Implementar extracción de claims
-- [ ] Verificar soporte en contexto
-- [ ] Calcular métricas de fidelidad
-- [ ] Generar evidencia específica
+**Tasks**:
+- [ ] Implement claim extraction
+- [ ] Verify support in context
+- [ ] Calculate fidelity metrics
+- [ ] Generate specific evidence
 
-### Paso 6: Crear API Endpoints
+### Step 6: Create API Endpoints
 
-**Archivo: `main.py`**
+**File: `main.py`**
 
 ```python
 from fastapi import FastAPI, HTTPException
@@ -344,7 +344,7 @@ app.add_middleware(
 @app.post("/detect", response_model=HallucinationResult)
 async def detect_hallucination(request: DetectionRequest):
     """
-    Detecta alucinaciones usando el método especificado
+    Detect hallucinations using the specified method
     """
     detector = get_detector(request.detection_method)
     result = await detector.detect(
@@ -357,7 +357,7 @@ async def detect_hallucination(request: DetectionRequest):
 @app.post("/batch-detect")
 async def batch_detect(requests: List[DetectionRequest]):
     """
-    Detecta alucinaciones en múltiples textos
+    Detect hallucinations in multiple texts
     """
     results = []
     for req in requests:
@@ -368,7 +368,7 @@ async def batch_detect(requests: List[DetectionRequest]):
 @app.get("/methods")
 async def list_methods():
     """
-    Lista métodos de detección disponibles
+    List available detection methods
     """
     return {
         "methods": [
@@ -379,31 +379,31 @@ async def list_methods():
     }
 ```
 
-**Tareas**:
-- [ ] Implementar endpoints principales
-- [ ] Agregar validación de inputs
-- [ ] Manejar errores apropiadamente
-- [ ] Documentar API con OpenAPI
+**Tasks**:
+- [ ] Implement main endpoints
+- [ ] Add input validation
+- [ ] Handle errors appropriately
+- [ ] Document API with OpenAPI
 
-### Paso 7: Testing & Validation
+### Step 7: Testing & Validation
 
-**Archivo: `tests/test_detectors.py`**
+**File: `tests/test_detectors.py`**
 
 ```python
 import pytest
 from detectors import SelfConsistencyDetector, LLMJudgeDetector
 
-# Test cases con hallucinations conocidas
+# Test cases with known hallucinations
 HALLUCINATED_EXAMPLES = [
     {
         "text": "Python was invented in 1985 by Guido van Rossum",
         "context": "Python was created in 1991",
-        "expected": True  # Fecha incorrecta
+        "expected": True  # Incorrect date
     },
     {
         "text": "The capital of France is Paris",
         "context": "France is a country in Europe",
-        "expected": False  # Correcto pero info adicional
+        "expected": False  # Correct but additional info
     },
 ]
 
@@ -429,20 +429,20 @@ async def test_self_consistency():
         num_samples=5
     )
 
-    # Matemática simple debe ser consistente
+    # Simple math must be consistent
     assert result.confidence > 0.9
 ```
 
-**Tareas**:
-- [ ] Crear test suite completo
-- [ ] Casos de true positives
-- [ ] Casos de true negatives
+**Tasks**:
+- [ ] Create complete test suite
+- [ ] True positive cases
+- [ ] True negative cases
 - [ ] Edge cases
 
-## Desafíos Extra
+## Extra Challenges
 
 ### 1. Real-Time Detection
-Implementar detección en streaming responses:
+Implement detection in streaming responses:
 ```python
 async def detect_streaming(stream):
     buffer = ""
@@ -455,54 +455,54 @@ async def detect_streaming(stream):
 ```
 
 ### 2. Confidence Calibration
-Calibrar scores de confidence con ground truth dataset
+Calibrate confidence scores with ground truth dataset
 
 ### 3. Prompt Library
-Crear biblioteca de prompts anti-hallucination probados
+Create library of tested anti-hallucination prompts
 
 ### 4. Dashboard
-Construir dashboard para visualizar hallucination rates
+Build dashboard to visualize hallucination rates
 
-## Recursos
+## Resources
 
 ### Papers
 - [Survey of Hallucination in NLP](https://arxiv.org/abs/2202.03629)
 - [Self-Consistency Improves CoT](https://arxiv.org/abs/2203.11171)
 
-### Datasets para Testing
+### Datasets for Testing
 - [TruthfulQA](https://github.com/sylinrl/TruthfulQA)
 - [HaluEval](https://github.com/RUCAIBox/HaluEval)
 
-### Herramientas
+### Tools
 - [Langfuse (Tracing)](https://langfuse.com/)
 - [Guardrails AI](https://github.com/guardrails-ai/guardrails)
 
-## Rúbrica de Evaluación
+## Evaluation Rubric
 
-| Criterio | Peso | Descripción |
-|----------|------|-------------|
-| **Detection Accuracy** | 35% | Precision/Recall en test set |
-| **Multiple Methods** | 25% | Implementar 2+ métodos |
-| **API Quality** | 20% | Endpoints bien diseñados |
-| **Testing** | 15% | Tests comprehensivos |
-| **Documentación** | 5% | README + código comentado |
+| Criterion | Weight | Description |
+|-----------|--------|-------------|
+| **Detection Accuracy** | 35% | Precision/Recall on test set |
+| **Multiple Methods** | 25% | Implement 2+ methods |
+| **API Quality** | 20% | Well-designed endpoints |
+| **Testing** | 15% | Comprehensive tests |
+| **Documentation** | 5% | README + commented code |
 
-**Puntuación mínima**: 70%
+**Minimum score**: 70%
 
-## Entrega
+## Submission
 
-1. Código en GitHub
-2. README con:
-   - Explicación de cada método de detección
-   - Resultados de evaluación (precision/recall)
-   - Ejemplos de uso
-3. API desplegada (Railway/Fly.io)
+1. Code on GitHub
+2. README with:
+   - Explanation of each detection method
+   - Evaluation results (precision/recall)
+   - Usage examples
+3. Deployed API (Railway/Fly.io)
 4. Test results (pytest output)
 
-## Solución de Referencia
+## Reference Solution
 
-- [Ver solución →](./solution/)
+- [View solution →](./solution/)
 
 ---
 
-**¡Buena suerte detectando alucinaciones! 🔍**
+**Good luck detecting hallucinations! 🔍**
