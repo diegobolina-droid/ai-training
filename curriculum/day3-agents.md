@@ -4178,4 +4178,4 @@ By the end of this lab, you should have:
 
 ---
 
-**Navigation**: [← Day 2](./DAY2-PROMPTING.md) | [Day 4: RAG & Evaluation →](./DAY4-RAG-EVAL.md)
+**Navigation**: [← Day 2](./day2-prompting.md) | [Day 4: RAG & Evaluation →](./day4-rag-eval.md)

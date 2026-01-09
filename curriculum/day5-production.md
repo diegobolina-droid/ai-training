@@ -2388,4 +2388,4 @@ Your 5-minute demo should cover:
 
 **Congratulations on completing the Agentic AI Intensive Training Program!**
 
-**Navigation**: [← Day 4](./DAY4-RAG-EVAL.md) | [Schedule](./SCHEDULE.md) | [Capstone Rubric](./CAPSTONE-RUBRIC.md)
+**Navigation**: [← Day 4](./day4-rag-eval.md) | [Schedule](./SCHEDULE.md) | [Capstone Rubric](../assessment/capstone-rubric.md)

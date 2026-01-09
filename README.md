@@ -44,7 +44,7 @@ This intensive 40-hour training program transforms experienced software engineer
 
 ### Required Accounts (100% FREE Options Available!)
 
-> **Note:** This training can be completed at **zero cost** using free tiers. See [FREE-TIER-STRATEGY.md](./FREE-TIER-STRATEGY.md) for complete details.
+> **Note:** This training can be completed at **zero cost** using free tiers. See [FREE-TIER-STRATEGY.md](./guides/free-tier-strategy.md) for complete details.
 
 **LLM APIs (choose one - all free):**
 - [ ] **Google AI Studio** (RECOMMENDED): https://aistudio.google.com/ - Most generous free tier
@@ -159,25 +159,40 @@ The script checks versions, API keys, and installed packages for your chosen lan
 ```
 AI_Training/
 ├── README.md                 # You are here
-├── SCHEDULE.md               # Detailed daily/hourly schedule
+├── COURSE-OVERVIEW.md        # Marketing/sales document
 ├── requirements.txt          # Python dependencies
 ├── package.json              # Node.js/TypeScript dependencies
 ├── tsconfig.base.json        # TypeScript base configuration
 ├── .env.example              # Environment template
 │
-├── DAY1-FOUNDATIONS.md       # GenAI Foundations & Vibe Coding
-├── DAY2-PROMPTING.md         # Advanced Prompting Engineering
-├── DAY3-AGENTS.md            # Agent Architectures
-├── DAY4-RAG-EVAL.md          # RAG & Evaluation
-├── DAY5-PRODUCTION-CAPSTONE.md # Production & Capstone
+├── curriculum/               # 📚 Course content
+│   ├── README.md             # Curriculum overview
+│   ├── SCHEDULE.md           # Detailed daily/hourly schedule
+│   ├── day1-foundations.md   # GenAI Foundations & Vibe Coding
+│   ├── day2-prompting.md     # Advanced Prompting Engineering
+│   ├── day3-agents.md        # Agent Architectures
+│   ├── day4-rag-eval.md      # RAG & Evaluation
+│   └── day5-production.md    # Production & Capstone
 │
-├── CHECKLISTS.md             # Daily progress tracking
-├── CAPSTONE-RUBRIC.md        # Final project evaluation
+├── guides/                   # 📖 Student resources
+│   ├── README.md             # Guides overview
+│   ├── getting-started.md    # Setup & prerequisites (Coming Soon)
+│   ├── learning-paths.md     # Personalized learning paths
+│   ├── tools-ecosystem.md    # Tools guide
+│   ├── free-tier-strategy.md # Budget-friendly approach
+│   ├── checklists.md         # Daily progress tracking
+│   └── community.md          # Community resources
 │
-├── docs/                     # Additional documentation
-│   └── LANGUAGE-CHOICE-GUIDE.md  # Python vs TypeScript guidance
+├── resources/                # 📑 Reference materials
+│   ├── README.md             # Resources overview
+│   ├── recommended-reading.md # Books, papers, articles
+│   └── additional-resources.md # Extra materials
 │
-├── labs/                     # Hands-on lab exercises
+├── assessment/               # ✅ Evaluation & grading
+│   ├── README.md             # Assessment overview
+│   └── capstone-rubric.md    # Capstone grading
+│
+├── labs/                     # 🧪 Hands-on lab exercises
 │   ├── lab01-vibe-coding-intro/
 │   │   ├── README.md         # Lab instructions
 │   │   ├── python/           # Python implementation
@@ -185,17 +200,27 @@ AI_Training/
 │   ├── lab02-code-analyzer-agent/
 │   ├── lab03-migration-workflow/
 │   ├── lab04-rag-system/
-│   ├── lab05-multi-agent/
 │   └── capstone-options/
 │
-├── templates/                # Reusable starter templates
-│   ├── python-agent/         # Python agent template
-│   ├── typescript-agent/     # TypeScript agent template
-│   ├── typescript-api/
+├── optional-exercises/       # 💪 Extra practice
+│   ├── level-1-foundational/
+│   ├── level-2-intermediate/
+│   ├── level-3-advanced/
+│   ├── level-4-expert/
+│   ├── challenges/
+│   └── shared/
+│
+├── templates/                # 📋 Reusable starter templates
+│   ├── python-agent/
+│   ├── typescript-agent/
 │   ├── rag-starter/
 │   └── deployment/
 │
-└── solutions/                # Reference implementations
+├── docs/                     # 📝 Additional documentation
+│   └── LANGUAGE-CHOICE-GUIDE.md
+│
+├── scripts/                  # 🔧 Utility scripts
+└── slides/                   # 📊 Presentation slides
 ```
 
 ---
@@ -358,7 +383,7 @@ vercel --prod
 |----------|------|
 | All Labs & Capstone | **$0** |
 
-*Using Google AI Studio, Groq, or Ollama + Render free tier. See [FREE-TIER-STRATEGY.md](./FREE-TIER-STRATEGY.md)*
+*Using Google AI Studio, Groq, or Ollama + Render free tier. See [FREE-TIER-STRATEGY.md](./guides/free-tier-strategy.md)*
 
 #### Paid Option (If preferred)
 | Activity | Estimated Cost |
@@ -378,7 +403,7 @@ vercel --prod
 
 Expand your learning beyond this 5-day intensive program with our curated collection of resources:
 
-### 🗺️ [Learning Paths](LEARNING-PATHS.md)
+### 🗺️ [Learning Paths](guides/learning-paths.md)
 Structured roadmaps for continuing your AI engineering journey. Choose from:
 - **AI Product Engineer** (3-4 months) - Build and ship AI products
 - **AI Infrastructure Engineer** (4-6 months) - Scale AI systems
@@ -386,7 +411,7 @@ Structured roadmaps for continuing your AI engineering journey. Choose from:
 - **AI Consultant/Architect** (3-4 months) - Design AI solutions
 - **Specialized Paths** - Healthcare, Enterprise, Security, and more
 
-### 📖 [Resources & References](RESOURCES.md)
+### 📖 [Resources & References](resources/additional-resources.md)
 Comprehensive collection of high-quality resources organized by topic:
 - Official documentation for all major LLM providers
 - Day-by-day resource guides aligned with training content
@@ -395,7 +420,7 @@ Comprehensive collection of high-quality resources organized by topic:
 - Essential blogs and newsletters
 - Research papers and datasets
 
-### 🛠️ [Tools & Ecosystem](TOOLS-ECOSYSTEM.md)
+### 🛠️ [Tools & Ecosystem](guides/tools-ecosystem.md)
 Complete toolkit for building AI applications:
 - LLM providers comparison (Anthropic, OpenAI, Google, open source)
 - Agent frameworks (LangChain, LlamaIndex, AutoGen, CrewAI)
@@ -404,7 +429,7 @@ Complete toolkit for building AI applications:
 - Observability and monitoring tools
 - Deployment platforms and infrastructure
 
-### 📄 [Recommended Reading](RECOMMENDED-READING.md)
+### 📄 [Recommended Reading](resources/recommended-reading.md)
 Essential papers and articles for AI engineers:
 - **The Foundational 10** - Must-read papers every AI engineer should know
 - Papers organized by topic (Transformers, Prompting, Agents, RAG, Evaluation)
@@ -412,7 +437,7 @@ Essential papers and articles for AI engineers:
 - Technical blog posts from industry leaders
 - 30-day and 90-day reading plans
 
-### 🤝 [Community & Networking](COMMUNITY.md)
+### 🤝 [Community & Networking](guides/community.md)
 Connect with fellow AI engineers and continue learning:
 - Discord communities (AI Engineer, LangChain, OpenAI, Anthropic)
 - Forums and discussion platforms (Reddit, Hugging Face)
@@ -425,11 +450,11 @@ Connect with fellow AI engineers and continue learning:
 
 ### 🎯 Next Steps After Training
 
-1. **Choose Your Path**: Review [LEARNING-PATHS.md](LEARNING-PATHS.md) and select a roadmap
-2. **Join Communities**: Connect with others in [COMMUNITY.md](COMMUNITY.md)
-3. **Bookmark Resources**: Save [RESOURCES.md](RESOURCES.md) for quick reference
-4. **Start Reading**: Begin with the Foundational 10 papers in [RECOMMENDED-READING.md](RECOMMENDED-READING.md)
-5. **Explore Tools**: Experiment with new frameworks from [TOOLS-ECOSYSTEM.md](TOOLS-ECOSYSTEM.md)
+1. **Choose Your Path**: Review [LEARNING-PATHS.md](guides/learning-paths.md) and select a roadmap
+2. **Join Communities**: Connect with others in [COMMUNITY.md](guides/community.md)
+3. **Bookmark Resources**: Save [RESOURCES.md](resources/additional-resources.md) for quick reference
+4. **Start Reading**: Begin with the Foundational 10 papers in [RECOMMENDED-READING.md](resources/recommended-reading.md)
+5. **Explore Tools**: Experiment with new frameworks from [TOOLS-ECOSYSTEM.md](guides/tools-ecosystem.md)
 
 ---
 
@@ -442,4 +467,4 @@ This training material is designed for educational purposes. You may:
 
 ---
 
-**Ready to begin?** Start with [SCHEDULE.md](./SCHEDULE.md) for the detailed daily breakdown, then proceed to [DAY1-FOUNDATIONS.md](./DAY1-FOUNDATIONS.md).
+**Ready to begin?** Start with [SCHEDULE.md](./curriculum/SCHEDULE.md) for the detailed daily breakdown, then proceed to [Day 1: Foundations](./curriculum/day1-foundations.md).

@@ -24,22 +24,22 @@
 
 | Time | Duration | Topic | Type | Materials |
 |------|----------|-------|------|-----------|
-| 09:00-09:30 | 30 min | **Welcome & Program Overview** | Intro | [DAY1-FOUNDATIONS.md#welcome](./DAY1-FOUNDATIONS.md#welcome) |
+| 09:00-09:30 | 30 min | **Welcome & Program Overview** | Intro | [day1-foundations.md#welcome](./day1-foundations.md#welcome) |
 | | | - Training objectives and outcomes | | |
 | | | - Setting up development environment | | |
 | | | - Verifying API keys and tools | | |
-| 09:30-10:30 | 1 hr | **LLM Fundamentals** | Theory | [DAY1-FOUNDATIONS.md#llm-fundamentals](./DAY1-FOUNDATIONS.md#llm-fundamentals) |
+| 09:30-10:30 | 1 hr | **LLM Fundamentals** | Theory | [day1-foundations.md#llm-fundamentals](./day1-foundations.md#llm-fundamentals) |
 | | | - Transformer architecture (simplified) | | |
 | | | - Tokens, context windows, attention | | |
 | | | - Temperature, top-p, and sampling | | |
 | | | - Model comparison: Claude vs GPT vs Gemini | | |
 | 10:30-10:45 | 15 min | **Break** | - | - |
-| 10:45-11:45 | 1 hr | **Model Behavior & Constraints** | Theory | [DAY1-FOUNDATIONS.md#model-behavior](./DAY1-FOUNDATIONS.md#model-behavior) |
+| 10:45-11:45 | 1 hr | **Model Behavior & Constraints** | Theory | [day1-foundations.md#model-behavior](./day1-foundations.md#model-behavior) |
 | | | - How models "reason" (and don't) | | |
 | | | - Hallucinations: causes and mitigation | | |
 | | | - Context limitations and strategies | | |
 | | | - Safety boundaries and refusals | | |
-| 11:45-12:30 | 45 min | **Exercise: Model Comparison** | Hands-on | [DAY1-FOUNDATIONS.md#exercise-1](./DAY1-FOUNDATIONS.md#exercise-1) |
+| 11:45-12:30 | 45 min | **Exercise: Model Comparison** | Hands-on | [day1-foundations.md#exercise-1](./day1-foundations.md#exercise-1) |
 | | | - Test same prompt across 3 providers | | |
 | | | - Document behavior differences | | |
 | | | - Identify strengths/weaknesses | | |
@@ -49,12 +49,12 @@
 
 | Time | Duration | Topic | Type | Materials |
 |------|----------|-------|------|-----------|
-| 13:30-14:30 | 1 hr | **Vibe Coding & AI-First Development** | Theory | [DAY1-FOUNDATIONS.md#vibe-coding](./DAY1-FOUNDATIONS.md#vibe-coding) |
+| 13:30-14:30 | 1 hr | **Vibe Coding & AI-First Development** | Theory | [day1-foundations.md#vibe-coding](./day1-foundations.md#vibe-coding) |
 | | | - What is "Vibe Coding"? | | |
 | | | - AI-first development methodology | | |
 | | | - When to use AI vs. traditional coding | | |
 | | | - Effective human-AI collaboration patterns | | |
-| 14:30-15:30 | 1 hr | **Tool Landscape Deep Dive** | Demo | [DAY1-FOUNDATIONS.md#tool-landscape](./DAY1-FOUNDATIONS.md#tool-landscape) |
+| 14:30-15:30 | 1 hr | **Tool Landscape Deep Dive** | Demo | [day1-foundations.md#tool-landscape](./day1-foundations.md#tool-landscape) |
 | | | - Claude Code walkthrough | | |
 | | | - Cursor IDE demonstration | | |
 | | | - Gemini CLI features | | |
@@ -81,22 +81,22 @@
 
 | Time | Duration | Topic | Type | Materials |
 |------|----------|-------|------|-----------|
-| 09:00-09:45 | 45 min | **Prompt Engineering Fundamentals** | Theory | [DAY2-PROMPTING.md#fundamentals](./DAY2-PROMPTING.md#fundamentals) |
+| 09:00-09:45 | 45 min | **Prompt Engineering Fundamentals** | Theory | [day2-prompting.md#fundamentals](./day2-prompting.md#fundamentals) |
 | | | - Anatomy of an effective prompt | | |
 | | | - Role, context, task, format pattern | | |
 | | | - Clear vs. ambiguous instructions | | |
-| 09:45-10:45 | 1 hr | **Advanced Prompting Patterns** | Theory+Demo | [DAY2-PROMPTING.md#advanced-patterns](./DAY2-PROMPTING.md#advanced-patterns) |
+| 09:45-10:45 | 1 hr | **Advanced Prompting Patterns** | Theory+Demo | [day2-prompting.md#advanced-patterns](./day2-prompting.md#advanced-patterns) |
 | | | - Chain-of-Thought (CoT) prompting | | |
 | | | - Few-shot learning with examples | | |
 | | | - Self-consistency and verification | | |
 | | | - Tree-of-thought for complex problems | | |
 | 10:45-11:00 | 15 min | **Break** | - | - |
-| 11:00-12:00 | 1 hr | **System Prompts & Personas** | Theory+Practice | [DAY2-PROMPTING.md#system-prompts](./DAY2-PROMPTING.md#system-prompts) |
+| 11:00-12:00 | 1 hr | **System Prompts & Personas** | Theory+Practice | [day2-prompting.md#system-prompts](./day2-prompting.md#system-prompts) |
 | | | - Crafting effective system prompts | | |
 | | | - Persona engineering for different tasks | | |
 | | | - Context injection strategies | | |
 | | | - Hands-on: Build a code review persona | | |
-| 12:00-12:30 | 30 min | **Exercise: Prompt Optimization** | Hands-on | [DAY2-PROMPTING.md#exercise-1](./DAY2-PROMPTING.md#exercise-1) |
+| 12:00-12:30 | 30 min | **Exercise: Prompt Optimization** | Hands-on | [day2-prompting.md#exercise-1](./day2-prompting.md#exercise-1) |
 | | | - Take a weak prompt, make it strong | | |
 | | | - A/B test prompt variations | | |
 | | | - Document improvement patterns | | |
@@ -106,18 +106,18 @@
 
 | Time | Duration | Topic | Type | Materials |
 |------|----------|-------|------|-----------|
-| 13:30-14:30 | 1 hr | **Code-Focused Prompting** | Theory | [DAY2-PROMPTING.md#code-prompting](./DAY2-PROMPTING.md#code-prompting) |
+| 13:30-14:30 | 1 hr | **Code-Focused Prompting** | Theory | [day2-prompting.md#code-prompting](./day2-prompting.md#code-prompting) |
 | | | - Prompts for code analysis | | |
 | | | - Prompts for code generation | | |
 | | | - Prompts for code review | | |
 | | | - Prompts for debugging | | |
-| 14:30-15:30 | 1 hr | **Multimodal Prompting** ⭐ NEW | Theory+Demo | [DAY2-PROMPTING.md#multimodal-prompting](./DAY2-PROMPTING.md#multimodal-prompting) |
+| 14:30-15:30 | 1 hr | **Multimodal Prompting** ⭐ NEW | Theory+Demo | [day2-prompting.md#multimodal-prompting](./day2-prompting.md#multimodal-prompting) |
 | | | - Working with images (screenshots, diagrams) | | |
 | | | - Processing PDFs and documents | | |
 | | | - Code extraction from images | | |
 | | | - Real-world multimodal use cases | | |
 | 15:30-15:45 | 15 min | **Break** | - | - |
-| 15:45-16:30 | 45 min | **Migration & Refactoring Prompts** | Theory+Demo | [DAY2-PROMPTING.md#migration-prompts](./DAY2-PROMPTING.md#migration-prompts) |
+| 15:45-16:30 | 45 min | **Migration & Refactoring Prompts** | Theory+Demo | [day2-prompting.md#migration-prompts](./day2-prompting.md#migration-prompts) |
 | | | - Large-scale code transformation | | |
 | | | - Framework migration strategies | | |
 | | | - Technical debt identification | | |
@@ -142,25 +142,25 @@
 
 | Time | Duration | Topic | Type | Materials |
 |------|----------|-------|------|-----------|
-| 09:00-10:00 | 1 hr | **Agent Fundamentals** | Theory | [DAY3-AGENTS.md#fundamentals](./DAY3-AGENTS.md#fundamentals) |
+| 09:00-10:00 | 1 hr | **Agent Fundamentals** | Theory | [day3-agents.md#fundamentals](./day3-agents.md#fundamentals) |
 | | | - What makes an "agent"? | | |
 | | | - The agent loop: Observe → Think → Act | | |
 | | | - Memory types overview | | |
 | | | - State management patterns | | |
-| 10:00-10:30 | 30 min | **Context Management Strategies** ⭐ NEW | Theory+Code | [DAY3-AGENTS.md#context-management](./DAY3-AGENTS.md#context-management) |
+| 10:00-10:30 | 30 min | **Context Management Strategies** ⭐ NEW | Theory+Code | [day3-agents.md#context-management](./day3-agents.md#context-management) |
 | | | - Sliding window, summarization, selective retention | | |
 | | | - When to use each strategy | | |
 | | | - Implementation examples | | |
-| 10:30-11:00 | 30 min | **Memory Systems Implementation** ⭐ NEW | Theory+Code | [DAY3-AGENTS.md#memory-systems](./DAY3-AGENTS.md#memory-systems) |
+| 10:30-11:00 | 30 min | **Memory Systems Implementation** ⭐ NEW | Theory+Code | [day3-agents.md#memory-systems](./day3-agents.md#memory-systems) |
 | | | - Long-term memory with Vector DB | | |
 | | | - Episodic memory (task history) | | |
 | | | - Integrating multiple memory types | | |
 | 11:00-11:15 | 15 min | **Break** | - | - |
-| 11:15-12:00 | 45 min | **Tool-Use & Function Calling** | Theory+Demo | [DAY3-AGENTS.md#tool-use](./DAY3-AGENTS.md#tool-use) |
+| 11:15-12:00 | 45 min | **Tool-Use & Function Calling** | Theory+Demo | [day3-agents.md#tool-use](./day3-agents.md#tool-use) |
 | | | - Function calling across providers | | |
 | | | - Tool definition best practices | | |
 | | | - Error handling and retries | | |
-| 12:00-12:30 | 30 min | **Structured Output & Schema Validation** ⭐ NEW | Theory+Code | [DAY3-AGENTS.md#structured-output](./DAY3-AGENTS.md#structured-output) |
+| 12:00-12:30 | 30 min | **Structured Output & Schema Validation** ⭐ NEW | Theory+Code | [day3-agents.md#structured-output](./day3-agents.md#structured-output) |
 | | | - Pydantic/Zod schema enforcement | | |
 | | | - Smart retry with validation feedback | | |
 | | | - Production reliability patterns | | |
@@ -170,18 +170,18 @@
 
 | Time | Duration | Topic | Type | Materials |
 |------|----------|-------|------|-----------|
-| 13:30-14:00 | 30 min | **Agent Patterns** | Theory | [DAY3-AGENTS.md#patterns](./DAY3-AGENTS.md#patterns) |
+| 13:30-14:00 | 30 min | **Agent Patterns** | Theory | [day3-agents.md#patterns](./day3-agents.md#patterns) |
 | | | - ReAct: Reasoning + Acting | | |
 | | | - Planning and verification patterns | | |
 | | | - When to use which pattern | | |
-| 14:00-14:15 | 15 min | **Exercise: Design an Agent** | Hands-on | [DAY3-AGENTS.md#exercise-1](./DAY3-AGENTS.md#exercise-1) |
+| 14:00-14:15 | 15 min | **Exercise: Design an Agent** | Hands-on | [day3-agents.md#exercise-1](./day3-agents.md#exercise-1) |
 | | | - Whiteboard agent architecture | | |
 | | | - Define tools and capabilities | | |
-| 14:15-15:00 | 45 min | **Multi-Agent Systems** | Theory | [DAY3-AGENTS.md#multi-agent](./DAY3-AGENTS.md#multi-agent) |
+| 14:15-15:00 | 45 min | **Multi-Agent Systems** | Theory | [day3-agents.md#multi-agent](./day3-agents.md#multi-agent) |
 | | | - When single agents aren't enough | | |
 | | | - Communication & orchestration patterns | | |
 | | | - Avoiding infinite loops | | |
-| 15:00-15:30 | 30 min | **Framework Comparison** | Comparison | [DAY3-AGENTS.md#frameworks](./DAY3-AGENTS.md#frameworks) |
+| 15:00-15:30 | 30 min | **Framework Comparison** | Comparison | [day3-agents.md#frameworks](./day3-agents.md#frameworks) |
 | | | - LangChain/LangGraph, CrewAI, AutoGen | | |
 | | | - Choosing the right framework | | |
 | 15:30-15:45 | 15 min | **Break** | - | - |
@@ -207,23 +207,23 @@
 
 | Time | Duration | Topic | Type | Materials |
 |------|----------|-------|------|-----------|
-| 09:00-10:00 | 1 hr | **RAG Fundamentals** | Theory | [DAY4-RAG-EVAL.md#rag-fundamentals](./DAY4-RAG-EVAL.md#rag-fundamentals) |
+| 09:00-10:00 | 1 hr | **RAG Fundamentals** | Theory | [day4-rag-eval.md#rag-fundamentals](./day4-rag-eval.md#rag-fundamentals) |
 | | | - Why RAG? Use cases and limitations | | |
 | | | - Embeddings: how they work | | |
 | | | - Vector databases overview | | |
 | | | - The RAG pipeline end-to-end | | |
-| 10:00-11:00 | 1 hr | **Chunking & Document Processing** | Theory+Demo | [DAY4-RAG-EVAL.md#chunking](./DAY4-RAG-EVAL.md#chunking) |
+| 10:00-11:00 | 1 hr | **Chunking & Document Processing** | Theory+Demo | [day4-rag-eval.md#chunking](./day4-rag-eval.md#chunking) |
 | | | - Chunking strategies comparison | | |
 | | | - Semantic vs. fixed-size chunking | | |
 | | | - Handling code vs. documentation | | |
 | | | - Metadata and filtering | | |
 | 11:00-11:15 | 15 min | **Break** | - | - |
-| 11:15-12:00 | 45 min | **RAG Pitfalls & Advanced Patterns** | Theory | [DAY4-RAG-EVAL.md#pitfalls](./DAY4-RAG-EVAL.md#pitfalls) |
+| 11:15-12:00 | 45 min | **RAG Pitfalls & Advanced Patterns** | Theory | [day4-rag-eval.md#pitfalls](./day4-rag-eval.md#pitfalls) |
 | | | - Common failure modes | | |
 | | | - Hybrid search (vector + keyword) | | |
 | | | - Reranking strategies | | |
 | | | - Query transformation | | |
-| 12:00-12:30 | 30 min | **Exercise: RAG Architecture Design** | Hands-on | [DAY4-RAG-EVAL.md#exercise-1](./DAY4-RAG-EVAL.md#exercise-1) |
+| 12:00-12:30 | 30 min | **Exercise: RAG Architecture Design** | Hands-on | [day4-rag-eval.md#exercise-1](./day4-rag-eval.md#exercise-1) |
 | | | - Design RAG for a codebase | | |
 | | | - Choose chunking strategy | | |
 | | | - Plan retrieval approach | | |
@@ -233,12 +233,12 @@
 
 | Time | Duration | Topic | Type | Materials |
 |------|----------|-------|------|-----------|
-| 13:30-14:15 | 45 min | **Evaluation Fundamentals** | Theory | [DAY4-RAG-EVAL.md#evaluation](./DAY4-RAG-EVAL.md#evaluation) |
+| 13:30-14:15 | 45 min | **Evaluation Fundamentals** | Theory | [day4-rag-eval.md#evaluation](./day4-rag-eval.md#evaluation) |
 | | | - Why evaluation matters | | |
 | | | - Metrics: precision, recall, MRR, etc. | | |
 | | | - LLM-as-judge approaches | | |
 | | | - Building evaluation datasets | | |
-| 14:15-15:00 | 45 min | **Debugging & Observability** | Theory+Demo | [DAY4-RAG-EVAL.md#observability](./DAY4-RAG-EVAL.md#observability) |
+| 14:15-15:00 | 45 min | **Debugging & Observability** | Theory+Demo | [day4-rag-eval.md#observability](./day4-rag-eval.md#observability) |
 | | | - Tracing and logging for AI systems | | |
 | | | - Common debugging patterns | | |
 | | | - Tools: LangSmith, Weights & Biases | | |
@@ -266,27 +266,27 @@
 
 | Time | Duration | Topic | Type | Materials |
 |------|----------|-------|------|-----------|
-| 09:00-09:45 | 45 min | **Production Patterns** | Theory | [DAY5-PRODUCTION-CAPSTONE.md#production](./DAY5-PRODUCTION-CAPSTONE.md#production) |
+| 09:00-09:45 | 45 min | **Production Patterns** | Theory | [day5-production.md#production](./day5-production.md#production) |
 | | | - Rate limiting and throttling | | |
 | | | - Caching strategies for LLM calls | | |
 | | | - Fallback and retry patterns | | |
 | | | - Graceful degradation | | |
-| 09:45-10:15 | 30 min | **Security & Cost Management** | Theory | [DAY5-PRODUCTION-CAPSTONE.md#security](./DAY5-PRODUCTION-CAPSTONE.md#security) |
+| 09:45-10:15 | 30 min | **Security & Cost Management** | Theory | [day5-production.md#security](./day5-production.md#security) |
 | | | - Prompt injection attacks | | |
 | | | - Output validation | | |
 | | | - API key management | | |
-| 10:15-10:45 | 30 min | **Advanced Cost Optimization** ⭐ NEW | Theory | [DAY5-PRODUCTION-CAPSTONE.md#advanced-cost-optimization](./DAY5-PRODUCTION-CAPSTONE.md#advanced-cost-optimization) |
+| 10:15-10:45 | 30 min | **Advanced Cost Optimization** ⭐ NEW | Theory | [day5-production.md#advanced-cost-optimization](./day5-production.md#advanced-cost-optimization) |
 | | | - Semantic caching (60-80% savings) | | |
 | | | - Model routing strategies | | |
 | | | - Prompt compression techniques | | |
 | | | - Batch processing optimization | | |
 | 10:45-11:00 | 15 min | **Break** | - | - |
-| 11:00-11:45 | 45 min | **Integration Patterns** ⭐ NEW | Theory + Demo | [DAY5-PRODUCTION-CAPSTONE.md#integration-patterns](./DAY5-PRODUCTION-CAPSTONE.md#integration-patterns) |
+| 11:00-11:45 | 45 min | **Integration Patterns** ⭐ NEW | Theory + Demo | [day5-production.md#integration-patterns](./day5-production.md#integration-patterns) |
 | | | - Webhook integration (GitHub, Slack) | | |
 | | | - Message queues with Celery/Redis | | |
 | | | - Event-driven architecture | | |
 | | | - Microservices patterns | | |
-| 11:45-12:30 | 45 min | **Deployment & Capstone Briefing** | Demo + Intro | [DAY5-PRODUCTION-CAPSTONE.md#deployment](./DAY5-PRODUCTION-CAPSTONE.md#deployment) |
+| 11:45-12:30 | 45 min | **Deployment & Capstone Briefing** | Demo + Intro | [day5-production.md#deployment](./day5-production.md#deployment) |
 | | | - Vercel: serverless AI apps | | |
 | | | - Railway: backend services | | |
 | | | - Review 4 capstone options | | |
@@ -367,4 +367,4 @@ After completing the program:
 
 ---
 
-**Navigation**: [← README](./README.md) | [Day 1 →](./DAY1-FOUNDATIONS.md)
+**Navigation**: [← README](./README.md) | [Day 1 →](./day1-foundations.md)

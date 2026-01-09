@@ -7,7 +7,7 @@ This program supports both **Python** and **TypeScript**. Mark which language yo
 - [ ] **Python** - Using `labs/labXX/python/` directories
 - [ ] **TypeScript** - Using `labs/labXX/typescript/` directories
 
-> See [docs/LANGUAGE-CHOICE-GUIDE.md](./docs/LANGUAGE-CHOICE-GUIDE.md) for help choosing.
+> See [docs/LANGUAGE-CHOICE-GUIDE.md](../docs/LANGUAGE-CHOICE-GUIDE.md) for help choosing.
 
 ---
 

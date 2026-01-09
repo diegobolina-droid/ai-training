@@ -1183,4 +1183,4 @@ curl -X POST http://localhost:8000/shorten \
 
 ---
 
-**Navigation**: [← Schedule](./SCHEDULE.md) | [Day 2: Prompting →](./DAY2-PROMPTING.md)
+**Navigation**: [← Schedule](./SCHEDULE.md) | [Day 2: Prompting →](./day2-prompting.md)

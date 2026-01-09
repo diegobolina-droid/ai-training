@@ -2255,4 +2255,4 @@ By now you should have started building:
 
 ---
 
-**Navigation**: [← Day 1](./DAY1-FOUNDATIONS.md) | [Day 3: Agents →](./DAY3-AGENTS.md)
+**Navigation**: [← Day 1](./day1-foundations.md) | [Day 3: Agents →](./day3-agents.md)

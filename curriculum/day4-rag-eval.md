@@ -3791,4 +3791,4 @@ By the end of this lab, you should have:
 
 ---
 
-**Navigation**: [← Day 3](./DAY3-AGENTS.md) | [Day 5: Production & Capstone →](./DAY5-PRODUCTION-CAPSTONE.md)
+**Navigation**: [← Day 3](./day3-agents.md) | [Day 5: Production & Capstone →](./day5-production.md)
