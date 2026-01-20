@@ -262,7 +262,7 @@
 
 **Theme**: Production patterns and building your capstone project
 
-### Morning Session (09:00 - 12:30)
+### Morning Session (09:00 - 13:00)
 
 | Time | Duration | Topic | Type | Materials |
 |------|----------|-------|------|-----------|
@@ -275,35 +275,37 @@
 | | | - Prompt injection attacks | | |
 | | | - Output validation | | |
 | | | - API key management | | |
-| 10:15-10:45 | 30 min | **Advanced Cost Optimization** ⭐ NEW | Theory | [day5-production.md#advanced-cost-optimization](./day5-production.md#advanced-cost-optimization) |
+| 10:15-11:15 | 60 min | **Responsible AI & Governance** ⭐ NEW | Theory + Code | [day5-production.md#responsible-ai](./day5-production.md#responsible-ai) |
+| | | - When NOT to automate decisions | | |
+| | | - Bias detection & mitigation | | |
+| | | - Human-in-the-loop patterns | | |
+| | | - Accountability & audit trails | | |
+| | | - Explainability techniques | | |
+| | | - Deployment governance (phased rollout, kill switches) | | |
+| 11:15-11:30 | 15 min | **Break** | - | - |
+| 11:30-12:00 | 30 min | **Advanced Cost Optimization** ⭐ NEW | Theory | [day5-production.md#advanced-cost-optimization](./day5-production.md#advanced-cost-optimization) |
 | | | - Semantic caching (60-80% savings) | | |
 | | | - Model routing strategies | | |
-| | | - Prompt compression techniques | | |
-| | | - Batch processing optimization | | |
-| 10:45-11:00 | 15 min | **Break** | - | - |
-| 11:00-11:45 | 45 min | **Integration Patterns** ⭐ NEW | Theory + Demo | [day5-production.md#integration-patterns](./day5-production.md#integration-patterns) |
-| | | - Webhook integration (GitHub, Slack) | | |
-| | | - Message queues with Celery/Redis | | |
-| | | - Event-driven architecture | | |
-| | | - Microservices patterns | | |
-| 11:45-12:30 | 45 min | **Deployment & Capstone Briefing** | Demo + Intro | [day5-production.md#deployment](./day5-production.md#deployment) |
-| | | - Vercel: serverless AI apps | | |
-| | | - Railway: backend services | | |
+| | | - Prompt compression & batch processing | | |
+| 12:00-12:30 | 30 min | **Integration Patterns** ⭐ NEW | Theory + Demo | [day5-production.md#integration-patterns](./day5-production.md#integration-patterns) |
+| | | - Webhooks, message queues, event-driven | | |
+| 12:30-13:00 | 30 min | **Deployment & Capstone Briefing** | Demo + Intro | [day5-production.md#deployment](./day5-production.md#deployment) |
+| | | - Platform comparison & selection | | |
 | | | - Review 4 capstone options | | |
 | | | - Select your project | | |
-| 12:30-13:30 | 1 hr | **Lunch Break** | - | - |
+| 13:00-14:00 | 1 hr | **Lunch Break** | - | - |
 
-### Afternoon Session (13:30 - 17:00)
+### Afternoon Session (14:00 - 17:00)
 
 | Time | Duration | Topic | Type | Materials |
 |------|----------|-------|------|-----------|
-| 13:30-16:00 | 2h 30m | **Capstone Project Development** | Project | [labs/capstone-options/](./labs/capstone-options/) |
+| 14:00-16:30 | 2h 30m | **Capstone Project Development** | Project | [labs/capstone-options/](./labs/capstone-options/) |
 | | | - Build your selected project | | |
 | | | - Implement core features | | |
 | | | - Deploy to production | | |
 | | | - Prepare demo | | |
-| 16:00-16:15 | 15 min | **Break** | - | - |
-| 16:15-17:00 | 45 min | **Presentations & Peer Review** | Presentation | - |
+| 16:30-16:45 | 15 min | **Break** | - | - |
+| 16:45-17:00 | 15 min | **Presentations & Peer Review** | Presentation | - |
 | | | - 5-minute demos | | |
 | | | - Peer feedback | | |
 | | | - Program wrap-up | | |
@@ -311,6 +313,7 @@
 ### Day 5 Deliverables
 - [ ] Production patterns checklist completed
 - [ ] Security audit checklist completed
+- [ ] **Responsible AI & governance checklist completed** ⭐ NEW
 - [ ] **Advanced cost optimization strategies implemented** ⭐ NEW
 - [ ] **Integration pattern selected and applied** ⭐ NEW
 - [ ] **Capstone project deployed and demoed**
@@ -329,7 +332,7 @@
 | Capstone | 3.0 | 8% |
 | Breaks/Lunch | 8.0 | 20% |
 
-**Note:** +3 hours theory added (Multimodal, Context/Memory/Structured Output, Testing, Cost Opt, Integration)
+**Note:** +4 hours theory added (Multimodal, Context/Memory/Structured Output, Testing, Cost Opt, Integration, Responsible AI)
 
 ### By Topic Area
 | Topic | Hours |
@@ -340,8 +343,8 @@
 | Agents | 7.0 | ⭐ +1.5 (Context/Memory/Structured)
 | RAG | 4.0 |
 | Evaluation | 3.25 | ⭐ +0.75 (Testing)
-| Production | 4.25 | ⭐ +1.25 (Cost Opt/Integration)
-| Capstone | 4.0 |
+| Production | 5.25 | ⭐ +2.25 (Cost Opt/Integration/Responsible AI)
+| Capstone | 3.5 |
 
 ---
 

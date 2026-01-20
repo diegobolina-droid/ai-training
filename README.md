@@ -176,12 +176,14 @@ AI_Training/
 │
 ├── guides/                   # 📖 Student resources
 │   ├── README.md             # Guides overview
-│   ├── getting-started.md    # Setup & prerequisites (Coming Soon)
+│   ├── getting-started.md    # Setup & prerequisites
 │   ├── learning-paths.md     # Personalized learning paths
 │   ├── tools-ecosystem.md    # Tools guide
 │   ├── free-tier-strategy.md # Budget-friendly approach
 │   ├── checklists.md         # Daily progress tracking
-│   └── community.md          # Community resources
+│   ├── community.md          # Community resources
+│   ├── team-collaboration.md # Team workflows & best practices ⭐ NEW
+│   └── cicd-for-ai.md        # CI/CD patterns for AI systems ⭐ NEW
 │
 ├── resources/                # 📑 Reference materials
 │   ├── README.md             # Resources overview
@@ -211,10 +213,13 @@ AI_Training/
 │   └── shared/
 │
 ├── templates/                # 📋 Reusable starter templates
-│   ├── python-agent/
-│   ├── typescript-agent/
-│   ├── rag-starter/
-│   └── deployment/
+│   ├── python-agent/         # Basic Python agent
+│   ├── typescript-agent/     # Basic TypeScript agent
+│   ├── rag-starter/          # RAG system starter
+│   ├── deployment/           # Deployment configs
+│   └── production-ready/     # Production templates with all patterns ⭐ NEW
+│       ├── fullstack-production-agent/
+│       └── code-review-agent/
 │
 ├── docs/                     # 📝 Additional documentation
 │   └── LANGUAGE-CHOICE-GUIDE.md
@@ -447,6 +452,32 @@ Connect with fellow AI engineers and continue learning:
 - Hackathons and competitions
 - Job boards and hiring platforms
 - Open source contribution opportunities
+
+### 👥 [Team Collaboration](guides/team-collaboration.md) ⭐ NEW
+Best practices for contractors working in teams on AI projects:
+- Code review practices for AI systems
+- Version control workflows for agents and prompts
+- Documentation standards and templates
+- Project handoff procedures
+- Knowledge sharing and team communication
+- Quality standards and definition of done
+- Onboarding new team members
+
+### 🔄 [CI/CD for AI](guides/cicd-for-ai.md) ⭐ NEW
+Continuous integration and deployment patterns for AI applications:
+- Testing pipelines for AI systems
+- Automated quality gates and LLM-as-judge
+- Deployment automation (Railway, Render, Vercel)
+- Rollback strategies and canary deployments
+- Cost-aware testing and smart test selection
+- Monitoring and alerting for production AI
+
+### 📦 [Production-Ready Templates](templates/production-ready/) ⭐ NEW
+Complete templates with all production patterns pre-integrated:
+- **Fullstack Production Agent**: FastAPI with rate limiting, caching, monitoring, responsible AI
+- **Code Review Agent**: GitHub-integrated automated PR reviews
+- All security, observability, and governance patterns included
+- Ready to deploy to Railway, Render, or Docker
 
 ### 🎯 Next Steps After Training
 

@@ -1326,16 +1326,230 @@ class DisasterRecovery:
 
 ---
 
-# Ethical Considerations
+# Responsible AI & Governance
 
-**Key Issues**
+Beyond security, ensure systems are **ethical, accountable, and trustworthy**.
+
+---
+
+# Responsible AI Framework
+
+**Four Pillars:**
+
+1. **Ethics & Boundaries** - When (not) to automate
+2. **Fairness & Bias** - Detect and mitigate bias
+3. **Explainability** - Make decisions transparent
+4. **Governance** - Safe deployment practices
+
+---
+
+# When NOT to Automate
+
+**Never Fully Automate:**
+- Legal decisions
+- Medical diagnoses
+- Financial transactions
+- Safety-critical systems
+- Irreversible actions
+
+**Require Human Approval:**
+- Production deployments
+- Data modifications
+- Customer-facing changes
+
+---
+
+# Bias Detection
+
+```python
+class BiasDetector:
+    def detect_bias(self, text: str) -> Dict[str, Any]:
+        """Detect potential bias in AI outputs."""
+        results = {
+            "has_bias": False,
+            "bias_types": [],
+            "suggestions": []
+        }
+
+        # Check gender bias
+        if self._check_gender_bias(text) > 0.3:
+            results["bias_types"].append("gender")
+            results["suggestions"].append(
+                "Use gender-neutral language"
+            )
+
+        # Check age bias
+        if self._check_age_bias(text) > 0.2:
+            results["bias_types"].append("age")
+
+        return results
+```
+
+---
+
+# Fairness Testing
+
+Test AI performance across different user groups:
+
+```python
+class FairnessTester:
+    def test_fairness(
+        self,
+        predictions: List[Dict],
+        protected_attribute: str
+    ):
+        """Test for disparate impact."""
+        # Group by attribute
+        groups = self._group_predictions(predictions)
+
+        # Calculate metrics per group
+        metrics = self._calculate_metrics(groups)
+
+        # Check 80% rule
+        if ratio < 0.8:
+            return "Disparate impact detected"
+```
+
+**80% Rule:** Performance ratio between groups should be >= 0.8
+
+---
+
+# Human-in-the-Loop
+
+**Confidence-Based Escalation:**
+- High confidence (>90%): Auto-approve
+- Medium confidence (50-90%): Human review
+- Low confidence (<50%): Auto-reject
+
+```python
+if confidence >= 0.9:
+    # Proceed automatically
+    execute_action()
+elif confidence >= 0.5:
+    # Escalate to human
+    await request_approval()
+else:
+    # Too uncertain
+    reject_action()
+```
+
+---
+
+# Audit Trails
+
+Log every AI decision for compliance:
+
+```python
+audit.log_decision(
+    action_type="code_review",
+    input_data={"pr": 456},
+    output_data={"approved": True},
+    model="claude-3-5-sonnet",
+    confidence=0.89,
+    reasoning="Tests passed, no vulnerabilities",
+    approved_by="engineer@company.com",
+    cost=0.002
+)
+```
+
+**Essential for:**
+- Compliance (GDPR, SOC2)
+- Debugging issues
+- Improving models
+
+---
+
+# Explainability
+
+Make AI decisions understandable:
+
+```python
+explanation = explainer.explain_decision(
+    decision="Approve PR #456",
+    confidence=0.87,
+    reasoning="Well-tested, follows best practices"
+)
+
+# Returns:
+{
+    "summary": "AI is confident (87%) that...",
+    "key_factors": ["All tests pass", "No vulnerabilities"],
+    "confidence_level": "High - some uncertainty remains",
+    "human_oversight": "Medium - review before implementation"
+}
+```
+
+---
+
+# Phased Rollout
+
+Safe deployment strategy:
+
+**Phases:**
+1. **Canary** (5%) - Initial testing
+2. **Small** (25%) - Expanded testing
+3. **Medium** (50%) - Half of users
+4. **Large** (75%) - Majority
+5. **Full** (100%) - Complete rollout
+
+**Monitor at each phase:**
+- Error rates
+- Latency
+- User satisfaction
+
+Rollback if issues detected!
+
+---
+
+# Kill Switch
+
+Emergency stop for AI systems:
+
+```python
+kill_switch = KillSwitch()
+
+# Monitor for anomalies
+if error_rate > 0.15:
+    kill_switch.disable(
+        reason="Error rate exceeded threshold",
+        disabled_by="monitoring-system"
+    )
+
+# All subsequent requests blocked
+# Manual re-enable required
+```
+
+**When to use:**
+- High error rates
+- Security incidents
+- Unexpected behavior
+
+---
+
+# Responsible AI Checklist
+
+**Before Production:**
+- [ ] Automation decision framework documented
+- [ ] Bias testing completed
+- [ ] Human-in-the-loop for high-risk actions
+- [ ] Audit trail implemented
+- [ ] Explainability mechanisms in place
+- [ ] Phased rollout plan ready
+- [ ] Kill switch implemented
+- [ ] Incident response plan documented
+
+---
+
+# Key Ethical Issues
+
+**Be Aware:**
 - Bias in training data
 - Misinformation/hallucinations
 - Privacy concerns
 - Job displacement
 - Environmental impact
 
-**Best Practices**
+**Best Practices:**
 - Diverse training data
 - Fact-checking mechanisms
 - User consent

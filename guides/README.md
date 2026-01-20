@@ -48,6 +48,24 @@ Connect with fellow students and alumni.
 - Showcase your projects
 - Job board and networking
 
+### 🤝 **[Team Collaboration](./team-collaboration.md)** ⭐ NEW
+Essential practices for contractors working in teams on AI projects.
+- Code review practices for AI systems
+- Version control workflows for agents and prompts
+- Documentation standards and ADRs
+- Project handoff procedures
+- Knowledge sharing and team communication
+- Quality standards and definition of done
+
+### 🔄 **[CI/CD for AI](./cicd-for-ai.md)** ⭐ NEW
+Continuous integration and deployment patterns for AI applications.
+- Testing pipelines for AI systems
+- Automated quality gates and LLM-as-judge
+- Deployment automation and rollback strategies
+- Canary deployments and phased rollouts
+- Cost-aware testing and monitoring
+- Alert configuration and incident response
+
 ---
 
 ## 🎯 Quick Links
@@ -64,9 +82,11 @@ Connect with fellow students and alumni.
 - Stay connected via [Community](./community.md)
 
 **After the Bootcamp:**
+- Apply [Team Collaboration](./team-collaboration.md) practices in client projects
+- Set up [CI/CD](./cicd-for-ai.md) pipelines for your agents
+- Use [Production Templates](../templates/production-ready/) for new projects
 - Continue with [Optional Exercises](../optional-exercises/)
 - Share projects in [Community](./community.md)
-- Give back by helping new students
 
 ---
 
