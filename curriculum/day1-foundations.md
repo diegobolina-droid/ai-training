@@ -98,7 +98,17 @@ Warnings: 3
 
 ### 2.1 What is a Large Language Model?
 
-An LLM is a neural network trained to predict the next token in a sequence. Despite this simple objective, scale and training data have produced emergent capabilities.
+An LLM is a neural network trained to predict the next token in a sequence. Despite this simple objective, scale and training data have produced **emergent capabilities**—abilities that weren't explicitly programmed but emerged from the training process.
+
+**What does "emergent capabilities" mean?**
+Think of it like learning to ride a bike: you practice balancing, pedaling, and steering separately, but at some point, these skills combine and you can suddenly *ride*. Similarly, LLMs trained on massive text datasets develop unexpected abilities like:
+- **Reasoning**: Breaking down complex problems step-by-step
+- **Code generation**: Writing functional programs in multiple languages
+- **Translation**: Converting between languages they've seen
+- **Few-shot learning**: Understanding new tasks from just a few examples
+- **Chain-of-thought**: Explaining their reasoning process
+
+These capabilities weren't explicitly taught—they emerged from patterns in the training data.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -127,10 +137,19 @@ An LLM is a neural network trained to predict the next token in a sequence. Desp
 
 ### 2.2 Tokens: The Atomic Unit
 
-LLMs don't see characters or words—they see **tokens**. Understanding tokens is essential for:
-- Estimating costs
-- Working within context limits
-- Debugging unexpected behavior
+LLMs don't see characters or words—they see **tokens**. Think of tokens as the "atoms" of text that LLMs process.
+
+**Why tokens matter in practice:**
+- **Cost estimation**: API pricing is per token ($3-15 per million tokens). A 10,000-word document = ~13,000 tokens = $0.04-0.20 to process
+- **Context limits**: Models have token limits (128K-1M tokens). Need to fit your prompt, conversation history, AND response within this budget
+- **Performance**: More tokens = slower response and higher latency
+- **Unexpected behavior**: Token boundaries can split words unexpectedly, causing issues with rare words or code
+
+**Real-world impact example:**
+- Your app lets users paste documents. A user pastes a 50-page PDF (15,000 words ≈ 20,000 tokens)
+- At $3/million tokens input + $15/million output, this single request costs: $0.06 input + $0.30 output (2,000 token response) = $0.36
+- If 1,000 users do this monthly: $360/month just for this feature
+- **This is why understanding tokens is critical for building production AI apps.**
 
 <details>
 <summary><b>Python</b></summary>
@@ -195,19 +214,58 @@ for (const text of examples) {
 
 ### 2.3 Context Windows
 
-The context window is the total tokens the model can "see" at once (input + output).
+The context window is the total tokens the model can "see" at once (input + output). Think of it as the model's "working memory" or "attention span."
 
-| Model | Context Window | Approx. Pages |
-|-------|---------------|---------------|
-| GPT-4o | 128K | ~300 pages |
-| Claude 3.5 Sonnet | 200K | ~500 pages |
-| Gemini 1.5 Pro | 1M+ | ~2,500 pages |
-| GPT-4 Turbo | 128K | ~300 pages |
+**What fits in a context window:**
+- 128K tokens ≈ 96,000 words ≈ a 300-page novel
+- 200K tokens ≈ 150,000 words ≈ a 500-page technical book
+- 1M tokens ≈ 750,000 words ≈ entire Lord of the Rings trilogy
 
-**Practical Implications:**
-- Longer context = can include more code/documentation
-- Longer context ≠ perfect recall (attention degrades)
-- Cost scales with context length
+| Model | Context Window | Approx. Pages | What You Can Fit |
+|-------|---------------|---------------|------------------|
+| GPT-4o | 128K | ~300 pages | Small codebase, documentation site |
+| Claude 3.5 Sonnet | 200K | ~500 pages | Medium codebase, multiple docs |
+| Gemini 1.5 Pro | 1M+ | ~2,500 pages | Entire repository, large datasets |
+| GPT-4 Turbo | 128K | ~300 pages | Small codebase, documentation site |
+
+**Practical Implications & Real Examples:**
+
+**1. What you can include:**
+- ✅ **128K**: Include 5-10 relevant code files + conversation history + response
+- ✅ **200K**: Include entire API documentation + user's code + conversation
+- ✅ **1M**: Include entire codebase for analysis + conversation history
+
+**2. Cost implications:**
+```
+Example: Processing a large document
+- 100K token input × $3/MTok = $0.30 per request
+- User asks 10 questions: $3.00
+- 1,000 users: $3,000/month just for input
+- **Context size directly impacts your costs**
+```
+
+**3. The "Lost in the Middle" problem:**
+Even with huge context windows, models pay less attention to middle sections:
+```
+┌─────────────────────────────────┐
+│ BEGINNING: Strong attention ✓   │  ← Model focuses here
+├─────────────────────────────────┤
+│ MIDDLE: Weak attention ⚠️        │  ← Often missed!
+├─────────────────────────────────┤
+│ END: Strong attention ✓          │  ← Model focuses here
+└─────────────────────────────────┘
+```
+
+**Best practices:**
+- ✅ Put critical info at the **beginning and end** of your prompt
+- ✅ Use **clear section headers** to help model navigate
+- ✅ Include **only relevant context** (more ≠ better)
+- ❌ Don't dump entire codebase if you only need 3 files
+
+**Real-world tradeoff:**
+- **Option A**: Send entire 50-file codebase (100K tokens) → Higher cost, slower, potential attention issues
+- **Option B**: Send only 3 relevant files (10K tokens) → 90% cheaper, faster, better focus
+- **Best practice**: Use RAG or file selection to send only what's needed
 
 ### 2.4 Key Parameters
 
@@ -239,14 +297,70 @@ Top-p 1.0: Considers all tokens
 
 ### 2.5 Model Comparison Overview
 
+**How to choose the right model for your use case:**
+
 | Aspect | Claude 3.5 Sonnet | GPT-4o | Gemini 1.5 Pro |
 |--------|-------------------|--------|----------------|
 | **Strengths** | Reasoning, safety, long context | Broad capabilities, vision | Speed, multimodal, huge context |
-| **Code Quality** | Excellent | Excellent | Very Good |
-| **Speed** | Fast | Fast | Very Fast |
+| **Code Quality** | Excellent (9/10) | Excellent (9/10) | Very Good (8/10) |
+| **Speed** | Fast (~2-3s) | Fast (~2-3s) | Very Fast (~1-2s) |
 | **Context** | 200K | 128K | 1M+ |
 | **Cost** | $3/$15 per 1M tokens | $5/$15 per 1M tokens | $1.25/$5 per 1M tokens |
 | **Best For** | Complex reasoning, code review | General purpose, function calling | Large codebases, multimodal |
+
+**Real-world cost comparison:**
+```
+Scenario: Customer support bot (1,000 conversations/day, avg 2K tokens input + 500 tokens output)
+
+Claude 3.5 Sonnet:
+- Input: 2M tokens × $3 = $6.00
+- Output: 500K tokens × $15 = $7.50
+- Total: $13.50/day = $405/month
+
+GPT-4o:
+- Input: 2M tokens × $5 = $10.00
+- Output: 500K tokens × $15 = $7.50
+- Total: $17.50/day = $525/month
+
+Gemini 1.5 Pro:
+- Input: 2M tokens × $1.25 = $2.50
+- Output: 500K tokens × $5 = $2.50
+- Total: $5.00/day = $150/month
+
+Savings: Gemini is 73% cheaper than Claude, 79% cheaper than GPT-4o
+```
+
+**Decision framework:**
+
+**Choose Claude 3.5 Sonnet when:**
+- ✅ Code quality is critical (code review, generation, refactoring)
+- ✅ Need deep reasoning (complex problem-solving, analysis)
+- ✅ Safety/reliability is paramount (medical, legal, financial)
+- ✅ Need 200K context (analyzing large documents)
+- 💰 Budget: Mid-range
+
+**Choose GPT-4o when:**
+- ✅ Need strong function calling (agents, tool use)
+- ✅ Want ecosystem compatibility (most tutorials use OpenAI)
+- ✅ Multimodal needs (vision capabilities)
+- ✅ General-purpose, balanced performance
+- 💰 Budget: Mid-range
+
+**Choose Gemini 1.5 Pro when:**
+- ✅ Processing huge documents (1M+ token context)
+- ✅ Speed is critical (fastest inference)
+- ✅ Cost optimization is priority (cheapest)
+- ✅ Multimodal at scale (images, video)
+- 💰 Budget: Cost-conscious
+
+**Model selection strategy:**
+1. **Start with Claude 3.5 Sonnet** for development (best balance of quality/cost)
+2. **A/B test** with GPT-4o and Gemini for your specific use case
+3. **Measure** quality, speed, and cost in production
+4. **Optimize** by routing tasks to appropriate models:
+   - Simple queries → Haiku/3.5-turbo (cheaper)
+   - Complex reasoning → Sonnet/GPT-4o (better quality)
+   - Huge context → Gemini (1M+ tokens)
 
 ### 2.6 API Basics (LLM-Agnostic Pattern)
 
@@ -473,10 +587,25 @@ prompts_that_fool_llms = [
 
 ### 3.2 Hallucinations
 
-Hallucinations are confident-sounding but incorrect outputs. They occur because:
-- The model optimizes for plausible-sounding text
-- Training data contains errors
-- The model interpolates between patterns
+Hallucinations are confident-sounding but incorrect outputs. They're one of the most critical issues in production AI systems.
+
+**Why hallucinations occur:**
+- **Pattern completion over truth**: The model is trained to predict plausible next tokens, not to verify facts. If it's seen similar patterns in training, it will continue them—even if false
+- **Confidence without knowledge**: Models can't distinguish between things they "know" (saw in training) vs. things they're guessing
+- **Interpolation**: When asked about something new, models blend patterns from training data, creating plausible but false information
+
+**Real-world hallucination examples:**
+1. **API Hallucination**: Asked to use a Python library, the model invents `library.nonexistent_function()` that sounds plausible but doesn't exist. Your code breaks in production.
+2. **Fact Hallucination**: Asked "When did Python 4.0 release?", it confidently states "Python 4.0 was released in 2022" (it doesn't exist yet).
+3. **Citation Hallucination**: Asked for sources, it invents realistic-looking research papers with fake DOIs and author names that don't exist.
+4. **Code Hallucination**: Generates SQL queries that look correct but contain syntax errors or reference non-existent columns.
+
+**Business impact:**
+- Customer support bot gives wrong product information → lost sales, angry customers
+- Code generation tool creates broken code → developer trust erodes, productivity drops
+- Legal document analysis makes up case law → severe legal liability
+
+This is why **verification, testing, and RAG** (grounding in real data) are essential in production systems.
 
 **Types of Hallucinations:**
 

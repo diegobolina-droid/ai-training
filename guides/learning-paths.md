@@ -6,25 +6,88 @@ Structured roadmaps for continuing your AI engineering journey after completing 
 
 ## 🎯 How to Use This Guide
 
-1. **Assess Your Goals** - What do you want to build or achieve?
-2. **Choose Your Path** - Pick the roadmap that aligns with your interests
-3. **Follow the Sequence** - Complete milestones in order for best results
-4. **Build Projects** - Apply learning through practical projects
-5. **Track Progress** - Use the checkboxes to monitor your journey
+**After completing this 5-day intensive training, you have the fundamentals. These paths show how to go from "I understand AI" to "I'm productive building AI systems professionally."**
 
-**Time Investment**: Each path requires 3-6 months of dedicated learning (10-15 hours/week)
+### Step-by-Step Approach:
+
+1. **Assess Your Goals** - What do you want to build or achieve?
+   - Building products? → AI Product Engineer path
+   - Scaling systems? → AI Infrastructure Engineer path
+   - Love research? → Research Engineer path
+   - Consulting/Strategy? → AI Consultant/Architect path
+
+2. **Choose Your Path** - Pick ONE roadmap (you can switch later)
+   - Don't try to do everything at once
+   - Focus = faster progress
+
+3. **Follow the Sequence** - Complete milestones in order
+   - Each month builds on the previous
+   - Skipping steps creates knowledge gaps
+
+4. **Build Projects** - Learning by doing is 10x more effective than reading
+   - Every week, complete at least one hands-on project
+   - Deploy everything (even if buggy)
+
+5. **Track Progress** - Use the checkboxes to monitor your journey
+   - Check off tasks as you complete them
+   - Review monthly to stay on track
+
+### Time Investment & Reality Check:
+
+**Each path requires 3-6 months of dedicated learning:**
+- **Part-time (10-15 hours/week)**: 4-6 months to job-ready
+- **Full-time (30-40 hours/week)**: 2-3 months to job-ready
+
+**Breakdown:**
+- 50% hands-on building projects
+- 30% learning new concepts
+- 20% reading papers, engaging with community
+
+**What "job-ready" means:**
+- Can build and deploy production AI applications
+- Understand tradeoffs between approaches
+- Can debug AI systems independently
+- Have portfolio of 3-5 deployed projects
 
 ---
 
 ## 📊 Available Learning Paths
 
-| Path | Best For | Time | Outcome |
-|------|----------|------|---------|
-| [AI Product Engineer](#path-1-ai-product-engineer) | Building user-facing AI apps | 3-4 months | Ship AI products |
-| [AI Infrastructure Engineer](#path-2-ai-infrastructure-engineer) | Scaling AI systems | 4-6 months | Production-grade systems |
-| [Research Engineer](#path-3-research-engineer) | Pushing boundaries | 6+ months | Novel AI applications |
-| [AI Consultant/Architect](#path-4-ai-consultantarchitect) | Strategic AI implementation | 3-4 months | Design AI solutions |
-| [Specialized Paths](#specialized-paths) | Domain-specific expertise | Varies | Domain mastery |
+**Choose based on what you want to achieve after this training:**
+
+| Path | Best For | Time Commitment | Skills You'll Gain | Typical Role After |
+|------|----------|-----------------|--------------------|--------------------|
+| [AI Product Engineer](#path-1-ai-product-engineer) | Building user-facing AI apps | 3-4 months<br>(10-15 hrs/week) | Full-stack AI apps, RAG systems, deployment | AI Product Engineer, Full-Stack AI Dev |
+| [AI Infrastructure Engineer](#path-2-ai-infrastructure-engineer) | Scaling AI systems | 4-6 months<br>(10-15 hrs/week) | Vector databases, observability, multi-region deployment | ML Platform Engineer, AI Infrastructure Lead |
+| [Research Engineer](#path-3-research-engineer) | Pushing boundaries, reading papers | 6+ months<br>(15-20 hrs/week) | Novel architectures, research implementation, benchmarking | AI Research Engineer, Applied Scientist |
+| [AI Consultant/Architect](#path-4-ai-consultantarchitect) | Strategic AI implementation | 3-4 months<br>(10 hrs/week) | Architecture design, vendor evaluation, ROI analysis | AI Consultant, Solutions Architect, Technical Lead |
+| [Specialized Paths](#specialized-paths) | Domain-specific expertise | Varies | Healthcare AI, Enterprise AI, Security, etc. | Domain-specific AI specialist |
+
+**💡 Which path is right for you?**
+
+**Choose AI Product Engineer if:**
+- ✅ You want to ship user-facing applications
+- ✅ You enjoy full-stack development
+- ✅ You want to build your own AI products/startups
+- ✅ You prefer tangible, deployed projects
+
+**Choose AI Infrastructure Engineer if:**
+- ✅ You love backend systems and scaling challenges
+- ✅ You enjoy optimizing performance and costs
+- ✅ You want to build platforms that other engineers use
+- ✅ You prefer deep technical problems over user interfaces
+
+**Choose Research Engineer if:**
+- ✅ You love reading research papers
+- ✅ You want to create novel AI techniques
+- ✅ You enjoy experimentation and benchmarking
+- ✅ You prefer bleeding-edge over production-ready
+
+**Choose AI Consultant/Architect if:**
+- ✅ You enjoy strategic thinking and business impact
+- ✅ You want to advise companies on AI adoption
+- ✅ You like variety (different projects, different companies)
+- ✅ You prefer designing systems over implementing them
 
 ---
 

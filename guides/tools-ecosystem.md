@@ -909,31 +909,90 @@ user = client.chat.completions.create(
 
 ## 🎯 Choosing Your Stack
 
-### For Rapid Prototyping
-- **LLM**: Claude 3.5 Sonnet
-- **Framework**: LangChain or raw API
-- **Vector DB**: ChromaDB
-- **Frontend**: Streamlit
-- **Deployment**: None (local)
+**Use this decision framework based on your stage and needs:**
 
-### For Production MVP
-- **LLM**: Claude 3.5 Sonnet + Haiku
-- **Framework**: LangChain/LlamaIndex
-- **Vector DB**: Pinecone or Qdrant Cloud
-- **Backend**: FastAPI
-- **Frontend**: Next.js + Vercel AI SDK
-- **Deployment**: Vercel + Railway
-- **Monitoring**: Helicone
+### For Rapid Prototyping (Week 1-2)
+**Goal:** Validate idea quickly, iterate fast, minimize setup
 
-### For Enterprise Scale
-- **LLM**: Multiple providers with LiteLLM
-- **Framework**: Custom or LangChain
-- **Vector DB**: Weaviate or Milvus (self-hosted)
-- **Backend**: FastAPI with Kubernetes
-- **Frontend**: Next.js
-- **Deployment**: AWS/GCP/Azure
-- **Monitoring**: Datadog + LangSmith
-- **Queue**: Kafka or RabbitMQ
+- **LLM**: Claude 3.5 Sonnet (best quality/speed balance)
+- **Framework**: Raw API or LangChain (avoid over-engineering)
+- **Vector DB**: ChromaDB (embedded, zero setup)
+- **Frontend**: Streamlit (Python-only, instant UI)
+- **Deployment**: None (local development)
+- **Cost**: $20-50/month in API costs
+
+**Why this stack:**
+- ✅ Set up in < 1 hour
+- ✅ No infrastructure management
+- ✅ Focus on core logic, not devops
+- ❌ Not production-ready
+- ❌ Single-user only
+
+### For Production MVP (Month 1-3)
+**Goal:** Launch to real users, handle 100-1K users, stay reliable
+
+- **LLM**: Claude 3.5 Sonnet + Haiku (quality + cost optimization)
+- **Framework**: LangChain or LlamaIndex (battle-tested patterns)
+- **Vector DB**: Pinecone or Qdrant Cloud (managed, scales automatically)
+- **Backend**: FastAPI (fast, production-ready Python)
+- **Frontend**: Next.js + Vercel AI SDK (modern, streaming support)
+- **Deployment**: Vercel (frontend) + Railway (backend)
+- **Monitoring**: Helicone (simple, affordable)
+- **Cost**: $200-500/month (infra + API)
+
+**Why this stack:**
+- ✅ Production-ready out of the box
+- ✅ Scales to 1K-10K users without changes
+- ✅ Good monitoring and debugging
+- ✅ Managed services = less operational burden
+- ❌ Higher cost than self-hosted
+- ❌ Vendor lock-in to some extent
+
+### For Enterprise Scale (Month 6+)
+**Goal:** Handle 10K+ users, multi-tenancy, compliance, high reliability
+
+- **LLM**: Multiple providers with LiteLLM (redundancy + cost optimization)
+- **Framework**: Custom or LangChain (more control at scale)
+- **Vector DB**: Weaviate or Milvus (self-hosted for data sovereignty)
+- **Backend**: FastAPI + Kubernetes (horizontal scaling)
+- **Frontend**: Next.js (proven at scale)
+- **Deployment**: AWS/GCP/Azure (full control, compliance)
+- **Monitoring**: Datadog + LangSmith (enterprise features)
+- **Queue**: Kafka or RabbitMQ (async processing)
+- **Cost**: $2K-10K+/month (scales with usage)
+
+**Why this stack:**
+- ✅ Scales to millions of users
+- ✅ Full control and customization
+- ✅ Multi-region deployment
+- ✅ Compliance-ready (SOC 2, HIPAA, etc.)
+- ❌ Requires dedicated DevOps team
+- ❌ High operational complexity
+- ❌ Expensive infrastructure
+
+### Quick Decision Tree
+
+```
+How many users?
+├─ Just me / testing → Prototyping Stack
+├─ 10-1K users → MVP Stack
+└─ 10K+ users → Enterprise Stack
+
+What's your budget?
+├─ < $100/month → Prototyping Stack (local + free tiers)
+├─ $100-1K/month → MVP Stack (managed services)
+└─ $1K+/month → Enterprise Stack (self-hosted options)
+
+What's your timeline?
+├─ Launch in days → Prototyping Stack (Streamlit)
+├─ Launch in weeks → MVP Stack (Next.js + managed services)
+└─ Launch in months → Enterprise Stack (custom build)
+
+What's your team size?
+├─ Solo developer → Prototyping/MVP Stack
+├─ 2-5 engineers → MVP Stack
+└─ 10+ engineers → Enterprise Stack
+```
 
 ---
 

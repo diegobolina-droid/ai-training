@@ -25,8 +25,6 @@ The future of software engineering is here, and it's powered by AI. This intensi
 ✅ **Hands-On from Day 1** - Build 5+ complete projects, not just tutorials
 ✅ **Production-Focused** - Learn patterns used by real companies like Cursor, GitHub Copilot, and Perplexity
 ✅ **Framework-Agnostic** - Master principles that work with any LLM or tool
-✅ **Career-Ready** - Graduate with a portfolio of deployed applications
-✅ **Small Cohorts** - Maximum 20 students for personalized attention
 
 ---
 
@@ -273,8 +271,6 @@ Continue learning with our extensive optional exercise library:
 ✅ **GitHub Repository** with 5+ production projects
 ✅ **Certificate of Completion** from our program
 ✅ **Network** of fellow AI engineers
-✅ **Lifetime Access** to course materials and updates
-✅ **Career Resources** including resume templates and interview prep
 
 ### Long-Term Value
 
@@ -292,25 +288,6 @@ Continue learning with our extensive optional exercise library:
 - AI is the future of software
 - Learn principles, not just tools
 - Stay ahead of the curve
-
----
-
-## 🏆 Student Success Stories
-
-### "Best investment in my career"
-> *"I went from zero AI knowledge to building production RAG systems in 5 days. The hands-on approach made all the difference. Within 2 weeks, I shipped an AI feature that saved our team 15 hours/week."*
->
-> **— Sarah Chen**, Senior Software Engineer @ TechCorp
-
-### "Finally, practical AI training"
-> *"Every other AI course is just theory. This program had me shipping code on Day 1. The projects are real, the skills are immediately applicable, and the instructor knows production patterns inside-out."*
->
-> **— Marcus Rodriguez**, Full-Stack Developer → AI Engineer
-
-### "Transformed how I build software"
-> *"AI-first development isn't just faster—it's fundamentally different. This bootcamp gave me the mental models to work effectively with LLMs. I'm now leading our company's AI adoption."*
->
-> **— Jennifer Park**, Tech Lead @ StartupXYZ
 
 ---
 
@@ -344,98 +321,6 @@ Continue learning with our extensive optional exercise library:
 - Testing frameworks
 - Evaluation metrics
 
-✅ **Community Access**
-- Private Discord server
-- Weekly office hours (even after graduation)
-- Peer code reviews
-- Job board access
-
----
-
-## 💰 Investment & ROI
-
-### Program Cost: $2,997
-
-**Compare to:**
-- University AI courses: $5,000 - $15,000 (semester-long)
-- Online bootcamps: $10,000 - $20,000 (12-16 weeks)
-- Self-learning: 200+ hours + countless mistakes
-
-### ROI Analysis:
-
-**Salary Impact:**
-- Junior → Mid-level AI Engineer: +$30-50k/year
-- Mid → Senior AI Engineer: +$40-70k/year
-- Traditional SWE → AI Engineer: +$20-40k/year
-
-**Time Saved:**
-- 5 days vs. 6 months self-learning
-- Learn from production mistakes avoided
-- Network with peers and instructors
-
-**Your investment pays for itself with your first AI project.**
-
----
-
-## 🎁 Special Offers
-
-### Early Bird Discount
-**Save $500** when you register 2+ weeks in advance
-~~$2,997~~ → **$2,497**
-
-### Team Discount
-**3+ engineers from the same company:** Save $700/person
-**$2,297 per person**
-
-### Student/Bootcamp Grad Discount
-**Show valid ID:** Save $400
-**$2,597**
-
----
-
-## 📍 Format & Schedule
-
-### In-Person Cohorts
-- **Location:** San Francisco, CA (or your city)
-- **Duration:** 5 consecutive days
-- **Schedule:** 9:00 AM - 5:00 PM daily
-- **Lunch:** Provided
-- **Size:** Max 20 students
-
-### Remote Cohorts
-- **Platform:** Zoom + Discord
-- **Duration:** 5 consecutive days
-- **Schedule:** 9:00 AM - 5:00 PM PST
-- **Recording:** All sessions recorded
-- **Size:** Max 30 students
-
-### Self-Paced Option
-- **Access:** Immediate upon enrollment
-- **Duration:** 12 months access
-- **Support:** Discord community + office hours
-- **Recommended:** Complete within 2-4 weeks
-
----
-
-## 🚀 Ready to Start?
-
-### Upcoming Cohorts:
-
-| Cohort | Date | Format | Spots | Status |
-|--------|------|--------|-------|--------|
-| **Cohort 12** | Feb 3-7, 2025 | In-Person (SF) | 4/20 | 🟢 Open |
-| **Cohort 13** | Feb 17-21, 2025 | Remote | 12/30 | 🟢 Open |
-| **Cohort 14** | Mar 3-7, 2025 | In-Person (SF) | 18/20 | 🟡 Filling Fast |
-| **Cohort 15** | Mar 17-21, 2025 | Remote | 25/30 | 🟢 Open |
-
-### Enrollment Process:
-
-1. **Apply** - Fill out our [application form](link) (5 minutes)
-2. **Interview** - Brief technical screening (15 minutes)
-3. **Enroll** - Secure your spot with deposit
-4. **Prepare** - Receive pre-work materials
-5. **Day 1** - Show up ready to build
-
 ---
 
 ## ❓ Frequently Asked Questions
@@ -451,19 +336,11 @@ Continue learning with our extensive optional exercise library:
 **This course might not be for you if:**
 - You've never programmed before
 - You're looking for ML/AI theory (neural networks, backprop)
-- You can't commit to the full 5 days
 - You're expecting a passive learning experience
 
 ### Do I need Python or JavaScript experience?
 
 You should be comfortable with **either** Python **or** TypeScript/JavaScript. We provide examples in both languages. If you know other languages (Go, Rust, Java), you'll be fine—the concepts are language-agnostic.
-
-### What if I fall behind?
-
-- All sessions are recorded (remote + hybrid cohorts)
-- We have TAs and instructor office hours
-- Course materials are yours forever
-- You can join our alumni Discord for continued support
 
 ### What equipment do I need?
 
@@ -471,7 +348,7 @@ You should be comfortable with **either** Python **or** TypeScript/JavaScript. W
 - Text editor or IDE
 - Modern web browser
 - Git installed
-- API keys (we provide credits for learning)
+- API keys
 
 ### Is there a certificate?
 
@@ -479,41 +356,6 @@ Yes! You'll receive a **Certificate of Completion** upon finishing all labs and 
 - Course completion verification
 - Skills covered
 - Projects completed
-- LinkedIn-ready badge
-
-### Can I expense this to my company?
-
-Absolutely! We provide:
-- Detailed syllabus for approval
-- Invoice for reimbursement
-- Company group discounts
-- Custom corporate training options
-
-### What's your refund policy?
-
-- **Before Day 1:** Full refund minus $100 processing fee
-- **During Day 1:** 75% refund
-- **After Day 1:** No refunds, but you can transfer to another cohort
-
-We're confident you'll love the program, but if it's not right for you, we'll make it right.
-
----
-
-## 📧 Still Have Questions?
-
-### Get in Touch:
-
-- 📩 **Email:** [training@yourcompany.com](mailto:training@yourcompany.com)
-- 💬 **Discord:** Join our [public community](link)
-- 📅 **Office Hours:** Tuesdays 4-5pm PST (free Q&A)
-- 📞 **Phone:** +1 (555) 123-4567
-
-### Free Resources:
-
-- 📖 **Read:** [Our AI Engineering Blog](link)
-- 🎥 **Watch:** [Sample lessons on YouTube](link)
-- 📝 **Download:** [Course Syllabus PDF](link)
-- 🎯 **Take:** [Skills Assessment Quiz](link)
 
 ---
 
@@ -531,27 +373,8 @@ The question is "Why haven't I started yet?"
 
 ---
 
-<div align="center">
-
-## 🚀 Enroll Now
-
-**[→ Apply for Next Cohort ←](link)**
-
-Or schedule a call: **[Talk to an Advisor](link)**
-
----
-
-*Limited spots available. Cohorts fill quickly.*
-
-*Join the 500+ engineers who've already transformed their careers.*
-
-</div>
-
----
-
 **Navigation:** [← Back to Main README](./README.md) | [View Course Schedule →](./SCHEDULE.md) | [See Optional Exercises →](./optional-exercises/)
 
 ---
 
 *Last Updated: January 2025*
-*Questions? Reach out anytime: training@yourcompany.com*
