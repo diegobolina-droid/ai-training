@@ -29,7 +29,7 @@ Connect with fellow AI engineers, join communities, attend events, and continue 
 **[r/MachineLearning](https://www.reddit.com/r/MachineLearning/)** (2.8M members)
 - ML research and papers
 - Industry news
-- Career discussions
+- Technical discussions
 - Weekly paper discussions
 
 **[r/OpenAI](https://www.reddit.com/r/OpenAI/)** (500,000+ members)
@@ -361,47 +361,6 @@ Connect with fellow AI engineers, join communities, attend events, and continue 
 - Funding for AI projects
 - Mentorship included
 - Non-dilutive grants
-
----
-
-## 💼 Job Boards & Hiring
-
-### Specialized Job Boards
-
-**[AI Jobs](https://aijobs.app/)**
-- AI/ML positions
-- Startups to enterprise
-- Remote options
-
-**[AI Engineer Jobs](https://www.ai.engineer/jobs)**
-- Curated AI eng roles
-- Vetted companies
-- Community-focused
-
-**[Hugging Face Jobs](https://huggingface.co/jobs)**
-- ML engineering roles
-- Open source focus
-- Remote-friendly
-
-**[LangChain Careers](https://careers.langchain.com/)**
-- Companies using LangChain
-- AI engineering roles
-- Growing list
-
-### General Tech Job Boards
-
-- [Y Combinator Jobs](https://www.ycombinator.com/jobs) - Startup roles
-- [AngelList](https://angel.co/) - Startup jobs with equity
-- [LinkedIn](https://www.linkedin.com/) - All levels
-- [Indeed](https://www.indeed.com/) - All types
-- [We Work Remotely](https://weworkremotely.com/) - Remote roles
-
-### Hiring Platforms
-
-**For Getting Hired**:
-- [Triplebyte](https://triplebyte.com/) - Technical assessment
-- [Hired](https://hired.com/) - Companies apply to you
-- [TopTal](https://www.toptal.com/) - Freelance opportunities
 
 ---
 

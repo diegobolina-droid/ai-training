@@ -1,6 +1,6 @@
 # Assessment & Evaluation
 
-Guidelines for evaluating student work and measuring progress throughout the bootcamp.
+Guidelines for evaluating student work and measuring progress throughout the training program.
 
 ---
 
@@ -98,43 +98,12 @@ Use the [Checklists](../guides/checklists.md) to track:
 - Skills mastered
 - Portfolio readiness
 
-### Instructor Feedback
+### Feedback Approach
 
-You'll receive:
+Recommended feedback structure:
 - **Daily:** Quick feedback on lab submissions
-- **Mid-week:** 1-on-1 check-in (Day 3)
+- **Mid-week:** Progress check-in (Day 3)
 - **Final:** Comprehensive capstone review
-- **Post-program:** Career guidance session
-
----
-
-## 🎓 Certificate
-
-Upon successful completion, you receive:
-
-**GenAI Engineering Bootcamp Certificate**
-
-Includes:
-- Your name and completion date
-- Skills covered and mastered
-- Projects completed
-- Final grade
-- LinkedIn credential URL
-
----
-
-## 📊 Typical Grade Distribution
-
-Based on past cohorts:
-
-- **A (90-100%):** 35% of students
-- **B (80-89%):** 45% of students
-- **C (70-79%):** 15% of students
-- **Below 70%:** 5% (usually incomplete work)
-
-**Average grade: 85%**
-
-Most students who engage fully and complete all assignments earn an A or B.
 
 ---
 
@@ -156,15 +125,6 @@ Most students who engage fully and complete all assignments earn an A or B.
 
 ---
 
-## 🤔 Questions About Grading?
-
-- **During Class:** Ask instructor directly
-- **Discord:** Post in `#assessment` channel
-- **Email:** instructor@bootcamp.com
-- **Office Hours:** Tuesdays & Thursdays 4-5pm
-
----
-
 ## ⚖️ Academic Integrity
 
 We expect:
@@ -173,7 +133,7 @@ We expect:
 - Collaboration encouraged (but submit your own)
 - AI tools allowed (as learning assistants)
 
-**Using AI tools (Claude, ChatGPT, Copilot) is encouraged!** This is an AI engineering bootcamp - we expect you to use AI effectively. Just understand what the code does.
+**Using AI tools (Claude, ChatGPT, Copilot) is encouraged!** This training program expects you to use AI effectively. Just understand what the code does.
 
 ---
 

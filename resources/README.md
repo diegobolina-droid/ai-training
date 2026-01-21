@@ -87,12 +87,12 @@ AI engineering evolves rapidly. Follow these to stay current:
 
 ## 💡 How to Use These Resources
 
-**During the Bootcamp:**
+**During Training:**
 - Use as supplementary reading for each day's topics
 - Reference when you want deeper understanding
 - Cite in your projects and reports
 
-**After the Bootcamp:**
+**After Completing:**
 - Work through papers in your spare time
 - Build projects based on techniques you learn
 - Contribute back by sharing your learnings

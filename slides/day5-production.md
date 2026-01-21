@@ -28,7 +28,7 @@ Agentic AI Intensive Training
 
 **Evening: Wrap-Up**
 - Real-world case studies
-- Career paths & next steps
+- Summary & resources for continued learning
 
 ---
 
@@ -1216,97 +1216,6 @@ class DisasterRecovery:
 - Improved code quality
 - Developer satisfaction up 40%
 
----
-
-# Career Paths: AI Engineer
-
-**Skills**
-- Python/TypeScript
-- ML fundamentals
-- Prompt engineering
-- Vector databases
-- Production systems
-
-**Roles**
-- AI/ML Engineer
-- LLM Engineer
-- Applied AI Scientist
-- AI Product Manager
-
----
-
-# Career Paths: Specializations
-
-**Research**
-- Novel architectures
-- Training techniques
-- Academic publications
-
-**Infrastructure**
-- Model serving
-- Scaling systems
-- MLOps
-
-**Product**
-- User experience
-- Product-market fit
-- Business impact
-
----
-
-# Learning Path
-
-**Foundation** (3-6 months)
-- ML basics
-- NLP fundamentals
-- Transformers architecture
-
-**Applied** (6-12 months)
-- Prompt engineering
-- RAG systems
-- Agent development
-- Production deployment
-
-**Advanced** (12+ months)
-- Fine-tuning
-- Multi-modal models
-- Research contributions
-
----
-
-# Resources for Growth
-
-**Courses**
-- Fast.ai: Practical Deep Learning
-- DeepLearning.AI: LangChain courses
-- Stanford CS224N: NLP
-
-**Communities**
-- Discord: LangChain, AI Tinkerers
-- Reddit: r/MachineLearning, r/LocalLLaMA
-- Twitter/X: AI researchers
-
-**Practice**
-- Kaggle competitions
-- Open source contributions
-- Personal projects
-
----
-
-# Building Portfolio
-
-**Project Ideas**
-1. Personal documentation assistant
-2. Domain-specific chatbot
-3. Code analysis tool
-4. Research paper summarizer
-5. Multi-agent system
-
-**Showcase**
-- GitHub repos with README
-- Blog posts explaining approach
-- Demo videos
-- Open source contributions
 
 ---
 
@@ -1650,11 +1559,6 @@ Agentic AI Intensive Training Program
 
 Congratulations on completing the program!
 
-**Stay Connected**
-- GitHub: [your-org]
-- Discord: [invite-link]
-- Email: training@example.com
-
 **Keep Learning**
 The journey is just beginning.
 
@@ -1670,18 +1574,6 @@ Final questions?
 - Project templates
 - Reading list
 - Community links
-
----
-
-# One More Thing
-
-**Special Offer**
-- Advanced topics workshop (next month)
-- 1-on-1 mentorship sessions
-- Job placement assistance
-- Alumni network access
-
-**Apply**: training@example.com
 
 ---
 

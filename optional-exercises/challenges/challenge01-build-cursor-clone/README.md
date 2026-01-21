@@ -480,12 +480,4 @@ describe('Full workflow', () => {
 
 ---
 
-## Support
-
-- **Discord**: `#challenge-cursor-clone`
-- **Office Hours**: Fridays 3-4pm
-- **Showcase**: Share your progress in `#showcase`
-
----
-
 **¡Construye el futuro de los IDEs! 🚀**

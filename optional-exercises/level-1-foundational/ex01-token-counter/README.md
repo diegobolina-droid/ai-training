@@ -348,6 +348,4 @@ After completing this exercise, consider:
 
 ---
 
-**Questions?** Ask in Discord `#optional-exercises`
-
 **Good luck! 🚀**

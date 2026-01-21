@@ -1,13 +1,13 @@
 # Student Guides
 
-Essential resources and guides to help you succeed in the GenAI Engineering Bootcamp.
+Essential resources and guides to help you succeed in the GenAI Engineering Training Program.
 
 ---
 
 ## 📖 Available Guides
 
 ### 🚀 **[Getting Started](./getting-started.md)**
-Everything you need to set up your development environment and prepare for the bootcamp.
+Everything you need to set up your development environment and prepare for the training program.
 - Prerequisites and system requirements
 - Installing required tools
 - API key setup
@@ -28,14 +28,14 @@ Comprehensive guide to AI coding tools and when to use them.
 - Comparison matrix and recommendations
 
 ### 💰 **[Free Tier Strategy](./free-tier-strategy.md)**
-How to complete the bootcamp on free/trial API credits.
+How to complete the training program on free/trial API credits.
 - Free tier limits for each provider
 - Cost optimization strategies
 - Budget tracking tips
 - Alternative free resources
 
 ### ✅ **[Checklists](./checklists.md)**
-Track your progress through the bootcamp.
+Track your progress through the training program.
 - Daily preparation checklists
 - Lab completion checklists
 - Skill mastery tracking
@@ -46,7 +46,7 @@ Connect with fellow students and alumni.
 - Discord server guidelines
 - Study groups and pair programming
 - Showcase your projects
-- Job board and networking
+- Networking opportunities
 
 ### 🤝 **[Team Collaboration](./team-collaboration.md)** ⭐ NEW
 Essential practices for contractors working in teams on AI projects.
@@ -70,19 +70,19 @@ Continuous integration and deployment patterns for AI applications.
 
 ## 🎯 Quick Links
 
-**Before the Bootcamp:**
+**Before Starting:**
 1. Read [Getting Started](./getting-started.md)
 2. Review [Tools Ecosystem](./tools-ecosystem.md)
 3. Choose your [Learning Path](./learning-paths.md)
 4. Join the [Community](./community.md)
 
-**During the Bootcamp:**
+**During Training:**
 - Use [Checklists](./checklists.md) daily
 - Reference [Free Tier Strategy](./free-tier-strategy.md) for cost management
 - Stay connected via [Community](./community.md)
 
-**After the Bootcamp:**
-- Apply [Team Collaboration](./team-collaboration.md) practices in client projects
+**After Completing:**
+- Apply [Team Collaboration](./team-collaboration.md) practices in projects
 - Set up [CI/CD](./cicd-for-ai.md) pipelines for your agents
 - Use [Production Templates](../templates/production-ready/) for new projects
 - Continue with [Optional Exercises](../optional-exercises/)
@@ -92,9 +92,8 @@ Continuous integration and deployment patterns for AI applications.
 
 ## 🤔 Need Help?
 
-- **Technical Issues:** Discord `#help` channel
-- **Content Questions:** Discord `#questions` channel
-- **Career Guidance:** Schedule office hours
+- **Technical Issues:** Check documentation and troubleshooting guides
+- **Content Questions:** Review curriculum materials and resources
 - **Bug Reports:** GitHub Issues
 
 ---

@@ -450,8 +450,8 @@ Connect with fellow AI engineers and continue learning:
 - Podcasts and YouTube channels
 - Conferences and events (AI Engineer Summit, NeurIPS, ICML)
 - Hackathons and competitions
-- Job boards and hiring platforms
 - Open source contribution opportunities
+- Networking and community forums
 
 ### 👥 [Team Collaboration](guides/team-collaboration.md) ⭐ NEW
 Best practices for contractors working in teams on AI projects:

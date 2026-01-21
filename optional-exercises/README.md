@@ -8,7 +8,7 @@ These optional labs are designed to:
 
 - **Reinforce concepts**: Practice what you learned in the main program
 - **Explore advanced cases**: Go beyond the basic material
-- **Build portfolio**: Create demonstrable projects for your career
+- **Build portfolio**: Create demonstrable projects for your portfolio
 - **Self-directed learning**: Encourage independent research
 - **Real-world preparation**: Simulate real production challenges
 
@@ -245,10 +245,8 @@ Did you improve an exercise or create a new one? Contribute!
 
 ## Support and Community
 
-- **Discord**: `#optional-exercises` channel for discussion
-- **Office Hours**: Wednesdays 4-5pm to answer questions
-- **Showcase**: Share your solutions in `#showcase`
 - **Issues**: Report problems on GitHub Issues
+- **Community**: Share your solutions in community forums
 
 ---
 

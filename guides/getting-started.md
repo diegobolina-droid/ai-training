@@ -1,10 +1,10 @@
 # Getting Started
 
-Complete setup guide to prepare for the GenAI Engineering Bootcamp.
+Complete setup guide to prepare for the GenAI Engineering Training Program.
 
 ---
 
-## 📋 Pre-Bootcamp Checklist
+## 📋 Pre-Training Checklist
 
 Before Day 1, ensure you have:
 
@@ -550,7 +550,7 @@ Or use a different port in your code.
 
 ---
 
-## 📚 Pre-Bootcamp Reading (Optional)
+## 📚 Pre-Training Reading (Optional)
 
 Get a head start with these quick reads (30 minutes total):
 
@@ -562,7 +562,7 @@ Get a head start with these quick reads (30 minutes total):
 - [Attention is All You Need (summary)](https://blog.research.google/2017/08/transformer-novel-neural-network.html)
 - [How to build an AI agent](https://www.anthropic.com/research/building-effective-agents)
 
-**Don't stress:** These are optional! We'll cover everything during the bootcamp.
+**Don't stress:** These are optional! We'll cover everything during the training program.
 
 ---
 
@@ -666,7 +666,7 @@ If you've completed all the steps above, you're ready for Day 1!
 
 ### Next Steps
 
-1. **Join the Community:** Connect on [Discord/Slack] (see [community.md](./community.md))
+1. **Join the Community:** See [community.md](./community.md) for resources
 2. **Review Day 1 Agenda:** Check [curriculum/day1-foundations.md](../curriculum/day1-foundations.md)
 3. **Prepare Questions:** Think about what you want to learn
 4. **Get Excited:** You're about to become an AI engineer! 🚀
@@ -675,17 +675,9 @@ If you've completed all the steps above, you're ready for Day 1!
 
 ## 📞 Need Help?
 
-### Before the Bootcamp
-
-- **Technical Issues:** Email instructor@bootcamp.com
+- **Technical Issues:** Check the documentation and community forums
 - **API Key Problems:** Check provider's documentation
-- **General Questions:** Post in Discord `#setup-help`
-
-### During the Bootcamp
-
-- **Technical Support:** Discord `#help` channel
-- **Content Questions:** Ask during sessions or use Discord `#questions`
-- **Office Hours:** [Schedule TBD]
+- **General Questions:** Post in community forums (see [community.md](./community.md))
 
 ---
 

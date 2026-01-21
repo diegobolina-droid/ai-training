@@ -428,4 +428,4 @@ pytest>=7.4.0
 
 ---
 
-**Questions?** Open an issue or ask in Discord `#optional-exercises`
+**Questions?** Open an issue on GitHub

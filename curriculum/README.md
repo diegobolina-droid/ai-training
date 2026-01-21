@@ -1,6 +1,6 @@
 # Curriculum
 
-Complete 5-day course curriculum for the GenAI Engineering Bootcamp.
+Complete 5-day course curriculum for the GenAI Engineering Training Program.
 
 ---
 
@@ -83,7 +83,7 @@ Each day follows this pattern:
 
 - Each day is designed for 8 hours (including breaks)
 - Labs should be completed during class time
-- Adjust pacing based on cohort experience level
+- Adjust pacing based on student experience level
 - Use slides in `/slides/` directory
 
 ---
