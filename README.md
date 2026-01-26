@@ -322,7 +322,6 @@ By the end of this program, you will be able to:
 
 ### During Training
 - All labs include step-by-step instructions
-- Reference solutions available in `/solutions`
 - Exercises include expected outputs for verification
 
 ### External Resources
