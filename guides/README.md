@@ -48,7 +48,7 @@ Connect with fellow students and alumni.
 - Showcase your projects
 - Networking opportunities
 
-### 🤝 **[Team Collaboration](./team-collaboration.md)** ⭐ NEW
+### 🤝 **[Team Collaboration](./team-collaboration.md)**
 Essential practices for contractors working in teams on AI projects.
 - Code review practices for AI systems
 - Version control workflows for agents and prompts
@@ -57,7 +57,7 @@ Essential practices for contractors working in teams on AI projects.
 - Knowledge sharing and team communication
 - Quality standards and definition of done
 
-### 🔄 **[CI/CD for AI](./cicd-for-ai.md)** ⭐ NEW
+### 🔄 **[CI/CD for AI](./cicd-for-ai.md)**
 Continuous integration and deployment patterns for AI applications.
 - Testing pipelines for AI systems
 - Automated quality gates and LLM-as-judge
