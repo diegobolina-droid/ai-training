@@ -60,7 +60,7 @@ This program supports both **Python** and **TypeScript**. Mark which language yo
 
 #### Afternoon (13:30 - 17:00)
 - [ ] Know code-focused prompting patterns
-- [ ] **Understand multimodal prompting (images, PDFs)** **NEW**
+- [ ] Understand multimodal prompting (images, PDFs)
 - [ ] Understand migration and refactoring prompts
 - [ ] Built personal prompt library
 - [ ] **Lab 02 Complete**: Code analyzer agent deployed
@@ -77,10 +77,10 @@ This program supports both **Python** and **TypeScript**. Mark which language yo
 
 #### Morning (09:00 - 12:30)
 - [ ] Understand agent fundamentals (loop, memory, state)
-- [ ] **Implement context management strategies** **NEW**
-- [ ] **Build long-term and episodic memory systems** **NEW**
+- [ ] Implement context management strategies
+- [ ] Build long-term and episodic memory systems
 - [ ] Know tool-use and function calling patterns
-- [ ] **Ensure structured output with schema validation** **NEW**
+- [ ] Ensure structured output with schema validation
 - [ ] Understand ReAct pattern
 - [ ] Know planning and verification patterns
 - [ ] **Exercise 1 Complete**: Agent architecture design
@@ -111,7 +111,7 @@ This program supports both **Python** and **TypeScript**. Mark which language yo
 #### Afternoon (13:30 - 17:00)
 - [ ] Understand evaluation metrics (precision, recall, MRR)
 - [ ] Know LLM-as-judge evaluation
-- [ ] **Implement comprehensive testing strategies** **NEW**
+- [ ] Implement comprehensive testing strategies
 - [ ] Understand debugging and observability
 - [ ] **Lab 04 Complete**: RAG system deployed with evaluation
 
@@ -131,8 +131,8 @@ This program supports both **Python** and **TypeScript**. Mark which language yo
 - [ ] Understand fallback and retry patterns
 - [ ] Know security measures (prompt injection defense)
 - [ ] Understand cost management
-- [ ] **Master advanced cost optimization (semantic caching, model routing)** **NEW**
-- [ ] **Implement integration patterns (webhooks, queues, events)** **NEW**
+- [ ] Master advanced cost optimization (semantic caching, model routing)
+- [ ] Implement integration patterns (webhooks, queues, events)
 - [ ] Reviewed deployment platforms
 - [ ] **Lab 05 Complete**: Multi-agent mini-lab
 

@@ -182,17 +182,13 @@ AI_Training/
 │   ├── free-tier-strategy.md # Budget-friendly approach
 │   ├── checklists.md         # Daily progress tracking
 │   ├── community.md          # Community resources
-│   ├── team-collaboration.md # Team workflows & best practices ⭐ NEW
-│   └── cicd-for-ai.md        # CI/CD patterns for AI systems ⭐ NEW
+│   ├── team-collaboration.md # Team workflows & best practices
+│   └── cicd-for-ai.md        # CI/CD patterns for AI systems
 │
 ├── resources/                # 📑 Reference materials
 │   ├── README.md             # Resources overview
 │   ├── recommended-reading.md # Books, papers, articles
 │   └── additional-resources.md # Extra materials
-│
-├── assessment/               # ✅ Evaluation & grading
-│   ├── README.md             # Assessment overview
-│   └── capstone-rubric.md    # Capstone grading
 │
 ├── labs/                     # 🧪 Hands-on lab exercises
 │   ├── lab01-vibe-coding-intro/
@@ -217,7 +213,7 @@ AI_Training/
 │   ├── typescript-agent/     # Basic TypeScript agent
 │   ├── rag-starter/          # RAG system starter
 │   ├── deployment/           # Deployment configs
-│   └── production-ready/     # Production templates with all patterns ⭐ NEW
+│   └── production-ready/     # Production templates with all patterns
 │       ├── fullstack-production-agent/
 │       └── code-review-agent/
 │
@@ -453,7 +449,7 @@ Connect with fellow AI engineers and continue learning:
 - Open source contribution opportunities
 - Networking and community forums
 
-### 👥 [Team Collaboration](guides/team-collaboration.md) ⭐ NEW
+### 👥 [Team Collaboration](guides/team-collaboration.md)
 Best practices for contractors working in teams on AI projects:
 - Code review practices for AI systems
 - Version control workflows for agents and prompts
@@ -463,7 +459,7 @@ Best practices for contractors working in teams on AI projects:
 - Quality standards and definition of done
 - Onboarding new team members
 
-### 🔄 [CI/CD for AI](guides/cicd-for-ai.md) ⭐ NEW
+### 🔄 [CI/CD for AI](guides/cicd-for-ai.md)
 Continuous integration and deployment patterns for AI applications:
 - Testing pipelines for AI systems
 - Automated quality gates and LLM-as-judge
@@ -472,7 +468,7 @@ Continuous integration and deployment patterns for AI applications:
 - Cost-aware testing and smart test selection
 - Monitoring and alerting for production AI
 
-### 📦 [Production-Ready Templates](templates/production-ready/) ⭐ NEW
+### 📦 [Production-Ready Templates](templates/production-ready/)
 Complete templates with all production patterns pre-integrated:
 - **Fullstack Production Agent**: FastAPI with rate limiting, caching, monitoring, responsible AI
 - **Code Review Agent**: GitHub-integrated automated PR reviews

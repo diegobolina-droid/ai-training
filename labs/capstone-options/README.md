@@ -104,8 +104,6 @@ Your project will be evaluated on:
 - **Documentation** (10%): Is it documented?
 - **Presentation** (10%): Can you demo it?
 
-See [CAPSTONE-RUBRIC.md](../../CAPSTONE-RUBRIC.md) for full details.
-
 ---
 
 ## Tips for Success

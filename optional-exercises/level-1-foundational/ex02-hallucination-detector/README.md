@@ -477,7 +477,7 @@ Build dashboard to visualize hallucination rates
 - [Langfuse (Tracing)](https://langfuse.com/)
 - [Guardrails AI](https://github.com/guardrails-ai/guardrails)
 
-## Evaluation Rubric
+## Evaluation
 
 | Criterion | Weight | Description |
 |-----------|--------|-------------|

@@ -4,9 +4,9 @@
 
 By the end of Day 3, you will be able to:
 - Explain what makes an AI "agent" vs. a simple LLM call
-- **Implement context management and memory systems** **NEW**
+- Implement context management and memory systems
 - Implement tool-use and function calling across LLM providers
-- **Ensure structured, validated outputs from agents** **NEW**
+- Ensure structured, validated outputs from agents
 - Apply agent patterns like ReAct, Planning, and Verification
 - Design and build multi-agent systems
 - Choose the right framework for different agent needs
@@ -17,11 +17,7 @@ By the end of Day 3, you will be able to:
 ## Table of Contents
 
 1. [Agent Fundamentals](#fundamentals)
-   - 1.3 Memory Types
-   - 1.4 Context Management Strategies **NEW**
-   - 1.5 Memory Systems Implementation **NEW**
 2. [Tool-Use & Function Calling](#tool-use)
-   - 2.4 Structured Output & Schema Validation **NEW**
 3. [Agent Patterns](#patterns)
 4. [Exercise 1: Design an Agent](#exercise-1)
 5. [Multi-Agent Systems](#multi-agent)

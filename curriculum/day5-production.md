@@ -6,9 +6,9 @@ By the end of Day 5, you will be able to:
 - Apply production patterns for AI systems (rate limiting, caching, fallbacks)
 - Implement security measures against prompt injection and other attacks
 - Manage costs effectively in production AI systems
-- **Apply advanced cost optimization strategies (semantic caching, model routing, batch processing)** **NEW**
-- **Integrate AI agents into existing systems using webhooks, queues, and event-driven patterns** **NEW**
-- **Apply responsible AI practices including bias detection, accountability, and governance** **NEW**
+- Apply advanced cost optimization strategies (semantic caching, model routing, batch processing)
+- Integrate AI agents into existing systems using webhooks, queues, and event-driven patterns
+- Apply responsible AI practices including bias detection, accountability, and governance
 - Deploy to multiple platforms (Vercel, Railway, Render)
 - Build and present a complete AI-powered capstone project
 
@@ -18,9 +18,6 @@ By the end of Day 5, you will be able to:
 
 1. [Production Patterns](#production)
 2. [Security & Cost Management](#security)
-   - 2.8 Advanced Cost Optimization **NEW**
-   - 2.9 Integration Patterns **NEW**
-   - 2.10 Responsible AI & Governance **NEW**
 3. [Deployment Deep Dive](#deployment)
 4. [Lab 05: Multi-Agent Orchestration](#lab-05)
 5. [Capstone Project](#capstone)
@@ -3925,4 +3922,4 @@ Your 5-minute demo should cover:
 
 **Congratulations on completing the Agentic AI Intensive Training Program!**
 
-**Navigation**: [← Day 4](./day4-rag-eval.md) | [Schedule](./SCHEDULE.md) | [Capstone Rubric](../assessment/capstone-rubric.md)
+**Navigation**: [← Day 4](./day4-rag-eval.md) | [Schedule](./SCHEDULE.md)

@@ -309,7 +309,7 @@ Your implementation should:
 - [OpenAI Tokenizer](https://platform.openai.com/tokenizer)
 - [Anthropic Token Counter](https://docs.anthropic.com/claude/reference/token-counter)
 
-## Evaluation Rubric
+## Evaluation
 
 | Criterion | Weight | Description |
 |----------|------|-------------|

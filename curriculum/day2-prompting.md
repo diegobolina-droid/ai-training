@@ -6,7 +6,7 @@ By the end of Day 2, you will be able to:
 - Write effective prompts using advanced patterns (CoT, few-shot, self-consistency)
 - Design system prompts and personas for different engineering tasks
 - Create specialized prompts for code analysis, generation, and review
-- **Work with multimodal inputs (images, PDFs, documents)** **NEW**
+- Work with multimodal inputs (images, PDFs, documents)
 - Build prompts for large-scale migrations and refactoring
 - Develop a personal prompt library for engineering tasks
 
@@ -19,7 +19,7 @@ By the end of Day 2, you will be able to:
 3. [System Prompts & Persona Engineering](#system-prompts)
 4. [Exercise 1: Prompt Optimization](#exercise-1)
 5. [Code-Focused Prompting](#code-prompting)
-6. [Multimodal Prompting](#multimodal-prompting) **NEW**
+6. [Multimodal Prompting](#multimodal-prompting)
 7. [Migration & Refactoring Prompts](#migration-prompts)
 8. [Lab 02: Build Code Analyzer Agent](#lab-02)
 

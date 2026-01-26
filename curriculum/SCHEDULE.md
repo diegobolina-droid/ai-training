@@ -111,7 +111,7 @@
 | | | - Prompts for code generation | | |
 | | | - Prompts for code review | | |
 | | | - Prompts for debugging | | |
-| 14:30-15:30 | 1 hr | **Multimodal Prompting** ⭐ NEW | Theory+Demo | [day2-prompting.md#multimodal-prompting](./day2-prompting.md#multimodal-prompting) |
+| 14:30-15:30 | 1 hr | **Multimodal Prompting** | Theory+Demo | [day2-prompting.md#multimodal-prompting](./day2-prompting.md#multimodal-prompting) |
 | | | - Working with images (screenshots, diagrams) | | |
 | | | - Processing PDFs and documents | | |
 | | | - Code extraction from images | | |
@@ -147,11 +147,11 @@
 | | | - The agent loop: Observe → Think → Act | | |
 | | | - Memory types overview | | |
 | | | - State management patterns | | |
-| 10:00-10:30 | 30 min | **Context Management Strategies** ⭐ NEW | Theory+Code | [day3-agents.md#context-management](./day3-agents.md#context-management) |
+| 10:00-10:30 | 30 min | **Context Management Strategies** | Theory+Code | [day3-agents.md#context-management](./day3-agents.md#context-management) |
 | | | - Sliding window, summarization, selective retention | | |
 | | | - When to use each strategy | | |
 | | | - Implementation examples | | |
-| 10:30-11:00 | 30 min | **Memory Systems Implementation** ⭐ NEW | Theory+Code | [day3-agents.md#memory-systems](./day3-agents.md#memory-systems) |
+| 10:30-11:00 | 30 min | **Memory Systems Implementation** | Theory+Code | [day3-agents.md#memory-systems](./day3-agents.md#memory-systems) |
 | | | - Long-term memory with Vector DB | | |
 | | | - Episodic memory (task history) | | |
 | | | - Integrating multiple memory types | | |
@@ -160,7 +160,7 @@
 | | | - Function calling across providers | | |
 | | | - Tool definition best practices | | |
 | | | - Error handling and retries | | |
-| 12:00-12:30 | 30 min | **Structured Output & Schema Validation** ⭐ NEW | Theory+Code | [day3-agents.md#structured-output](./day3-agents.md#structured-output) |
+| 12:00-12:30 | 30 min | **Structured Output & Schema Validation** | Theory+Code | [day3-agents.md#structured-output](./day3-agents.md#structured-output) |
 | | | - Pydantic/Zod schema enforcement | | |
 | | | - Smart retry with validation feedback | | |
 | | | - Production reliability patterns | | |
@@ -275,7 +275,7 @@
 | | | - Prompt injection attacks | | |
 | | | - Output validation | | |
 | | | - API key management | | |
-| 10:15-11:15 | 60 min | **Responsible AI & Governance** ⭐ NEW | Theory + Code | [day5-production.md#responsible-ai](./day5-production.md#responsible-ai) |
+| 10:15-11:15 | 60 min | **Responsible AI & Governance** | Theory + Code | [day5-production.md#responsible-ai](./day5-production.md#responsible-ai) |
 | | | - When NOT to automate decisions | | |
 | | | - Bias detection & mitigation | | |
 | | | - Human-in-the-loop patterns | | |
@@ -283,11 +283,11 @@
 | | | - Explainability techniques | | |
 | | | - Deployment governance (phased rollout, kill switches) | | |
 | 11:15-11:30 | 15 min | **Break** | - | - |
-| 11:30-12:00 | 30 min | **Advanced Cost Optimization** ⭐ NEW | Theory | [day5-production.md#advanced-cost-optimization](./day5-production.md#advanced-cost-optimization) |
+| 11:30-12:00 | 30 min | **Advanced Cost Optimization** | Theory | [day5-production.md#advanced-cost-optimization](./day5-production.md#advanced-cost-optimization) |
 | | | - Semantic caching (60-80% savings) | | |
 | | | - Model routing strategies | | |
 | | | - Prompt compression & batch processing | | |
-| 12:00-12:30 | 30 min | **Integration Patterns** ⭐ NEW | Theory + Demo | [day5-production.md#integration-patterns](./day5-production.md#integration-patterns) |
+| 12:00-12:30 | 30 min | **Integration Patterns** | Theory + Demo | [day5-production.md#integration-patterns](./day5-production.md#integration-patterns) |
 | | | - Webhooks, message queues, event-driven | | |
 | 12:30-13:00 | 30 min | **Deployment & Capstone Briefing** | Demo + Intro | [day5-production.md#deployment](./day5-production.md#deployment) |
 | | | - Platform comparison & selection | | |
@@ -313,10 +313,10 @@
 ### Day 5 Deliverables
 - [ ] Production patterns checklist completed
 - [ ] Security audit checklist completed
-- [ ] **Responsible AI & governance checklist completed** ⭐ NEW
-- [ ] **Advanced cost optimization strategies implemented** ⭐ NEW
-- [ ] **Integration pattern selected and applied** ⭐ NEW
-- [ ] **Capstone project deployed and demoed**
+- [ ] Responsible AI & governance checklist completed
+- [ ] Advanced cost optimization strategies implemented
+- [ ] Integration pattern selected and applied
+- [ ] Capstone project deployed and demoed**
 
 ---
 

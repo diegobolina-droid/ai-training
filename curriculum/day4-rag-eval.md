@@ -7,7 +7,7 @@ By the end of Day 4, you will be able to:
 - Implement effective chunking and embedding strategies
 - Identify and avoid common RAG pitfalls
 - Build evaluation frameworks for AI systems
-- **Implement comprehensive testing strategies for AI systems** **NEW**
+- Implement comprehensive testing strategies for AI systems
 - Debug and observe AI system behavior
 - Deploy a complete RAG system with evaluation
 
@@ -20,7 +20,6 @@ By the end of Day 4, you will be able to:
 3. [RAG Pitfalls & Advanced Patterns](#pitfalls)
 4. [Exercise 1: RAG Architecture Design](#exercise-1)
 5. [Evaluation Fundamentals](#evaluation)
-   - 5.5 Testing Strategies for AI Systems **NEW**
 6. [Debugging & Observability](#observability)
 7. [Lab 04: Build & Evaluate RAG System](#lab-04)
 
