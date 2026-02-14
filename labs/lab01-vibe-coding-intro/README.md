@@ -124,7 +124,7 @@ Requirements:
 2. Submit button that calls POST /api/shorten
 3. Display the shortened URL with copy button
 4. Show loading state during API call
-5. Handle errors gracefully
+5. Handle errors gracefully 
 6. Use Tailwind CSS for styling
 7. Make it responsive
 
@@ -159,18 +159,21 @@ npm i -g @railway/cli
 # Login
 railway login
 
-# Initialize and deploy
+# From repo root: go to backend and deploy
 cd backend
 railway init
 railway up
 
-# Set environment variables if needed
-railway variables set DATABASE_URL=./urls.db
+# Required: set BASE_URL to your Railway service URL (no trailing slash)
+# Get the URL from: railway status (or Railway dashboard → Settings → Public URL)
+railway variables set BASE_URL=https://your-service-name.up.railway.app
 
-# Get the URL
+# Confirm
 railway status
-# Note the URL for frontend configuration
+# Use the public URL as NEXT_PUBLIC_API_URL in Vercel
 ```
+
+SQLite on Railway is ephemeral by default (data may be lost on redeploy); for a demo this is acceptable. See [DEPLOYMENT.md](DEPLOYMENT.md) for persistence options.
 
 #### Frontend Deployment (Vercel)
 

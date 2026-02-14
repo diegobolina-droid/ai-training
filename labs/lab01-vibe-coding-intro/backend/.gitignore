@@ -1,0 +1,17 @@
+# Database (local dev)
+urls.db
+urls.db-journal
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+.venv/
+env/
+
+# IDE / OS
+.idea
+.vscode
+.DS_Store
