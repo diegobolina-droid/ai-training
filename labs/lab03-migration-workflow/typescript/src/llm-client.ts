@@ -23,7 +23,7 @@ export class AnthropicClient extends LLMClient {
 
   private async ensureClient(): Promise<void> {
     if (!this.client) {
-      const Anthropic = (await import('@anthropic-ai/sdk')).default;
+      const { Anthropic } = await import('@anthropic-ai/sdk');
       this.client = new Anthropic();
     }
   }
@@ -65,8 +65,9 @@ export class OpenAIClient extends LLMClient {
 
   private async ensureClient(): Promise<void> {
     if (!this.client) {
-      const OpenAI = (await import('openai')).default;
-      this.client = new OpenAI();
+      const OpenAIModule = await import('openai');
+      // Assert constructable for ESM/default export (Vercel serverless can type default as non-constructable)
+      this.client = new (OpenAIModule.default as new (opts?: unknown) => typeof this.client)();
     }
   }
 
