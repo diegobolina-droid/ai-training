@@ -66,8 +66,9 @@ export class OpenAIClient extends LLMClient {
   private async ensureClient(): Promise<void> {
     if (!this.client) {
       const OpenAIModule = await import('openai');
-      // Assert constructable for ESM/default export (Vercel serverless can type default as non-constructable)
-      this.client = new (OpenAIModule.default as new (opts?: unknown) => typeof this.client)();
+      // Double assertion (via unknown) for Vercel: default may be typed as non-constructable module
+      const OpenAI = OpenAIModule.default as unknown as new (opts?: unknown) => unknown;
+      this.client = new OpenAI() as InstanceType<typeof import('openai').default>;
     }
   }
 
