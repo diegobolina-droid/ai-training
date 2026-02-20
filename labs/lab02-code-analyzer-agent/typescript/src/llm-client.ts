@@ -29,7 +29,9 @@ export class AnthropicClient extends LLMClient {
 
   private async ensureClient(): Promise<void> {
     if (!this.client) {
-      const Anthropic = (await import('@anthropic-ai/sdk')).default;
+      const Anthropic = (await import('@anthropic-ai/sdk')).default as new (
+        options?: ConstructorParameters<typeof import('@anthropic-ai/sdk').default>[0]
+      ) => InstanceType<typeof import('@anthropic-ai/sdk').default>;
       this.client = new Anthropic();
     }
   }
@@ -74,7 +76,9 @@ export class OpenAIClient extends LLMClient {
 
   private async ensureClient(): Promise<void> {
     if (!this.client) {
-      const OpenAI = (await import('openai')).default;
+      const OpenAI = (await import('openai')).default as new (
+        options?: ConstructorParameters<typeof import('openai').default>[0]
+      ) => InstanceType<typeof import('openai').default>;
       this.client = new OpenAI();
     }
   }
