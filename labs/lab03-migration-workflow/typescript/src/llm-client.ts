@@ -16,14 +16,14 @@ export class AnthropicClient extends LLMClient {
   private client: InstanceType<typeof import('@anthropic-ai/sdk').default> | null = null;
   private model: string;
 
-  constructor(model: string = 'claude-3-5-sonnet-20241022') {
+  constructor(model: string = 'claude-sonnet-4-20250514') {
     super();
     this.model = model;
   }
 
   private async ensureClient(): Promise<void> {
     if (!this.client) {
-      const Anthropic = (await import('@anthropic-ai/sdk')).default;
+      const { Anthropic } = await import('@anthropic-ai/sdk');
       this.client = new Anthropic();
     }
   }
@@ -65,8 +65,10 @@ export class OpenAIClient extends LLMClient {
 
   private async ensureClient(): Promise<void> {
     if (!this.client) {
-      const OpenAI = (await import('openai')).default;
-      this.client = new OpenAI();
+      const OpenAIModule = await import('openai');
+      // Double assertion (via unknown) for Vercel: default may be typed as non-constructable module
+      const OpenAI = OpenAIModule.default as unknown as new (opts?: unknown) => unknown;
+      this.client = new OpenAI() as InstanceType<typeof import('openai').default>;
     }
   }
 
