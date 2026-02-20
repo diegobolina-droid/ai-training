@@ -87,7 +87,7 @@ export class MigrationAgent {
       ]);
 
       try {
-        allAnalysis[filename] = this.parseJson(response);
+        allAnalysis[filename] = this.parseJson(response) as unknown as AnalysisResult;
       } catch (e) {
         return addError(state, `Analysis failed for ${filename}: ${e}`);
       }
@@ -110,7 +110,8 @@ export class MigrationAgent {
 
     try {
       const planData = this.parseJson(response);
-      const plan: MigrationStep[] = (planData.steps || []).map(
+      const steps = Array.isArray(planData.steps) ? planData.steps : [];
+      const plan: MigrationStep[] = steps.map(
         (step: { id: number; description: string; input_files?: string[] }) =>
           createStep(step.id, step.description, step.input_files || [])
       );
@@ -186,13 +187,17 @@ export class MigrationAgent {
 
       try {
         const result = this.parseJson(response);
+        const valid = result.valid === true;
+        const issues: Array<{ line?: number; issue: string; suggestion: string }> = Array.isArray(result.issues)
+          ? (result.issues as Array<{ line?: number; issue: string; suggestion: string }>)
+          : [];
         verification.validations.push({
           file: filename,
-          valid: result.valid ?? true,
-          issues: result.issues ?? [],
+          valid,
+          issues,
         });
-        if (!result.valid) {
-          verification.issues.push(...(result.issues ?? []));
+        if (!valid) {
+          verification.issues.push(...issues);
         }
       } catch {
         verification.validations.push({
