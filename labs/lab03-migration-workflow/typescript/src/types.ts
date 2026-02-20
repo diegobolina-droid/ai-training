@@ -95,3 +95,10 @@ export interface MigrationResponse {
   verification: VerificationResult | Record<string, never>;
   errors: string[];
 }
+
+// Chat UI: POST /migrate/chat request
+export const MigrateChatRequestSchema = z.object({
+  message: z.string().min(1),
+  code: z.string().optional(),
+});
+export type MigrateChatRequest = z.infer<typeof MigrateChatRequestSchema>;

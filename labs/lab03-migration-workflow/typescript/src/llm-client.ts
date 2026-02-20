@@ -16,7 +16,7 @@ export class AnthropicClient extends LLMClient {
   private client: InstanceType<typeof import('@anthropic-ai/sdk').default> | null = null;
   private model: string;
 
-  constructor(model: string = 'claude-3-5-sonnet-20241022') {
+  constructor(model: string = 'claude-sonnet-4-20250514') {
     super();
     this.model = model;
   }
