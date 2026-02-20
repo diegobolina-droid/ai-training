@@ -63,3 +63,15 @@ export const AnalyzeRequestSchema = z.object({
   language: z.string().default('python'),
 });
 export type AnalyzeRequest = z.infer<typeof AnalyzeRequestSchema>;
+
+// Chat API schemas
+export const ChatMessageSchema = z.object({
+  role: z.enum(['user', 'assistant', 'system']),
+  content: z.string().min(1, 'Content is required'),
+});
+export type ChatMessage = z.infer<typeof ChatMessageSchema>;
+
+export const ChatRequestSchema = z.object({
+  messages: z.array(ChatMessageSchema).min(1, 'At least one message is required'),
+});
+export type ChatRequest = z.infer<typeof ChatRequestSchema>;
