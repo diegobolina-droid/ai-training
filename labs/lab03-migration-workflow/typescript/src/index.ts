@@ -7,7 +7,6 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { zValidator } from '@hono/zod-validator';
 import { serve } from '@hono/node-server';
-import { serveStatic } from '@hono/node-server/serve-static';
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -146,21 +145,38 @@ app.get('/frameworks', (c) => {
   });
 });
 
-// Static files (local only; on Vercel, public/ is served by CDN)
-if (!isVercel) {
-  const publicDir = join(__dirname, '..', 'public');
-  app.get('/', (c) => {
+// Static files: always register so root and assets work (local and Vercel serverless)
+const publicDir = join(__dirname, '..', 'public');
+app.get('/', (c) => {
+  try {
     const html = readFileSync(join(publicDir, 'index.html'), 'utf-8');
     return c.html(html);
-  });
-  app.use(
-    '/*',
-    serveStatic({
-      root: publicDir,
-      rewriteRequestPath: (path) => (path === '/' ? '/index.html' : path),
-    })
-  );
-}
+  } catch {
+    return c.text('Chat UI not found', 404);
+  }
+});
+app.get('/app.js', (c) => {
+  try {
+    const js = readFileSync(join(publicDir, 'app.js'), 'utf-8');
+    return new Response(js, {
+      status: 200,
+      headers: { 'Content-Type': 'application/javascript' },
+    });
+  } catch {
+    return c.text('Not found', 404);
+  }
+});
+app.get('/styles.css', (c) => {
+  try {
+    const css = readFileSync(join(publicDir, 'styles.css'), 'utf-8');
+    return new Response(css, {
+      status: 200,
+      headers: { 'Content-Type': 'text/css' },
+    });
+  } catch {
+    return c.text('Not found', 404);
+  }
+});
 
 const port = parseInt(process.env.PORT || '8000', 10);
 
