@@ -17,7 +17,7 @@ class CodebaseVectorStore:
         self.client = chromadb.PersistentClient(path=persist_directory)
 
         # Use OpenAI embeddings (can swap for sentence-transformers)
-        api_key = os.getenv("OPENAI_API_KEY")
+        api_key = os.getenv("ANTHROPIC_API_KEY")
         if api_key:
             self.embedding_fn = embedding_functions.OpenAIEmbeddingFunction(
                 api_key=api_key,

@@ -56,6 +56,8 @@ export class CodebaseRAG {
       '.next',
     ]);
 
+    const chunker = this.chunker;
+
     async function walkDir(dir: string, baseDir: string): Promise<void> {
       const entries = await fs.readdir(dir, { withFileTypes: true });
 
@@ -71,7 +73,7 @@ export class CodebaseRAG {
             try {
               const content = await fs.readFile(fullPath, 'utf-8');
               const relativePath = path.relative(baseDir, fullPath);
-              const chunks = this.chunker.chunkFile(content, relativePath);
+              const chunks = chunker.chunkFile(content, relativePath);
 
               for (const chunk of chunks) {
                 documents.push(chunk.content);

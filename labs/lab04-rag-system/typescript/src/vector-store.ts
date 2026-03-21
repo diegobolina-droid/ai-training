@@ -2,6 +2,8 @@
  * Vector Store - ChromaDB + OpenAI Embeddings
  */
 
+import { OpenAI } from 'openai';
+
 import type { QueryResult } from './types.js';
 
 /**
@@ -15,7 +17,7 @@ export interface EmbeddingProvider {
  * OpenAI Embeddings provider
  */
 export class OpenAIEmbeddings implements EmbeddingProvider {
-  private client: InstanceType<typeof import('openai').default> | null = null;
+  private client: InstanceType<typeof OpenAI> | null = null;
   private model: string;
 
   constructor(model: string = 'text-embedding-3-small') {
@@ -24,7 +26,6 @@ export class OpenAIEmbeddings implements EmbeddingProvider {
 
   private async ensureClient(): Promise<void> {
     if (!this.client) {
-      const OpenAI = (await import('openai')).default;
       this.client = new OpenAI();
     }
   }
