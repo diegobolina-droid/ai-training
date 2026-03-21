@@ -1,0 +1,4 @@
+{
+  "code": "const data = JSON.parse(userInput);\neval(data.code);",
+  "language": "javascript"
+}

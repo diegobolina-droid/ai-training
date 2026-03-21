@@ -1,0 +1,4 @@
+{
+  "code": "def login(user, password):\n    query = f\"SELECT * FROM users WHERE user={user}\"\n    return db.execute(query)",
+  "language": "python"
+}

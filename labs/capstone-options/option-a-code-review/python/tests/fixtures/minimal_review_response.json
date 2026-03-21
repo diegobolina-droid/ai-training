@@ -1,0 +1,21 @@
+{
+  "summary": "The code is simple and functional but lacks type hints and documentation.",
+  "issues": [
+    {
+      "severity": "low",
+      "category": "style",
+      "line": 1,
+      "description": "Function lacks type hints",
+      "suggestion": "def add(a: int, b: int) -> int:"
+    }
+  ],
+  "suggestions": [
+    "Add docstring explaining the function purpose",
+    "Consider adding input validation"
+  ],
+  "metrics": {
+    "overall_score": 7,
+    "complexity": "low",
+    "maintainability": "good"
+  }
+}

@@ -1,0 +1,316 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AI Code Review Bot",
+    "description": "Structured LLM-powered code review API (Capstone A).",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Root",
+        "description": "Landing when visiting the API host in a browser (avoids bare 404 on GET /).",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Root  Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/review": {
+      "post": {
+        "summary": "Review Code",
+        "description": "REQ-A1, REQ-A2, REQ-A3: review code and return structured feedback.",
+        "operationId": "review_code_review_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Content Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayloadTooLargeDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error"
+          },
+          "429": {
+            "description": "Rate limited"
+          },
+          "502": {
+            "description": "Model output unusable"
+          },
+          "503": {
+            "description": "LLM unavailable"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "description": "REQ-A10.",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Health Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Category": {
+        "type": "string",
+        "enum": [
+          "bug",
+          "security",
+          "performance",
+          "style",
+          "maintainability"
+        ],
+        "title": "Category"
+      },
+      "Complexity": {
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "title": "Complexity"
+      },
+      "FocusArea": {
+        "type": "string",
+        "enum": [
+          "bug",
+          "security",
+          "performance",
+          "style",
+          "maintainability"
+        ],
+        "title": "FocusArea"
+      },
+      "Issue": {
+        "properties": {
+          "severity": {
+            "$ref": "#/components/schemas/Severity"
+          },
+          "category": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "line": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Line"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "suggestion": {
+            "type": "string",
+            "title": "Suggestion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "severity",
+          "category",
+          "description",
+          "suggestion"
+        ],
+        "title": "Issue",
+        "description": "REQ-A3: single issue entry."
+      },
+      "Maintainability": {
+        "type": "string",
+        "enum": [
+          "poor",
+          "fair",
+          "good",
+          "excellent"
+        ],
+        "title": "Maintainability"
+      },
+      "Metrics": {
+        "properties": {
+          "overall_score": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Overall Score"
+          },
+          "complexity": {
+            "$ref": "#/components/schemas/Complexity"
+          },
+          "maintainability": {
+            "$ref": "#/components/schemas/Maintainability"
+          }
+        },
+        "type": "object",
+        "required": [
+          "overall_score",
+          "complexity",
+          "maintainability"
+        ],
+        "title": "Metrics",
+        "description": "Nested metrics object in ReviewResponse."
+      },
+      "PayloadTooLargeDetail": {
+        "properties": {
+          "error": {
+            "type": "string",
+            "title": "Error",
+            "default": "payload_too_large"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "max_chars": {
+            "type": "integer",
+            "title": "Max Chars"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "max_chars"
+        ],
+        "title": "PayloadTooLargeDetail",
+        "description": "Stable error body for REQ-A6 (413)."
+      },
+      "ReviewRequest": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Code"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "default": "python"
+          },
+          "focus": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/FocusArea"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Focus"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "title": "ReviewRequest",
+        "description": "REQ-A1: POST /review body."
+      },
+      "ReviewResponse": {
+        "properties": {
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/Issue"
+            },
+            "type": "array",
+            "title": "Issues"
+          },
+          "suggestions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Suggestions"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/Metrics"
+          }
+        },
+        "type": "object",
+        "required": [
+          "summary",
+          "issues",
+          "suggestions",
+          "metrics"
+        ],
+        "title": "ReviewResponse",
+        "description": "REQ-A2."
+      },
+      "Severity": {
+        "type": "string",
+        "enum": [
+          "critical",
+          "high",
+          "medium",
+          "low"
+        ],
+        "title": "Severity"
+      }
+    }
+  }
+}
