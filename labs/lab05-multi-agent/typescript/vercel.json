@@ -1,0 +1,23 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "rewrites": [
+    { "source": "/run/start", "destination": "/api/run/start" },
+    { "source": "/run/:id/resume", "destination": "/api/run/:id/resume" },
+    { "source": "/run", "destination": "/api/run" },
+    { "source": "/memory/:sessionId", "destination": "/api/memory/:sessionId" },
+    { "source": "/health", "destination": "/api/health" },
+    { "source": "/info", "destination": "/api/info" }
+  ],
+  "functions": {
+    "api/[...path].ts": {
+      "maxDuration": 300
+    },
+    "api/info.ts": {
+      "maxDuration": 10
+    },
+    "api/health.ts": {
+      "maxDuration": 10
+    }
+  }
+}

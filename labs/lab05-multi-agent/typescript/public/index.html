@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lab 05 — Multi-Agent</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <header>
+        <h1>Multi-agent orchestration</h1>
+        <p>
+          Supervisor + workers. The UI calls <code>POST /api/run</code>, <code>POST /api/run/start</code>,
+          and <code>POST /api/run/:id/resume</code> (same as local <code>npm run dev</code>).
+        </p>
+        <p class="timeout-hint" id="timeout-hint" hidden>
+          On Vercel’s free tier, long multi-agent runs may hit a <strong>gateway timeout</strong>. Try a
+          smaller task or lower max iterations, or use a plan with a longer function duration.
+        </p>
+      </header>
+
+      <section class="panel">
+        <h2>Task</h2>
+        <div class="row">
+          <div>
+            <label for="task">What should the team do?</label>
+            <textarea id="task" placeholder="e.g. Draft a short post explaining vector databases…"></textarea>
+          </div>
+        </div>
+        <div class="row two">
+          <div>
+            <label for="max_iterations">Max supervisor iterations</label>
+            <input id="max_iterations" type="number" min="1" max="10" value="3" />
+          </div>
+          <div>
+            <label for="session_id">Session ID (optional, for memory)</label>
+            <input
+              id="session_id"
+              type="text"
+              placeholder="e.g. my-demo-session"
+              autocomplete="off"
+            />
+          </div>
+        </div>
+        <div class="actions">
+          <button type="button" class="primary" id="btn-quick">Run (quick)</button>
+          <button type="button" id="btn-hitl-start">Run with human approval</button>
+        </div>
+        <div class="status" id="status"></div>
+        <div class="error" id="error"></div>
+        <div id="hitl-panel"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Final output</h2>
+        <pre id="output"></pre>
+      </section>
+
+      <section class="panel trace">
+        <h2>Trace</h2>
+        <div id="trace"></div>
+      </section>
+
+      <footer>
+        LLM provider: <strong id="provider">—</strong>
+      </footer>
+    </div>
+    <script src="/app.js" defer></script>
+  </body>
+</html>

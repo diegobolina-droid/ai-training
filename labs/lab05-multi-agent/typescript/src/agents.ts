@@ -37,6 +37,24 @@ For the given content:
 
 Be constructive in your feedback.`;
 
+export const EDITOR_PROMPT = `You are a line editor.
+Your job is to tighten prose, fix grammar, improve clarity, and preserve meaning.
+
+Given draft content:
+1. Remove redundancy and filler
+2. Fix awkward phrasing
+3. Keep tone consistent with the brief
+4. Return the edited text only unless asked for commentary.`;
+
+export const FACT_CHECKER_PROMPT = `You are a fact-checking specialist.
+Your job is to flag unsupported claims and suggest safer wording.
+
+For the given content:
+1. List claims that need citations or verification
+2. Note anything that seems inconsistent with the provided context
+3. Suggest minimal edits to make statements appropriately cautious
+4. If context is insufficient, say what evidence would be needed`;
+
 /**
  * Base class for worker agents.
  */
@@ -75,5 +93,17 @@ export class WriterAgent extends WorkerAgent {
 export class ReviewerAgent extends WorkerAgent {
   constructor(llm: LLMClient) {
     super(llm, REVIEWER_PROMPT, 'Reviewer');
+  }
+}
+
+export class EditorAgent extends WorkerAgent {
+  constructor(llm: LLMClient) {
+    super(llm, EDITOR_PROMPT, 'Editor');
+  }
+}
+
+export class FactCheckerAgent extends WorkerAgent {
+  constructor(llm: LLMClient) {
+    super(llm, FACT_CHECKER_PROMPT, 'FactChecker');
   }
 }

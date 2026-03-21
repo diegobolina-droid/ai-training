@@ -697,6 +697,14 @@ curl -X POST http://localhost:8000/run \
 
 ---
 
+## Deploying to Vercel (TypeScript)
+
+The TypeScript app includes [`typescript/vercel.json`](typescript/vercel.json), [`typescript/api/[...path].ts`](typescript/api/[...path].ts), and a split entry: [`typescript/src/app.ts`](typescript/src/app.ts) (Hono routes with `basePath('/api')`) plus [`typescript/src/node-dev.ts`](typescript/src/node-dev.ts) for local `npm run dev`.
+
+See **[typescript/DEPLOY.md](typescript/DEPLOY.md)** for root directory, workspace install commands, environment variables, timeouts, and caveats (HITL + file memory on serverless).
+
+---
+
 ## Extension Ideas (Post-Training)
 
 1. **Parallel Workers**: Run independent workers in parallel
