@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lab 04 — RAG playground</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="page-header">
+      <h1>Codebase RAG</h1>
+      <p class="muted">TypeScript lab — same API as the README curl examples.</p>
+      <div class="header-actions">
+        <button type="button" id="btn-health" class="btn btn-ghost">Health</button>
+        <button type="button" id="btn-stats" class="btn btn-ghost">Stats</button>
+        <button type="button" id="btn-clear" class="btn btn-danger-ghost">Clear index</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="card" aria-labelledby="index-heading">
+        <h2 id="index-heading">Index files</h2>
+        <p class="muted">POST <code>/index/files</code></p>
+        <div id="file-rows" class="file-rows"></div>
+        <div class="row-actions">
+          <button type="button" id="btn-add-file" class="btn btn-secondary">Add file</button>
+          <button type="button" id="btn-index-files" class="btn btn-primary">Index files</button>
+        </div>
+        <pre id="out-index" class="output" hidden></pre>
+      </section>
+
+      <section class="card" aria-labelledby="query-heading">
+        <h2 id="query-heading">Query</h2>
+        <p class="muted">POST <code>/query</code></p>
+        <form id="form-query" class="stack">
+          <label>
+            Question
+            <input type="text" name="question" required placeholder="How does login work?" />
+          </label>
+          <div class="grid-2">
+            <label>
+              n_results
+              <input type="number" name="n_results" value="5" min="1" max="50" />
+            </label>
+            <label>
+              filter_language <span class="optional">(optional)</span>
+              <input type="text" name="filter_language" placeholder="python" />
+            </label>
+          </div>
+          <button type="submit" id="btn-query-submit" class="btn btn-primary">Run query</button>
+        </form>
+        <div id="out-query" class="query-result" hidden></div>
+      </section>
+
+      <section class="card" aria-labelledby="eval-heading">
+        <h2 id="eval-heading">Evaluate</h2>
+        <p class="muted">POST <code>/evaluate</code></p>
+        <div class="row-actions wrap">
+          <button type="button" id="btn-eval-example" class="btn btn-secondary">Load README example</button>
+          <button type="button" id="btn-eval-run" class="btn btn-primary">Run evaluation</button>
+        </div>
+        <label class="stack">
+          Request JSON
+          <textarea id="eval-json" rows="12" spellcheck="false"></textarea>
+        </label>
+        <pre id="out-eval" class="output" hidden></pre>
+      </section>
+    </main>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

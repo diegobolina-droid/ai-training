@@ -85,6 +85,17 @@ export ANTHROPIC_API_KEY=your-key
 npm run dev
 ```
 
+### TypeScript: Deploy to Vercel
+
+1. In the Vercel project, set **Root Directory** to `labs/lab04-rag-system/typescript` (relative to this repo), or run the CLI from that folder.
+2. Add **environment variables** (Production and Preview): `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, optional `LLM_PROVIDER`.
+3. Deploy: install the [Vercel CLI](https://vercel.com/docs/cli) if needed, then `vercel` or `vercel --prod`.
+4. Optional: `vercel dev` from `typescript/` for a local run that matches Vercel routing (static files from `public/` on the CDN, API on the Hono function).
+
+**Serverless caveat:** The index is **in-memory**. On Vercel, function instances are ephemeral and may scale horizontally—indexed chunks may not persist across requests or may not be visible if the next request hits another instance. Treat deployment as a **demo**; production needs external vector storage (e.g. Pinecone, a hosted DB).
+
+[`src/index.ts`](typescript/src/index.ts) default-exports the Hono app and sets `maxDuration` (60s) for long `/evaluate` calls. The route logic lives in [`src/rag-app.ts`](typescript/src/rag-app.ts) — that file is **not** named `src/app.ts`, because [Vercel resolves `src/app.ts` before `src/index.ts`](https://vercel.com/docs/frameworks/backend/hono) and expects a **default** export there; a named-only export would break POST routes (405 from static CDN). [`typescript/vercel.json`](typescript/vercel.json) only sets `regions`.
+
 ---
 
 ## Step-by-Step Instructions
@@ -379,6 +390,8 @@ class RAGEvaluator {
 
 ### Step 5: Test the System (15 min)
 
+**TypeScript — web UI**: From `typescript/`, run `npm run dev`, then open [http://localhost:8000](http://localhost:8000) in a browser. The page calls the same endpoints as below (`/index/files`, `/query`, `/evaluate`, plus stats, health, and clear index).
+
 ```bash
 # Index some files
 curl -X POST http://localhost:8000/index/files \
@@ -424,14 +437,21 @@ lab04-rag-system/
 │   │   └── evaluation.py    # Evaluation metrics
 │   └── requirements.txt
 └── typescript/
+    ├── public/              # Static UI (CDN on Vercel; serveStatic locally in local-server.ts)
+    │   ├── index.html
+    │   ├── styles.css
+    │   └── app.js
     ├── src/
-    │   ├── index.ts         # Hono application
+    │   ├── index.ts         # Vercel entry: default export + maxDuration
+    │   ├── local-server.ts  # Local dev: static + listen (not server.ts — Vercel)
+    │   ├── rag-app.ts       # Shared Hono routes + RAG (not named app.ts — Vercel)
     │   ├── vector-store.ts  # In-memory + OpenAI
     │   ├── chunker.ts       # Code chunking
     │   ├── pipeline.ts      # RAG pipeline
     │   ├── evaluation.ts    # Evaluation metrics
     │   ├── llm-client.ts
     │   └── types.ts
+    ├── vercel.json          # Optional: region (maxDuration in src/index.ts)
     ├── package.json
     └── tsconfig.json
 ```

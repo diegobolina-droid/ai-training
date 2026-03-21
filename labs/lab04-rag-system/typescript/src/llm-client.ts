@@ -2,6 +2,10 @@
  * LLM Client Abstraction
  */
 
+import { Anthropic } from '@anthropic-ai/sdk';
+import type { ContentBlock } from '@anthropic-ai/sdk/resources/messages.js';
+import { OpenAI } from 'openai';
+
 export interface Message {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -12,17 +16,16 @@ export abstract class LLMClient {
 }
 
 export class AnthropicClient extends LLMClient {
-  private client: InstanceType<typeof import('@anthropic-ai/sdk').default> | null = null;
+  private client: InstanceType<typeof Anthropic> | null = null;
   private model: string;
 
-  constructor(model: string = 'claude-3-5-sonnet-20241022') {
+  constructor(model: string = 'claude-sonnet-4-20250514') {
     super();
     this.model = model;
   }
 
   private async ensureClient(): Promise<void> {
     if (!this.client) {
-      const Anthropic = (await import('@anthropic-ai/sdk')).default;
       this.client = new Anthropic();
     }
   }
@@ -48,13 +51,13 @@ export class AnthropicClient extends LLMClient {
       messages: filtered,
     });
 
-    const textBlock = response.content.find((block) => block.type === 'text');
+    const textBlock = response.content.find((block: ContentBlock) => block.type === 'text');
     return textBlock?.type === 'text' ? textBlock.text : '';
   }
 }
 
 export class OpenAIClient extends LLMClient {
-  private client: InstanceType<typeof import('openai').default> | null = null;
+  private client: InstanceType<typeof OpenAI> | null = null;
   private model: string;
 
   constructor(model: string = 'gpt-4o') {
@@ -64,7 +67,6 @@ export class OpenAIClient extends LLMClient {
 
   private async ensureClient(): Promise<void> {
     if (!this.client) {
-      const OpenAI = (await import('openai')).default;
       this.client = new OpenAI();
     }
   }
